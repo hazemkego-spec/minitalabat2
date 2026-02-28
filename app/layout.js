@@ -1,6 +1,11 @@
 export const metadata = {
   title: "Mini Talabat | ميني طلبات",
   description: "أول مول تجاري رقمي في جيبك",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -9,7 +14,8 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        {/* السطر ده بيخلي الموبايل يعتبره تطبيق حقيقي */}
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body style={{ margin: 0 }}>
         {children}
