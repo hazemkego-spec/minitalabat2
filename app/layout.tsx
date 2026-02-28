@@ -3,19 +3,16 @@ export const metadata = {
   description: "أول مول تجاري رقمي في جيبك",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
       <head>
         <link rel="icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body style={{ margin: 0 }}>{children}</body>
+      <body style={{ margin: 0 }}>
+        {children}
+      </body>
     </html>
   );
 }
