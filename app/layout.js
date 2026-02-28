@@ -12,15 +12,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
       <head>
-        {/* الربط المباشر بالمانيفست والأيقونة */}
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#FF6600" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body style={{ margin: 0 }}>
+      <body style={{ margin: 0, padding: 0, fontFamily: 'sans-serif' }}>
         {children}
       </body>
     </html>
