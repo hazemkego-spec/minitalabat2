@@ -1,21 +1,19 @@
+import "./globals.css"; // تأكد من وجود هذا السطر لو كان موجود أصلاً
+
 export const metadata = {
   title: "Mini Talabat | ميني طلبات",
-  description: "أول مول تجاري رقمي في جيبك - اطلب كل احتياجاتك من مكان واحد",
-  icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
-  },
+  description: "أول مول تجاري رقمي في جيبك",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ar">
+    <html lang="ar" dir="rtl">
       <head>
-        {/* دي إضافة عشان لما حد يحفظ الموقع على الموبايل يظهر كأنه تطبيق حقيقي */}
+        <link rel="icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body style={{ margin: 0, padding: 0 }}>
+      <body>
         {children}
       </body>
     </html>
