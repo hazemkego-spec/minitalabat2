@@ -125,6 +125,97 @@ export default function Home() {
     </div>
   );
 }
+    : shops.filter(s => s.category === activeCategory);
+
+  return (
+    <div style={{ direction: 'rtl', padding: '15px', fontFamily: 'Arial', backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '100px' }}>
+      <h1 style={{ textAlign: 'center', color: '#2ecc71', fontSize: '28px', marginBottom: '20px' }}>ميني طلبات 🛍️</h1>
+      
+      {/* شريط الأقسام */}
+      <div style={{ display: 'flex', overflowX: 'auto', gap: '10px', paddingBottom: '15px', marginBottom: '20px', scrollbarWidth: 'none' }}>
+        {categories.map(cat => (
+          <button 
+            key={cat} 
+            onClick={() => setActiveCategory(cat)}
+            style={{
+              padding: '12px 22px',
+              borderRadius: '30px',
+              border: 'none',
+              backgroundColor: activeCategory === cat ? '#2ecc71' : '#fff',
+              color: activeCategory === cat ? '#fff' : '#666',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              cursor: 'pointer'
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* المحلات */}
+      <div style={{ display: 'grid', gap: '15px' }}>
+        {filteredShops.map(s => (
+          <div key={s.id} style={{ background: '#fff', padding: '20px', borderRadius: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+            <h2 style={{ margin: '0 0 10px 0', fontSize: '20px' }}>{s.name}</h2>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {s.items.map(i => (
+                <button 
+                  key={i} 
+                  onClick={() => addToCart(s.name, i)}
+                  style={{ padding: '8px 14px', borderRadius: '12px', border: '1px solid #eee', backgroundColor: '#fdfdfd' }}
+                >
+                  + {i}
+                </button>
+              ))}
+            </div>
+            <button 
+              onClick={() => sendWhatsApp(s.name, s.phone)} 
+              style={{ width: '100%', marginTop: '15px', padding: '12px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold' }}
+            >
+              إرسال طلب {s.name} ({cart.filter(o => o.shop === s.name).length})
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* --- السلة العائمة --- */}
+      {cart.length > 0 && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          right: '20px',
+          background: '#34495e',
+          color: '#fff',
+          padding: '15px',
+          borderRadius: '20px',
+          boxShadow: '0 -5px 20px rgba(0,0,0,0.2)',
+          zIndex: 1000
+        }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', borderBottom: '1px solid #5d6d7e', paddingBottom: '5px' }}>🛒 السلة الحالية:</h3>
+          <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+            {cart.map((item) => (
+              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '14px' }}>
+                <span>{item.item} ({item.shop})</span>
+                <button 
+                  onClick={() => removeFromCart(item.id)}
+                  style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '12px', color: '#bdc3c7' }}>
+            إجمالي العناصر: {cart.length}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
             onClick={() => setActiveCategory(cat)}
             style={{
               padding: '12px 22px',
