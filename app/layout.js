@@ -1,8 +1,14 @@
+import "./globals.css"; // تأكد إن السطر ده موجود لو عندك ملف css
+
 export const metadata = {
   title: 'Mini Talabat | ميني طلبات',
   description: 'أكبر مول تجاري رقمي في جيبك',
-  metadataBase: new URL('https://minitalabat2.vercel.app'), 
-  
+  metadataBase: new URL('https://minitalabat2.vercel.app'),
+  manifest: '/manifest.json', // السطر ده هو اللي بيرجع زرار الـ Install
+  icons: {
+    icon: '/mall-logo.png',
+    apple: '/mall-logo.png',
+  },
   openGraph: {
     title: 'Mini Talabat | ميني طلبات',
     description: 'أكبر مول تجاري رقمي في جيبك',
@@ -10,41 +16,28 @@ export const metadata = {
     siteName: 'Mini Talabat',
     images: [
       {
-        url: 'https://minitalabat2.vercel.app/mall-logo.png', 
-        width: 400,
-        height: 400,
-        alt: 'Mini Talabat Logo',
+        url: '/mall-logo.png',
+        width: 512,
+        height: 512,
       },
     ],
     locale: 'ar_EG',
     type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Mini Talabat | ميني طلبات',
-    description: 'أكبر مول تجاري رقمي في جيبك',
-    images: ['https://minitalabat2.vercel.app/mall-logo.png'],
-  },
-  icons: {
-    icon: '/mall-logo.png',
-    shortcut: '/mall-logo.png',
-    apple: '/mall-logo.png',
-  },
-  manifest: '/manifest.json',
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ar">
+    <html lang="ar" dir="rtl">
       <head>
-        {/* السطور دي هي اللي بتجبر الواتساب يشوف اللوجو فوراً */}
-        <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.png" />
-        <meta property="og:image:secure_url" content="https://minitalabat2.vercel.app/mall-logo.png" />
-        <meta property="og:image:type" content="image/png" />
-        <meta name="theme-color" content="#FF6600" />
+        {/* السطور دي بترجع هوية التطبيق للموبايل */}
+        <link rel="icon" href="/mall-logo.png" />
         <link rel="apple-touch-icon" href="/mall-logo.png" />
+        <meta name="theme-color" content="#FF6600" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body style={{ margin: 0 }}>{children}</body>
+      <body>{children}</body>
     </html>
   )
 }
