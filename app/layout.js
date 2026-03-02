@@ -1,6 +1,10 @@
 export const metadata = {
   title: 'Mini Talabat | ميني طلبات',
-  description: 'أكبر مول تجاري رقمي في جيبك - اطلب كل احتياجاتك في مكان واحد',
+  description: 'أكبر مول تجاري رقمي في جيبك',
+  metadataBase: new URL('https://minitalabat2.vercel.app'), // مهم جداً للروابط
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Mini Talabat | ميني طلبات',
     description: 'أكبر مول تجاري رقمي في جيبك',
@@ -8,28 +12,30 @@ export const metadata = {
     siteName: 'Mini Talabat',
     images: [
       {
-        url: '/mall-logo.png', // هنا بنحدد اللوجو بتاعنا
-        width: 800,
-        height: 600,
+        url: '/mall-logo.png', 
+        width: 512,
+        height: 512,
       },
     ],
     locale: 'ar_EG',
     type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Mini Talabat | ميني طلبات',
-    description: 'أكبر مول تجاري رقمي في جيبك',
-    images: ['/mall-logo.png'],
-  },
   icons: {
-    icon: '/mall-logo.png', // دي عشان يظهر اللوجو في "تاب" المتصفح فوق
+    icon: '/mall-logo.png',
+    shortcut: '/mall-logo.png',
+    apple: '/mall-logo.png',
   },
+  manifest: '/manifest.json', // الربط بملف الأيقونات
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ar">
+      <head>
+        {/* كود إضافي لضمان ظهور الأيقونة في الأندرويد */}
+        <meta name="theme-color" content="#FF6600" />
+        <link rel="apple-touch-icon" href="/mall-logo.png" />
+      </head>
       <body>{children}</body>
     </html>
   )
