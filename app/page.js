@@ -106,12 +106,19 @@ export default function MiniTalabat() {
       
       {activeTab === 'home' && (
         <>
-          <header style={{ textAlign: 'center', marginBottom: '15px' }}>
+          {/* تم تعديل الـ Header ليكون اللوجو في النص دائماً */}
+          <header style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            textAlign: 'center', 
+            marginBottom: '15px' 
+          }}>
             <img src="/mall-logo.png" alt="Logo" style={{ width: '65px', height: '65px', borderRadius: '50%', filter: 'drop-shadow(0 0 8px #FF6600)' }} />
             <h1 style={{ color: '#FF6600', margin: '5px 0', fontSize: '20px' }}>Mini Talabat</h1>
             <p style={{ fontSize: '13px', color: '#aaa', margin: '0 0 10px 0', fontWeight: '300' }}>أكبر مول تجاري رقمي في جيبك</p>
             
-            <div style={{ position: 'relative', margin: '15px 5px' }}>
+            <div style={{ position: 'relative', margin: '15px 5px', width: '100%' }}>
               <input 
                 type="text" 
                 placeholder="ابحث عن محل أو منتج..." 
@@ -185,8 +192,6 @@ export default function MiniTalabat() {
 
       {activeTab === 'addShop' && (
         <div style={{ padding: '20px', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: '85vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          
-          {/* اللوجو في الخلفية - دائري وأوضح وأكبر */}
           <img 
             src="/mall-logo.png" 
             alt="Watermark" 
@@ -195,19 +200,17 @@ export default function MiniTalabat() {
               top: '50%', 
               left: '50%', 
               transform: 'translate(-50%, -50%)', 
-              width: '320px', // حجم أكبر
+              width: '320px', 
               height: '320px',
-              borderRadius: '50%', // دائري تماماً
-              opacity: '0.1', // وضوح أكثر (10%)
+              borderRadius: '50%', 
+              opacity: '0.1', 
               pointerEvents: 'none',
-              filter: 'grayscale(30%)', // لمسة احترافية هادية
               zIndex: 0 
             }} 
           />
-
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ fontSize: '60px', marginBottom: '10px' }}>🚀</div>
-            <h2 style={{ color: '#FF6600', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>خليك شريك في النجاح!</h2>
+            <h2 style={{ color: '#FF6600' }}>خليك شريك في النجاح!</h2>
             <p style={{ lineHeight: '1.6', color: '#eee', marginBottom: '30px', fontWeight: '500' }}>
               عندك محل؟ مطعم؟ أو بتقدم أي خدمة؟ <br/>
               انضم لـ **Mini Talabat** واوصل لآلاف العملاء في منطقتك بكل سهولة. <br/>
@@ -217,7 +220,7 @@ export default function MiniTalabat() {
               <h3 style={{ fontSize: '18px', marginBottom: '15px', color: '#fff' }}>ابدأ رحلتك الآن</h3>
               <button 
                 onClick={() => window.open(`https://wa.me/${MAIN_PHONE}?text=${encodeURIComponent("أهلاً، حابب أعرف تفاصيل إزاي أضيف محلي في ميني طلبات")}`)} 
-                style={{ width: '100%', padding: '15px', backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', boxShadow: '0 4px 15px rgba(255, 102, 0, 0.3)' }}
+                style={{ width: '100%', padding: '15px', backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px' }}
               >
                 تواصل معنا واتساب 📲
               </button>
