@@ -1,7 +1,8 @@
 export const metadata = {
   title: 'Mini Talabat | ميني طلبات',
   description: 'أكبر مول تجاري رقمي في جيبك',
-  metadataBase: new URL('https://minitalabat2.vercel.app'), // اللينك بتاعك
+  metadataBase: new URL('https://minitalabat2.vercel.app'), 
+  
   openGraph: {
     title: 'Mini Talabat | ميني طلبات',
     description: 'أكبر مول تجاري رقمي في جيبك',
@@ -9,9 +10,9 @@ export const metadata = {
     siteName: 'Mini Talabat',
     images: [
       {
-        url: '/mall-logo.png', // لازم المسار ده يكون شغال
-        width: 300, // الواتساب بيحب الحجم ده
-        height: 300,
+        url: 'https://minitalabat2.vercel.app/mall-logo.png', 
+        width: 400,
+        height: 400,
         alt: 'Mini Talabat Logo',
       },
     ],
@@ -19,25 +20,31 @@ export const metadata = {
     type: 'website',
   },
   twitter: {
-    card: 'summary',
-    images: ['/mall-logo.png'],
+    card: 'summary_large_image',
+    title: 'Mini Talabat | ميني طلبات',
+    description: 'أكبر مول تجاري رقمي في جيبك',
+    images: ['https://minitalabat2.vercel.app/mall-logo.png'],
   },
   icons: {
     icon: '/mall-logo.png',
+    shortcut: '/mall-logo.png',
     apple: '/mall-logo.png',
   },
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ar">
       <head>
-        {/* أهم سطر للواتساب والفيسبوك عشان يجبرهم يقرأوا الصورة */}
+        {/* السطور دي هي اللي بتجبر الواتساب يشوف اللوجو فوراً */}
+        <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.png" />
+        <meta property="og:image:secure_url" content="https://minitalabat2.vercel.app/mall-logo.png" />
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:width" content="300" />
-        <meta property="og:image:height" content="300" />
+        <meta name="theme-color" content="#FF6600" />
+        <link rel="apple-touch-icon" href="/mall-logo.png" />
       </head>
-      <body>{children}</body>
+      <body style={{ margin: 0 }}>{children}</body>
     </html>
   )
 }
