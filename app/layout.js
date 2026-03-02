@@ -1,10 +1,7 @@
 export const metadata = {
   title: 'Mini Talabat | ميني طلبات',
   description: 'أكبر مول تجاري رقمي في جيبك',
-  metadataBase: new URL('https://minitalabat2.vercel.app'), // مهم جداً للروابط
-  alternates: {
-    canonical: '/',
-  },
+  metadataBase: new URL('https://minitalabat2.vercel.app'), // اللينك بتاعك
   openGraph: {
     title: 'Mini Talabat | ميني طلبات',
     description: 'أكبر مول تجاري رقمي في جيبك',
@@ -12,29 +9,33 @@ export const metadata = {
     siteName: 'Mini Talabat',
     images: [
       {
-        url: '/mall-logo.png', 
-        width: 512,
-        height: 512,
+        url: '/mall-logo.png', // لازم المسار ده يكون شغال
+        width: 300, // الواتساب بيحب الحجم ده
+        height: 300,
+        alt: 'Mini Talabat Logo',
       },
     ],
     locale: 'ar_EG',
     type: 'website',
   },
+  twitter: {
+    card: 'summary',
+    images: ['/mall-logo.png'],
+  },
   icons: {
     icon: '/mall-logo.png',
-    shortcut: '/mall-logo.png',
     apple: '/mall-logo.png',
   },
-  manifest: '/manifest.json', // الربط بملف الأيقونات
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ar">
       <head>
-        {/* كود إضافي لضمان ظهور الأيقونة في الأندرويد */}
-        <meta name="theme-color" content="#FF6600" />
-        <link rel="apple-touch-icon" href="/mall-logo.png" />
+        {/* أهم سطر للواتساب والفيسبوك عشان يجبرهم يقرأوا الصورة */}
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="300" />
+        <meta property="og:image:height" content="300" />
       </head>
       <body>{children}</body>
     </html>
