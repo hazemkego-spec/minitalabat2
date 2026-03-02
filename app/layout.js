@@ -14,10 +14,17 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/mall-logo.png" />
         <link rel="apple-touch-icon" href="/mall-logo.png" />
-        <meta name="theme-color" content="#FF6600" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        
+        {/* السطر ده هيحول الشريط الأبيض لبرتقالي مبهج */}
+        <meta name="theme-color" content="#FF6600" /> 
+        
+        {/* السطر ده عشان أجهزة الأيفون تخليه برتقالي برضه */}
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
-      <body>{children}</body>
+      <body style={{ backgroundColor: '#121212', margin: 0 }}>
+        {children}
+      </body>
     </html>
   )
 }
