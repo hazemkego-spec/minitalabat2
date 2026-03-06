@@ -133,7 +133,7 @@ export default function MiniTalabat() {
             {/* اللوجو والبيانات */}
             <div style={{ 
               position: 'absolute', 
-              top: '100px', 
+              top: '120px', 
               zIndex: 2,
               display: 'flex',
               flexDirection: 'column',
