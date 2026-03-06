@@ -146,8 +146,7 @@ export default function MiniTalabat() {
                 border: '4px solid #121212',
                 filter: 'drop-shadow(0 0 10px #FF6600)' 
               }} />
-              <h1 style={{ color: '#FF6600', margin: '10px 0 5px 0', fontSize: '22px', fontWeight: 'bold' }}>Mini Talabat</h1>
-              <p style={{ fontSize: '13px', color: '#aaa', margin: '0', fontWeight: '300' }}>أكبر مول تجاري رقمي في جيبك</p>
+          
             </div>
 
             {/* خانة البحث */}
