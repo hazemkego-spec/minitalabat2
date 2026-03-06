@@ -8,22 +8,26 @@ export default function MiniTalabat() {
   const [activeTab, setActiveTab] = useState('home'); 
   const [searchQuery, setSearchQuery] = useState('');
   const [locationUrl, setLocationUrl] = useState(''); 
-  const [showInstallGuide, setShowInstallGuide] = useState(false); // حالة إظهار دليل التحميل
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [orderCount, setOrderCount] = useState(0); // عداد الطلبات الجديد
   const MAIN_PHONE = "201122947479"; 
   
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
 
-    useEffect(() => {
-    // 1. استرجاع بيانات العميل المحفوظة
+  useEffect(() => {
+    // 1. استرجاع بيانات العميل
     const saved = localStorage.getItem('miniTalabat_user');
     if (saved) setCustomerInfo(JSON.parse(saved));
     
-    // 2. فحص هل المستخدم فاتح من "التطبيق المثبت" فعلياً؟
+    // 2. استرجاع عدد الطلبات السابق
+    const savedCount = localStorage.getItem('miniTalabat_orderCount');
+    if (savedCount) setOrderCount(parseInt(savedCount));
+
+    // 3. فحص حالة الـ Standalone (التطبيق المثبت)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
                          || window.navigator.standalone 
                          || document.referrer.includes('android-app://');
 
-    // 3. لو فاتح من "المتصفح العادي" فقط، أظهر دليل التحميل بعد ثانيتين
     if (!isStandalone) {
       const timer = setTimeout(() => setShowInstallGuide(true), 2000);
       return () => clearTimeout(timer);
@@ -101,18 +105,40 @@ export default function MiniTalabat() {
 
   const sendOrder = () => {
     if(!customerInfo.name || !customerInfo.phone || !customerInfo.address) return alert("برجاء ملء بيانات التوصيل");
+    
+    // تحديث رقم الفاتورة وحفظه
+    const newOrderNum = orderCount + 1;
+    setOrderCount(newOrderNum);
+    localStorage.setItem('miniTalabat_orderCount', newOrderNum.toString());
     localStorage.setItem('miniTalabat_user', JSON.stringify(customerInfo));
+
     const grouped = getGroupedCart();
     let orderDetails = "";
     for (const shop in grouped) {
       orderDetails += `\n*🏠 متجر: ${shop}*\n`;
       grouped[shop].forEach(item => {
-        const noteText = item.note ? ` [ملاحظة: ${item.note}]` : "";
-        orderDetails += `  • ${item.name} (${item.quantity}ق)${noteText} - ${item.price * item.quantity}ج\n`;
+        const noteText = item.note ? ` _(ملاحظة: ${item.note})_` : "";
+        // تنسيق جديد للكمية والاسم
+        orderDetails += `  ▫️ *[ ${item.quantity} ]* ${item.name}${noteText} ⬅️ ${item.price * item.quantity}ج\n`;
       });
     }
+
     const locText = locationUrl ? `\n📍 *رابط الموقع:* ${locationUrl}` : "";
-    const message = `*طلب جديد من Mini Talabat* 🚀\n👤 *العميل:* ${customerInfo.name}\n📞 *الهاتف:* ${customerInfo.phone}\n📍 *العنوان:* ${customerInfo.address}${locText}\n${orderDetails}\n💰 *الإجمالي النهائي:* ${calculateTotal()} ج.م`;
+    
+    // تنسيق الرسالة النهائي بستايل "مصنعات اليُمن" والاحترافية المطلوبة
+    const message = `*🧾 فاتورة رقم: #${newOrderNum}*
+------------------------------
+*🚀 طلب جديد من Mini Talabat*
+
+👤 *العميل:* ${customerInfo.name}
+📞 *الهاتف:* ${customerInfo.phone}
+📍 *العنوان:* ${customerInfo.address}${locText}
+
+*🛒 تفاصيل الطلب:*
+${orderDetails}
+------------------------------
+💰 *الإجمالي النهائي: ${calculateTotal()} ج.م*`;
+
     window.open(`https://wa.me/${MAIN_PHONE}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -131,7 +157,6 @@ export default function MiniTalabat() {
   return (
     <div dir="rtl" style={{ padding: '10px', fontFamily: 'sans-serif', backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', paddingBottom: '110px' }}>
       
-      {/* نافذة تعليمات تحميل التطبيق */}
       {showInstallGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ backgroundColor: '#1e1e1e', borderRadius: '20px', padding: '25px', border: '2px solid #FF6600', position: 'relative', width: '100%', maxWidth: '400px', textAlign: 'center', boxShadow: '0 0 20px rgba(255, 102, 0, 0.3)' }}>
