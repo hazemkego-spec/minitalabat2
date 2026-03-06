@@ -216,6 +216,45 @@ export default function MiniTalabat() {
                 <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
                 <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
                 <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
+                          {/* زرار تحديد الموقع التلقائي */}
+          <div style={{ marginBottom: '15px' }}>
+            <button
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition((position) => {
+                    const { latitude, longitude } = position.coords;
+                    const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                    setCustomerAddress(prev => prev + " (تم تحديد الموقع بدقة 📍)");
+                    setNotes(prev => prev + `\n📍 لوكيشن العميل: ${mapUrl}`);
+                    alert("تم تحديد موقعك! سيصلنا الرابط مع طلبك ✅");
+                  }, () => {
+                    alert("برجاء تفعيل الـ GPS في الموبايل لتحديد موقعك.");
+                  });
+                } else {
+                  alert("المتصفح لا يدعم تحديد الموقع.");
+                }
+              }}
+              type="button"
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#25D366',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              📍 حدد موقعي الآن
+            </button>
+          </div>
+
                 <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>إجمالي الحساب: {calculateTotal()} ج.م</div>
                 <button onClick={sendOrder} style={{ width: '100%', padding: '15px', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '12px', marginTop: '15px', fontWeight: 'bold' }}>إرسال للواتساب ✅</button>
               </div>
