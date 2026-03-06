@@ -127,7 +127,7 @@ export default function MiniTalabat() {
             <div style={{ width: '100%', height: '150px', backgroundImage: 'url("/cover.png")', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0 0 20px 20px', position: 'relative', marginBottom: '45px' }}>
               <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '0 0 20px 20px' }}></div>
             </div>
-            <div style={{ position: 'absolute', top: '110px', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ position: 'absolute', top: '120px', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <img src="/mall-logo.png" alt="Logo" style={{ width: '80px', height: '80px', borderRadius: '50%', border: '4px solid #121212', filter: 'drop-shadow(0 0 10px #FF6600)' }} />
             </div>
             <div style={{ position: 'relative', margin: '30px 5px 15px 5px', width: '95%', zIndex: 1 }}>
