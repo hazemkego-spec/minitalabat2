@@ -9,21 +9,18 @@ export default function MiniTalabat() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationUrl, setLocationUrl] = useState(''); 
   const [showInstallGuide, setShowInstallGuide] = useState(false);
-  const [orderCount, setOrderCount] = useState(0); // عداد الطلبات الجديد
+  const [orderCount, setOrderCount] = useState(0); 
   const MAIN_PHONE = "201122947479"; 
   
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
 
   useEffect(() => {
-    // 1. استرجاع بيانات العميل
     const saved = localStorage.getItem('miniTalabat_user');
     if (saved) setCustomerInfo(JSON.parse(saved));
     
-    // 2. استرجاع عدد الطلبات السابق
     const savedCount = localStorage.getItem('miniTalabat_orderCount');
     if (savedCount) setOrderCount(parseInt(savedCount));
 
-    // 3. فحص حالة الـ Standalone (التطبيق المثبت)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
                          || window.navigator.standalone 
                          || document.referrer.includes('android-app://');
@@ -106,7 +103,6 @@ export default function MiniTalabat() {
   const sendOrder = () => {
     if(!customerInfo.name || !customerInfo.phone || !customerInfo.address) return alert("برجاء ملء بيانات التوصيل");
     
-    // تحديث رقم الفاتورة وحفظه
     const newOrderNum = orderCount + 1;
     setOrderCount(newOrderNum);
     localStorage.setItem('miniTalabat_orderCount', newOrderNum.toString());
@@ -118,14 +114,13 @@ export default function MiniTalabat() {
       orderDetails += `\n*🏠 متجر: ${shop}*\n`;
       grouped[shop].forEach(item => {
         const noteText = item.note ? ` _(ملاحظة: ${item.note})_` : "";
-        // تنسيق جديد للكمية والاسم
-        orderDetails += `  ▫️ *[ ${item.quantity} ]* ${item.name}${noteText} ⬅️ ${item.price * item.quantity}ج\n`;
+        // التعديل الجديد هنا: إظهار كلمة "الكمية" بوضوح
+        orderDetails += `  ▫️ *${item.name}* (الكمية: ${item.quantity})${noteText} ⬅️ ${item.price * item.quantity}ج\n`;
       });
     }
 
     const locText = locationUrl ? `\n📍 *رابط الموقع:* ${locationUrl}` : "";
     
-    // تنسيق الرسالة النهائي بستايل "مصنعات اليُمن" والاحترافية المطلوبة
     const message = `*🧾 فاتورة رقم: #${newOrderNum}*
 ------------------------------
 *🚀 طلب جديد من Mini Talabat*
