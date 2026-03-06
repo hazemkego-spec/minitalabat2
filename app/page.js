@@ -150,7 +150,7 @@ export default function MiniTalabat() {
             </div>
 
             {/* خانة البحث */}
-            <div style={{ position: 'relative', margin: '40px 5px 15px 5px', width: '95%', zIndex: 1 }}>
+            <div style={{ position: 'relative', margin: '30px 5px 15px 5px', width: '95%', zIndex: 1 }}>
               <input 
                 type="text" 
                 placeholder="ابحث عن محل أو منتج..." 
