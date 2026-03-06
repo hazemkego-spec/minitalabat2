@@ -216,48 +216,33 @@ export default function MiniTalabat() {
                 <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
                 <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
                 <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
-          {/* قسم الموقع الذكي - نسخة آمنة لا تسبب أخطاء */}
-          <div style={{ marginTop: '10px', display: 'flex', gap: '5px', alignItems: 'center' }}>
-            <input 
-              placeholder="رابط موقعك سيظهر هنا..." 
-              value={notes.includes('📍 الموقع:') ? notes.split('📍 الموقع:')[1] : ''} 
-              readOnly
-              style={{
-                flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #333',
-                backgroundColor: '#1e1e1e', color: '#25D366', fontSize: '12px', outline: 'none'
-              }}
-            />
+                    {/* زرار الموقع والطلب - نسخة مقفلة صح */}
+          <div style={{ display: 'flex', gap: '5px', marginTop: '10px' }}>
             <button
               type="button"
               onClick={() => {
-                if (typeof window !== 'undefined' && navigator.geolocation) {
+                if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition((pos) => {
-                    const url = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    setNotes(prev => prev + `\n📍 الموقع: ${url}`);
-                    alert("تم تحديد موقعك بنجاح ✅");
+                    const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    setNotes(prev => prev + "\n📍 الموقع: " + link);
+                    alert("تم تحديد موقعك ✅");
                   }, () => alert("برجاء تفعيل الـ GPS"));
                 }
               }}
-              style={{
-                padding: '10px 15px', backgroundColor: '#25D366', color: '#fff', 
-                border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold'
-              }}
+              style={{ flex: 1, padding: '10px', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px' }}
             >
-              تحديد
+              📍 تحديد موقعي
             </button>
           </div>
 
-          {/* زرار إرسال الطلب الأساسي - تأكد إنه موجود مرة واحدة فقط */}
-          <div style={{ marginTop: '15px', textAlign: 'center' }}>
-            <button onClick={sendOrder} style={{ width: '100%', padding: '15px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold' }}>
-              إتمام الطلب عبر واتساب 🚀
-            </button>
-          </div>
-
-          )}
+          <button 
+            onClick={sendOrder} 
+            style={{ width: '100%', padding: '15px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', marginTop: '15px' }}
+          >
+            إتمام الطلب عبر واتساب 🚀
+          </button>
         </div>
       )}
-
       {activeTab === 'addShop' && (
         <div style={{ padding: '20px', textAlign: 'center', position: 'relative', overflow: 'hidden', minHeight: '85vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <img 
