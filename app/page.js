@@ -13,13 +13,21 @@ export default function MiniTalabat() {
   
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
 
-  useEffect(() => {
+    useEffect(() => {
+    // 1. استرجاع بيانات العميل المحفوظة
     const saved = localStorage.getItem('miniTalabat_user');
     if (saved) setCustomerInfo(JSON.parse(saved));
     
-    // إظهار رسالة التحميل بعد ثانيتين من فتح الموقع
-    const timer = setTimeout(() => setShowInstallGuide(true), 2000);
-    return () => clearTimeout(timer);
+    // 2. فحص هل المستخدم فاتح من "التطبيق المثبت" فعلياً؟
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                         || window.navigator.standalone 
+                         || document.referrer.includes('android-app://');
+
+    // 3. لو فاتح من "المتصفح العادي" فقط، أظهر دليل التحميل بعد ثانيتين
+    if (!isStandalone) {
+      const timer = setTimeout(() => setShowInstallGuide(true), 2000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const categories = ["الكل", "مطاعم", "سوبر ماركت", "صيدليات", "عطارة", "منظفات", "خضروات وفواكه"];
