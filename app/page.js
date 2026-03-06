@@ -216,43 +216,38 @@ export default function MiniTalabat() {
                 <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
                 <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
                 <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
-                          {/* زرار تحديد الموقع التلقائي */}
-          <div style={{ marginBottom: '15px' }}>
-            <button
-              onClick={() => {
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition((position) => {
-                    const { latitude, longitude } = position.coords;
-                    const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-                    setCustomerAddress(prev => prev + " (تم تحديد الموقع بدقة 📍)");
-                    setNotes(prev => prev + `\n📍 لوكيشن العميل: ${mapUrl}`);
-                    alert("تم تحديد موقعك! سيصلنا الرابط مع طلبك ✅");
-                  }, () => {
-                    alert("برجاء تفعيل الـ GPS في الموبايل لتحديد موقعك.");
-                  });
-                } else {
-                  alert("المتصفح لا يدعم تحديد الموقع.");
-                }
-              }}
-              type="button"
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: '#25D366',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              📍 حدد موقعي الآن
-            </button>
+           {/* قسم الموقع الذكي - بشكل مصغر واحترافي */}
+          <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <input 
+                placeholder="رابط الموقع (GPS)" 
+                value={notes.includes('📍') ? notes.split('📍')[1] : ''} 
+                readOnly
+                style={{
+                  width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #333',
+                  backgroundColor: '#000', color: '#25D366', fontSize: '12px', outline: 'none'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                      const url = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                      setNotes(prev => prev + `\n📍 الموقع: ${url}`);
+                      alert("تم حفظ موقعك بنجاح ✅");
+                    }, () => alert("برجاء تفعيل الـ GPS"));
+                  }
+                }}
+                style={{
+                  position: 'absolute', left: '5px', padding: '5px 10px',
+                  backgroundColor: '#25D366', color: '#fff', border: 'none',
+                  borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer'
+                }}
+              >
+                تحديد
+              </button>
+            </div>
           </div>
 
                 <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>إجمالي الحساب: {calculateTotal()} ج.م</div>
