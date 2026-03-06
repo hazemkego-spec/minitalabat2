@@ -7,7 +7,8 @@ export default function MiniTalabat() {
   const [activeCategory, setActiveCategory] = useState('الكل'); 
   const [activeTab, setActiveTab] = useState('home'); 
   const [searchQuery, setSearchQuery] = useState('');
-  const [locationUrl, setLocationUrl] = useState(''); // حالة جديدة لتخزين رابط الموقع
+  const [locationUrl, setLocationUrl] = useState(''); 
+  const [showInstallGuide, setShowInstallGuide] = useState(false); // حالة إظهار دليل التحميل
   const MAIN_PHONE = "201122947479"; 
   
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
@@ -15,6 +16,10 @@ export default function MiniTalabat() {
   useEffect(() => {
     const saved = localStorage.getItem('miniTalabat_user');
     if (saved) setCustomerInfo(JSON.parse(saved));
+    
+    // إظهار رسالة التحميل بعد ثانيتين من فتح الموقع
+    const timer = setTimeout(() => setShowInstallGuide(true), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const categories = ["الكل", "مطاعم", "سوبر ماركت", "صيدليات", "عطارة", "منظفات", "خضروات وفواكه"];
@@ -98,10 +103,7 @@ export default function MiniTalabat() {
         orderDetails += `  • ${item.name} (${item.quantity}ق)${noteText} - ${item.price * item.quantity}ج\n`;
       });
     }
-    
-    // إضافة رابط الموقع للرسالة إذا وجد
     const locText = locationUrl ? `\n📍 *رابط الموقع:* ${locationUrl}` : "";
-    
     const message = `*طلب جديد من Mini Talabat* 🚀\n👤 *العميل:* ${customerInfo.name}\n📞 *الهاتف:* ${customerInfo.phone}\n📍 *العنوان:* ${customerInfo.address}${locText}\n${orderDetails}\n💰 *الإجمالي النهائي:* ${calculateTotal()} ج.م`;
     window.open(`https://wa.me/${MAIN_PHONE}?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -121,6 +123,27 @@ export default function MiniTalabat() {
   return (
     <div dir="rtl" style={{ padding: '10px', fontFamily: 'sans-serif', backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', paddingBottom: '110px' }}>
       
+      {/* نافذة تعليمات تحميل التطبيق */}
+      {showInstallGuide && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ backgroundColor: '#1e1e1e', borderRadius: '20px', padding: '25px', border: '2px solid #FF6600', position: 'relative', width: '100%', maxWidth: '400px', textAlign: 'center', boxShadow: '0 0 20px rgba(255, 102, 0, 0.3)' }}>
+            <button onClick={() => setShowInstallGuide(false)} style={{ position: 'absolute', top: '10px', left: '10px', background: 'none', border: 'none', color: '#FF6600', fontSize: '22px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <div style={{ fontSize: '50px', marginBottom: '10px' }}>📲</div>
+            <h3 style={{ color: '#FF6600', marginBottom: '20px' }}>ثبت تطبيق ميني طلبات!</h3>
+            <div style={{ textAlign: 'right', fontSize: '14px', lineHeight: '1.8', color: '#fff' }}>
+              <p><b>🍎 لمستخدمي آيفون (Safari):</b></p>
+              <p>1️⃣ اضغط على زر المشاركة 📤 أسفل الشاشة.</p>
+              <p>2️⃣ اختر "إضافة إلى الشاشة الرئيسية" ➕.</p>
+              <hr style={{ border: '0.5px solid #333', margin: '15px 0' }} />
+              <p><b>🤖 لمستخدمي أندرويد (Chrome):</b></p>
+              <p>1️⃣ اضغط على الثلاث نقاط ⁝ أعلى اليسار.</p>
+              <p>2️⃣ اختر "تثبيت التطبيق" أو "Add to Home screen" 📲.</p>
+            </div>
+            <button onClick={() => setShowInstallGuide(false)} style={{ width: '100%', padding: '12px', backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '12px', marginTop: '20px', fontWeight: 'bold', fontSize: '16px' }}>فهمت، ابدأ التسوق! 🛒</button>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'home' && (
         <>
           <header style={{ position: 'relative', width: '100%', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -192,7 +215,6 @@ export default function MiniTalabat() {
                 <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
                 <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
                 
-                {/* زرار الموقع الذكي الجديد */}
                 <button 
                   onClick={handleGetLocation} 
                   style={{ width: '100%', padding: '10px', backgroundColor: locationUrl ? '#1b5e20' : '#444', color: '#fff', border: 'none', borderRadius: '10px', marginBottom: '10px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
