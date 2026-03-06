@@ -130,7 +130,7 @@ export default function MiniTalabat() {
             <div style={{ position: 'absolute', top: '110px', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <img src="/mall-logo.png" alt="Logo" style={{ width: '80px', height: '80px', borderRadius: '50%', border: '4px solid #121212', filter: 'drop-shadow(0 0 10px #FF6600)' }} />
             </div>
-            <div style={{ position: 'relative', margin: '100px 5px 15px 5px', width: '95%', zIndex: 1 }}>
+            <div style={{ position: 'relative', margin: '30px 5px 15px 5px', width: '95%', zIndex: 1 }}>
               <input 
                 type="text" placeholder="ابحث عن محل أو منتج..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
