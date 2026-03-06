@@ -133,7 +133,7 @@ export default function MiniTalabat() {
             {/* اللوجو والبيانات */}
             <div style={{ 
               position: 'absolute', 
-              top: '110px', 
+              top: '100px', 
               zIndex: 2,
               display: 'flex',
               flexDirection: 'column',
@@ -150,7 +150,7 @@ export default function MiniTalabat() {
             </div>
 
             {/* خانة البحث */}
-            <div style={{ position: 'relative', margin: '100px 5px 15px 5px', width: '95%', zIndex: 1 }}>
+            <div style={{ position: 'relative', margin: '50px 5px 15px 5px', width: '95%', zIndex: 1 }}>
               <input 
                 type="text" 
                 placeholder="ابحث عن محل أو منتج..." 
