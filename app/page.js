@@ -106,19 +106,52 @@ export default function MiniTalabat() {
       
       {activeTab === 'home' && (
         <>
-          {/* تم تعديل الـ Header ليكون اللوجو في النص دائماً */}
+          {/* بداية قسم الهيدر المطور بصورة الكفر */}
           <header style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            textAlign: 'center', 
-            marginBottom: '15px' 
+            position: 'relative', 
+            width: '100%', 
+            marginBottom: '20px', 
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
           }}>
-            <img src="/mall-logo.png" alt="Logo" style={{ width: '65px', height: '65px', borderRadius: '50%', filter: 'drop-shadow(0 0 8px #FF6600)' }} />
-            <h1 style={{ color: '#FF6600', margin: '5px 0', fontSize: '20px' }}>Mini Talabat</h1>
-            <p style={{ fontSize: '13px', color: '#aaa', margin: '0 0 10px 0', fontWeight: '300' }}>أكبر مول تجاري رقمي في جيبك</p>
-            
-            <div style={{ position: 'relative', margin: '15px 5px', width: '100%' }}>
+            {/* صورة الكفر الخلفية */}
+            <div style={{ 
+              width: '100%', 
+              height: '150px', 
+              backgroundImage: 'url("/cover.png")', 
+              backgroundSize: 'cover', 
+              backgroundPosition: 'center', 
+              borderRadius: '0 0 20px 20px',
+              position: 'relative',
+              marginBottom: '45px' 
+            }}>
+              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '0 0 20px 20px' }}></div>
+            </div>
+
+            {/* اللوجو والبيانات */}
+            <div style={{ 
+              position: 'absolute', 
+              top: '110px', 
+              zIndex: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}>
+              <img src="/mall-logo.png" alt="Logo" style={{ 
+                width: '80px', 
+                height: '80px', 
+                borderRadius: '50%', 
+                border: '4px solid #121212',
+                filter: 'drop-shadow(0 0 10px #FF6600)' 
+              }} />
+              <h1 style={{ color: '#FF6600', margin: '10px 0 5px 0', fontSize: '22px', fontWeight: 'bold' }}>Mini Talabat</h1>
+              <p style={{ fontSize: '13px', color: '#aaa', margin: '0', fontWeight: '300' }}>أكبر مول تجاري رقمي في جيبك</p>
+            </div>
+
+            {/* خانة البحث */}
+            <div style={{ position: 'relative', margin: '100px 5px 15px 5px', width: '95%', zIndex: 1 }}>
               <input 
                 type="text" 
                 placeholder="ابحث عن محل أو منتج..." 
@@ -129,6 +162,8 @@ export default function MiniTalabat() {
               <span style={{ position: 'absolute', left: '15px', top: '10px' }}>🔍</span>
             </div>
           </header>
+          {/* نهاية قسم الهيدر */}
+
 
           <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', marginBottom: '15px', paddingBottom: '5px', scrollbarWidth: 'none' }}>
             {categories.map(cat => (
