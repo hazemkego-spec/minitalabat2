@@ -286,13 +286,11 @@ export default function MiniTalabat() {
                     style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #333', backgroundColor: '#1e1e1e', color: '#fff', outline: 'none' }}
                   />
                 </div>
-              </div>
             ) : (
               <div style={{ marginTop: '20px', padding: '10px' }}>
                 <div style={{ fontSize: '45px', marginBottom: '10px' }}>{selectedShop.icon}</div>
                 <h2 style={{ margin: 0, color: '#FF6600', fontSize: '22px', fontWeight: 'bold' }}>{selectedShop.name}</h2>
-              </div>
-            )}
+              </div> )}
           </header>
           {!selectedShop ? (
             <>
