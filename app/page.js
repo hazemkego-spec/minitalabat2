@@ -10,8 +10,8 @@ export default function MiniTalabat() {
   const [locationUrl, setLocationUrl] = useState(''); 
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [orderCount, setOrderCount] = useState(0); 
-  const [selectedShop, setSelectedShop] = useState(null); // حالة المتجر المختار
-  const [activeSubTab, setActiveSubTab] = useState("");
+  const [selectedShop, setSelectedShop] = useState(null);
+  const [activeSubTab, setActiveSubTab] = useState(""); // للحفاظ على القسم النشط داخل المطعم
 
   const MAIN_PHONE = "201122947479"; 
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
@@ -34,14 +34,13 @@ export default function MiniTalabat() {
 
   const categories = ["الكل", "مطاعم", "سوبر ماركت", "صيدليات", "عطارة", "منظفات", "خضروات وفواكه"];
 
-  // إضافة أيقونات تعبيرية للمتاجر لتناسب شكل المربعات
   const shops = [
-        { 
+    { 
       id: 1, 
       category: "مطاعم", 
       name: "جزارة ومشويات محمد صوان", 
       isOpen: true, 
-      icon: "🥩", 
+      icon: "🥩",
       menuCategories: [
         { 
           title: "المشويات 🍗", 
@@ -53,113 +52,60 @@ export default function MiniTalabat() {
             { name: "كباب ضاني (كيلو)", price: 800 }, { name: "ريش ضاني (كيلو)", price: 800 },
             { name: "استيك كندوز (كيلو)", price: 600 }, { name: "استيك فلتو (كيلو)", price: 650 },
             { name: "شيش طاووق (كيلو)", price: 350 }, 
-            { name: "فرخة كاملة (شواية/شيش/تكا)", price: 300 }, { name: "نص فرخة", price: 155 }, { name: "ربع فرخة", price: 80 },
+            { name: "فرخة كاملة", price: 300 }, { name: "نص فرخة", price: 155 }, { name: "ربع فرخة", price: 80 },
             { name: "كبدة ضاني (كيلو)", price: 650 }, { name: "كبدة كندوز (كيلو)", price: 600 }, { name: "مخاصي (كيلو)", price: 400 }
           ] 
         },
         { 
           title: "الصواني 🥘", 
           items: [
-            { name: "صينية محمد صوان (8 أفراد)", price: 1200 },
-            { name: "صينية الوحش", price: 900 },
-            { name: "صينية ليلة العمر", price: 1450 },
-            { name: "صينية ك مشكل", price: 700 },
-            { name: "صينية شهر الخير", price: 950 },
-            { name: "صينية الصحاب", price: 650 },
-            { name: "صينية المحطة", price: 1300 },
-            { name: "صينية ميكس مشويات صوان", price: 1850 }
+            { name: "صينية محمد صوان (8 أفراد)", price: 1200 }, { name: "صينية الوحش", price: 900 },
+            { name: "صينية ليلة العمر", price: 1450 }, { name: "صينية ك مشكل", price: 700 },
+            { name: "صينية شهر الخير", price: 950 }, { name: "صينية الصحاب", price: 650 },
+            { name: "صينية المحطة", price: 1300 }, { name: "صينية ميكس مشويات صوان", price: 1850 }
           ] 
         },
         { 
-          title: "الوجبات 🍱", 
+          title: "الوجبات والحمام 🍱", 
           items: [
-            { name: "وجبة محمد صوان", price: 100 },
-            { name: "وجبة شيش طاووق", price: 100 },
-            { name: "وجبة كفتة", price: 110 },
-            { name: "وجبة النووي", price: 120 }
+            { name: "وجبة محمد صوان", price: 100 }, { name: "وجبة شيش طاووق", price: 100 },
+            { name: "وجبة كفتة", price: 110 }, { name: "وجبة النووي", price: 120 },
+            { name: "جوز حمام محشي", price: 300 }, { name: "فرد حمام محشي", price: 150 }
           ] 
         },
         { 
-          title: "الحمام والفتة 🕊️", 
+          title: "الطواجن والفتة 🍲", 
           items: [
-            { name: "جوز حمام محشي (أرز/فريك)", price: 300 },
-            { name: "فرد حمام محشي (أرز/فريك)", price: 150 },
-            { name: "فتة كوارع", price: 150 },
-            { name: "فتة باللحمة", price: 180 },
-            { name: "فتة عكاوي", price: 150 }
+            { name: "طاجن لحمة بالبصل", price: 180 }, { name: "طاجن لحمة بورق العنب", price: 200 },
+            { name: "طاجن كوارع بورق العنب", price: 200 }, { name: "طاجن عكاوي", price: 180 },
+            { name: "فتة كوارع", price: 150 }, { name: "فتة باللحمة", price: 180 }, { name: "فتة عكاوي", price: 150 }
           ] 
         },
         { 
-          title: "الطواجن 🍲", 
+          title: "الجريل والسندوتشات 🔥", 
           items: [
-            { name: "طاجن لحمة بالبصل", price: 180 }, { name: "طاجن بطاطس باللحمة", price: 180 },
-            { name: "طاجن بامية باللحمة", price: 180 }, { name: "طاجن لحمة بورق العنب", price: 200 },
-            { name: "طاجن كوارع بالبصل", price: 180 }, { name: "طاجن كوارع بورق العنب", price: 200 },
-            { name: "طاجن عكاوي بورق العنب", price: 200 }, { name: "طاجن عكاوي سادة", price: 180 },
-            { name: "طاجن مخاصي", price: 180 }, { name: "طاجن عصب", price: 120 },
-            { name: "طاجن كفتة هندي/طحينة", price: 180 },
-            { name: "طاجن شيش طاووق سادة", price: 150 }, { name: "طاجن شيش طاووق جبنة", price: 170 }
-          ] 
-        },
-        { 
-          title: "الجريل 🔥", 
-          items: [
-            { name: "حواوشي سادة", price: 20 }, { name: "حواوشي خضار", price: 30 },
-            { name: "حواوشي ميكس جبن", price: 35 }, { name: "حواوشي محمد صوان", price: 40 },
-            { name: "حواوشي بسطرمة", price: 45 }, { name: "حواوشي سجق/سلامي", price: 40 },
-            { name: "ورقة لحمة (1/4 ك)", price: 180 }, { name: "ورقة كبدة (1/4 ك)", price: 180 },
-            { name: "ورقة سجق/شيش (1/4 ك)", price: 120 }
-          ] 
-        },
-        { 
-          title: "المحاشي والممبار 🥖", 
-          items: [
-            { name: "كيلو ممبار", price: 300 }, { name: "نص ممبار", price: 150 }, { name: "ربع ممبار", price: 75 },
-            { name: "كيلو ورق عنب", price: 200 }, { name: "نص ورق عنب", price: 100 }, { name: "ربع ورق عنب", price: 50 },
-            { name: "كيلو محشي مشكل", price: 180 }, { name: "نص محشي مشكل", price: 90 }
-          ] 
-        },
-        { 
-          title: "السندوتشات 🌯", 
-          items: [
+            { name: "حواوشي سادة", price: 20 }, { name: "حواوشي ميكس جبن", price: 35 },
+            { name: "حواوشي محمد صوان", price: 40 }, { name: "ورقة لحمة (1/4 ك)", price: 180 },
             { name: "سندوتش كفتة بلدي", price: 40 }, { name: "سندوتش كباب بلدي", price: 95 },
-            { name: "سندوتش طرب بلدي", price: 65 }, { name: "سندوتش سجق بلدي", price: 50 },
-            { name: "سندوتش كبدة بلدي", price: 65 }, { name: "سندوتش بوم فريت", price: 20 }
+            { name: "سندوتش طرب بلدي", price: 65 }
           ] 
         },
         { 
-          title: "المطبخ والمكرونة 🍝", 
+          title: "المحاشي والمطبخ 🍚", 
           items: [
-            { name: "طاجن ملوخية/بامية سادة", price: 50 }, { name: "لسان عصفور", price: 20 },
-            { name: "أرز بسمتي كبير", price: 35 }, { name: "أرز بالخلطة كبير", price: 50 },
-            { name: "مكرونة بشاميل/نجرسكو", price: 50 }, { name: "مكرونة بلونيز", price: 60 },
-            { name: "مكرونة بالصلصة", price: 25 },
-            { name: "سلطة خضراء/طحينة/باذنجان", price: 15 }, { name: "باكت بوم فريت", price: 20 }
+            { name: "كيلو ممبار", price: 300 }, { name: "كيلو ورق عنب", price: 200 },
+            { name: "كيلو محشي مشكل", price: 180 }, { name: "طاجن ملوخية سادة", price: 50 },
+            { name: "أرز بسمتي كبير", price: 35 }, { name: "مكرونة بشاميل", price: 50 },
+            { name: "مكرونة بلونيز", price: 60 }
           ] 
         }
-      ] 
+      ]
     },
-    { 
-      id: 2, 
-      category: "مطاعم", 
-      name: "حضرموت عنتر", 
-      isOpen: true, 
-      icon: "🍗", 
-      items: [
-        { name: "ربع فرخة مندية + أرز", price: 95 },
-        { name: "وجبة كفتة (4 قطع)", price: 110 },
-        { name: "طاجن عكاوي بالبصل", price: 220 },
-        { name: "فرد حمام محشي", price: 140 },
-        { name: "طبق أرز بسمتي إضافي", price: 35 },
-        { name: "سلطة خضراء + طحينة", price: 15 }
-      ] 
-    },
-    { id: 3, category: "مطاعم", name: "مطعم السعادة", isOpen: true, items: [{ name: "بيتزا", price: 120 }, { name: "كريب", price: 80 }], icon: "🍕" },
-    { id: 4, category: "سوبر ماركت", name: "سوبر ماركت الخير", isOpen: true, items: [{ name: "لبن", price: 35 }, { name: "جبنة", price: 70 }], icon: "🛒" },
-    { id: 5, category: "صيدليات", name: "صيدلية الشفاء", isOpen: true, items: [{ name: "بندول", price: 30 }], icon: "💊" },
-    { id: 6, category: "عطارة", name: "عطارة مكة", isOpen: false, items: [{ name: "فلفل أسود", price: 20 }], icon: "🌿" },
-    { id: 7, category: "منظفات", name: "عالم النظافة", isOpen: true, items: [{ name: "مسحوق غسيل", price: 45 }], icon: "🧼" },
-    { id: 8, category: "خضروات وفواكه", name: "خضري العيلة", isOpen: true, items: [{ name: "طماطم 1ك", price: 15 }], icon: "🍎" }
+    { id: 2, category: "سوبر ماركت", name: "سوبر ماركت الخير", isOpen: true, items: [{ name: "لبن", price: 35 }, { name: "جبنة", price: 70 }], icon: "🛒" },
+    { id: 3, category: "صيدليات", name: "صيدلية الشفاء", isOpen: true, items: [{ name: "بندول", price: 30 }], icon: "💊" },
+    { id: 4, category: "عطارة", name: "عطارة مكة", isOpen: false, items: [{ name: "فلفل أسود", price: 20 }], icon: "🌿" },
+    { id: 5, category: "منظفات", name: "عالم النظافة", isOpen: true, items: [{ name: "مسحوق غسيل", price: 45 }], icon: "🧼" },
+    { id: 6, category: "خضروات وفواكه", name: "خضري العيلة", isOpen: true, items: [{ name: "طماطم 1ك", price: 15 }], icon: "🍎" }
   ];
 
   const filteredShops = shops.filter(shop => {
@@ -192,10 +138,22 @@ export default function MiniTalabat() {
     setItemNotes({ ...itemNotes, [key]: note });
   };
 
+  // دالة مطورة لجلب السعر تدعم النظامين
   const getItemPrice = (key) => {
     const [shopName, itemName] = key.split('-');
     const shop = shops.find(s => s.name === shopName);
-    const item = shop?.items.find(i => i.name === itemName);
+    if (!shop) return 0;
+    
+    if (shop.menuCategories) {
+      let foundPrice = 0;
+      shop.menuCategories.forEach(cat => {
+        const item = cat.items.find(i => i.name === itemName);
+        if (item) foundPrice = item.price;
+      });
+      return foundPrice;
+    }
+    
+    const item = shop.items?.find(i => i.name === itemName);
     return item ? item.price : 0;
   };
 
@@ -255,7 +213,6 @@ export default function MiniTalabat() {
   return (
     <div dir="rtl" style={{ padding: '10px', fontFamily: 'sans-serif', backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', paddingBottom: '110px' }}>
       
-      {/* تعليمات التحميل */}
       {showInstallGuide && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ backgroundColor: '#1e1e1e', borderRadius: '20px', padding: '25px', border: '2px solid #FF6600', position: 'relative', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
@@ -272,43 +229,13 @@ export default function MiniTalabat() {
 
       {activeTab === 'home' && (
         <>
-          {/* بداية قسم الهيدر المطور بكفر أطول وأوضح مع توهج اللوجو */}
-          <header style={{ 
-            position: 'relative', 
-            width: '100%', 
-            marginBottom: '20px', 
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
-          }}>
-            {/* صورة الكفر الخلفية - أطول وأوضح */}
-            <div style={{ 
-              width: '100%', 
-              height: '230px', 
-              backgroundImage: 'url("/cover.png")', 
-              backgroundSize: 'cover', 
-              backgroundPosition: 'center', 
-              borderRadius: '0 0 25px 25px', 
-              position: 'relative'
-            }}>
-              {/* طبقة شفافة خفيفة جداً للحفاظ على ألوان الكفر */}
+          <header style={{ position: 'relative', width: '100%', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', height: '230px', backgroundImage: 'url("/cover.png")', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0 0 25px 25px', position: 'relative' }}>
               <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '0 0 25px 25px' }}></div>
             </div>
 
-            {/* اللوجو مع التوهج البرتقالي (النيون) */}
-            <img src="/mall-logo.png" alt="Logo" style={{ 
-              width: '85px', 
-              height: '85px', 
-              borderRadius: '50%', 
-              border: '4px solid #121212',
-              position: 'absolute',
-              top: '180px', // وضع اللوجو على حافة الكفر
-              zIndex: 2,
-              filter: 'drop-shadow(0 0 12px #FF6600)' // رجوع الظل المنور
-            }} />
+            <img src="/mall-logo.png" alt="Logo" style={{ width: '85px', height: '85px', borderRadius: '50%', border: '4px solid #121212', position: 'absolute', top: '180px', zIndex: 2, filter: 'drop-shadow(0 0 12px #FF6600)' }} />
 
-            {/* خانة البحث - تظهر فقط في الشاشة الرئيسية */}
             {!selectedShop && (
               <div style={{ position: 'relative', marginTop: '60px', marginBottom: '15px', width: '95%', zIndex: 1 }}>
                 <input 
@@ -323,7 +250,6 @@ export default function MiniTalabat() {
           </header>
 
           {!selectedShop ? (
-            /* عرض شاشة المتاجر الرئيسية */
             <>
               <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', marginBottom: '20px', paddingBottom: '5px', scrollbarWidth: 'none' }}>
                 {categories.map(cat => (
@@ -333,7 +259,7 @@ export default function MiniTalabat() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', padding: '5px' }}>
                 {filteredShops.map(shop => (
-                  <div key={shop.id} onClick={() => setSelectedShop(shop)} style={{ backgroundColor: '#1e1e1e', borderRadius: '15px', padding: '20px 10px', textAlign: 'center', border: '1px solid #333', cursor: 'pointer', transition: '0.3s' }}>
+                  <div key={shop.id} onClick={() => {setSelectedShop(shop); setActiveSubTab("");}} style={{ backgroundColor: '#1e1e1e', borderRadius: '15px', padding: '20px 10px', textAlign: 'center', border: '1px solid #333', cursor: 'pointer', transition: '0.3s' }}>
                     <div style={{ fontSize: '35px', marginBottom: '10px' }}>{shop.icon}</div>
                     <h4 style={{ margin: '5px 0', fontSize: '14px' }}>{shop.name}</h4>
                     <span style={{ fontSize: '10px', color: shop.isOpen ? '#4caf50' : '#f44336' }}>{shop.isOpen ? '● مفتوح الآن' : '● مغلق'}</span>
@@ -342,176 +268,95 @@ export default function MiniTalabat() {
               </div>
             </>
           ) : (
-            /* عرض صفحة المتجر المختار */
-            <div style={{ padding: '0 5px animate-in' }}>
+            <div style={{ padding: '0 5px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                 <button onClick={() => setSelectedShop(null)} style={{ backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '20px' }}>→</button>
                 <div>
                   <h2 style={{ margin: 0, color: '#FF6600', fontSize: '18px' }}>{selectedShop.name}</h2>
-                  <small style={{ color: '#888' }}>قائمة المنتجات</small>
+                  <small style={{ color: '#888' }}>{selectedShop.menuCategories ? "اختر من الأقسام بالأسفل" : "قائمة المنتجات"}</small>
                 </div>
               </div>
 
- {/* 1. شريط الأقسام (Tabs) - بيظهر فقط لو المحل فيه أقسام */}
-{selectedShop.menuCategories && (
-  <div style={{ 
-    display: 'flex', 
-    overflowX: 'auto', 
-    gap: '10px', 
-    padding: '10px 0', 
-    marginBottom: '20px',
-    scrollbarWidth: 'none', // لإخفاء شريط التمرير في المتصفحات
-    msOverflowStyle: 'none' 
-  }}>
-    {selectedShop.menuCategories.map((cat, index) => (
-      <button 
-        key={index}
-        onClick={() => setActiveSubTab(cat.title)}
-        style={{
-          padding: '8px 18px',
-          borderRadius: '25px',
-          backgroundColor: (activeSubTab === cat.title || (!activeSubTab && index === 0)) ? '#FF6600' : '#2a2a2a',
-          color: '#fff',
-          border: 'none',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          transition: '0.3s'
-        }}
-      >
-        {cat.title}
-      </button>
-    ))}
-  </div>
-)}
+              {/* نظام الـ Tabs العلوي يظهر فقط في حالة وجود مصفوفة menuCategories */}
+              {selectedShop.menuCategories && (
+                <div style={{ display: 'flex', overflowX: 'auto', gap: '10px', paddingBottom: '15px', marginBottom: '15px', scrollbarWidth: 'none' }}>
+                  {selectedShop.menuCategories.map((cat, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => setActiveSubTab(cat.title)}
+                      style={{ 
+                        padding: '8px 20px', borderRadius: '20px', border: 'none', 
+                        backgroundColor: (activeSubTab === cat.title || (!activeSubTab && i === 0)) ? '#FF6600' : '#1e1e1e', 
+                        color: '#fff', whiteSpace: 'nowrap', fontSize: '13px', fontWeight: 'bold' 
+                      }}
+                    >
+                      {cat.title}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-{/* 2. عرض أصناف القسم المختار فقط */}
-<div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
-  {(selectedShop.menuCategories ? 
-    (selectedShop.menuCategories.find(c => c.title === activeSubTab) || selectedShop.menuCategories[0]).items : 
-    selectedShop.items
-  )?.map((item, idx) => (
-    <div key={idx} style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      backgroundColor: '#1a1a1a', 
-      padding: '15px', 
-      borderRadius: '12px',
-      border: '1px solid #222'
-    }}>
-      <div>
-        <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '16px' }}>{item.name}</div>
-        <div style={{ color: '#FF6600', marginTop: '4px' }}>{item.price} ج.م</div>
-      </div>
-      {selectedShop.isOpen && (
-        <button 
-          onClick={() => addToCart(selectedShop.name, item)}
-          style={{ 
-            backgroundColor: '#FF6600', 
-            color: '#fff', 
-            border: 'none', 
-            width: '35px', 
-            height: '35px', 
-            borderRadius: '50%', 
-            fontSize: '20px',
-            cursor: 'pointer' 
-          }}
-        >
-          +
-        </button>
-      )}
-    </div>
-  ))}
-</div>
-
-
+              {/* عرض العناصر بناءً على الفلتر أو القائمة العادية */}
+              <div style={{ display: 'grid', gap: '10px' }}>
+                {(selectedShop.menuCategories ? 
+                  (selectedShop.menuCategories.find(c => c.title === activeSubTab) || selectedShop.menuCategories[0]).items : 
+                  selectedShop.items
+                ).map(item => (
+                  <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', border: '1px solid #222' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 'bold' }}>{item.name}</span>
+                      <span style={{ color: '#FF6600', fontSize: '14px', marginTop: '4px' }}>{item.price} ج.م</span>
+                    </div>
+                    {selectedShop.isOpen && (
+                      <button onClick={() => addToCart(selectedShop.name, item)} style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '10px', width: '40px', height: '40px', fontSize: '20px', fontWeight: 'bold' }}>+</button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>
       )}
 
       {activeTab === 'cart' && (
-  <div style={{ padding: '10px', color: '#fff' }}>
-    <h2 style={{ color: '#FF6600', textAlign: 'center', marginBottom: '20px' }}>🛒 سلة الطلبات</h2>
-    
-    {Object.keys(cart).length === 0 ? (
-      <p style={{ textAlign: 'center', color: '#666' }}>السلة فارغة حالياً</p>
-    ) : (
-      <>
-        {Object.keys(getGroupedCart()).map((shopName) => (
-          <div key={shopName} style={{ backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #333' }}>
-            <h3 style={{ color: '#FF6600', marginBottom: '10px', fontSize: '18px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
-              {shopName}
-            </h3>
-            {getGroupedCart()[shopName].map((item, idx) => (
-              <div key={idx} style={{ marginBottom: '15px', borderBottom: '1px dotted #333', paddingBottom: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-                    <div style={{ color: '#888', fontSize: '14px' }}>{item.count} × {item.price} ج.م</div>
-                  </div>
-                  <div style={{ fontWeight: 'bold', color: '#FF6600' }}>
-                    {item.price * item.count} ج.م
-                  </div>
+        <div style={{ padding: '5px' }}>
+          <h2 style={{ color: '#FF6600', textAlign: 'center' }}>سلة المشتريات 🛒</h2>
+          {Object.keys(cart).length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#666', marginTop: '50px' }}>السلة فارغة حالياً 🧡</p>
+          ) : (
+            <>
+              {Object.keys(getGroupedCart()).map(shopName => (
+                <div key={shopName} style={{ marginBottom: '15px', border: '1px solid #333', borderRadius: '12px', overflow: 'hidden' }}>
+                  <div style={{ backgroundColor: '#333', padding: '8px 15px', color: '#FF6600', fontWeight: 'bold' }}>📍 متجر: {shopName}</div>
+                  {getGroupedCart()[shopName].map(item => (
+                    <div key={item.key} style={{ padding: '12px', borderBottom: '1px solid #222', backgroundColor: '#1e1e1e' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{item.name} <small style={{color: '#888'}}>(الكمية: {item.quantity})</small></span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <b style={{color: '#FF6600'}}>{item.price * item.quantity}ج</b>
+                          <button onClick={() => removeFromCart(item.key)} style={{ color: '#ff4444', background: 'none', border: '1px solid #ff4444', borderRadius: '50%', width: '22px', height: '22px' }}>-</button>
+                        </div>
+                      </div>
+                      <input placeholder="أضف ملاحظة..." value={item.note} onChange={(e) => updateItemNote(item.key, e.target.value)} style={{ width: '100%', backgroundColor: 'transparent', color: '#aaa', border: 'none', borderBottom: '1px solid #444', fontSize: '12px', marginTop: '8px', outline: 'none' }} />
+                    </div>
+                  ))}
                 </div>
-                {/* حقل الملاحظات اللي اتفقنا عليه */}
-                <input 
-                  placeholder="إضافة ملاحظات للطلب..."
-                  value={itemNotes[item.name] || ""}
-                  onChange={(e) => setItemNotes({...itemNotes, [item.name]: e.target.value})}
-                  style={{ width: '100%', marginTop: '8px', padding: '8px', backgroundColor: '#000', border: '1px solid #444', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
-                />
+              ))}
+              <div style={{ backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', border: '1px solid #FF6600' }}>
+                <h4 style={{ margin: '0 0 15px 0', color: '#FF6600' }}>🛵 بيانات التوصيل:</h4>
+                <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
+                <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
+                <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
+                <button onClick={handleGetLocation} style={{ width: '100%', padding: '10px', backgroundColor: locationUrl ? '#1b5e20' : '#444', color: '#fff', border: 'none', borderRadius: '10px', marginBottom: '10px' }}>
+                  {locationUrl ? "✅ تم تحديد موقعك" : "📍 تحديد موقعي تلقائياً (GPS)"}
+                </button>
+                <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>إجمالي الحساب: {calculateTotal()} ج.م</div>
+                <button onClick={sendOrder} style={{ width: '100%', padding: '15px', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '12px', marginTop: '15px', fontWeight: 'bold' }}>إرسال للواتساب ✅</button>
               </div>
-            ))}
-          </div>
-        ))}
-        
-        {/* جزء البيانات الشخصية (الاسم، الموبايل، العنوان) */}
-        <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
-          <h4 style={{ color: '#FF6600', marginBottom: '15px' }}>بيانات التوصيل:</h4>
-          <input 
-            placeholder="الاسم بالكامل" 
-            value={customerInfo.name} 
-            onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
-            style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
-          />
-          <input 
-            placeholder="رقم الموبايل" 
-            value={customerInfo.phone} 
-            onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
-            style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
-          />
-          <input 
-            placeholder="العنوان بالتفصيل" 
-            value={customerInfo.address} 
-            onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
-            style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
-          />
-          <button 
-            onClick={handleGetLocation}
-            style={{ width: '100%', padding: '10px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px' }}
-          >
-            📍 تحديد موقعي الحالي تلقائياً
-          </button>
+            </>
+          )}
         </div>
-
-        {/* الإجمالي والطلب */}
-        <div style={{ textAlign: 'center', padding: '20px', backgroundColor: '#FF6600', borderRadius: '12px' }}>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
-            الإجمالي: {getTotalPrice()} ج.م
-          </div>
-          <button 
-            onClick={sendWhatsApp}
-            style={{ backgroundColor: '#fff', color: '#FF6600', border: 'none', padding: '12px 30px', borderRadius: '30px', fontWeight: 'bold', fontSize: '18px', width: '100%' }}
-          >
-            تأكيد الطلب (واتساب) ✅
-          </button>
-        </div>
-      </>
-    )}
-  </div>
-)}
+      )}
 
       {activeTab === 'addShop' && (
         <div style={{ padding: '20px', textAlign: 'center', minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
