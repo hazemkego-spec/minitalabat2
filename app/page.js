@@ -432,59 +432,87 @@ export default function MiniTalabat() {
       )}
 
       {activeTab === 'cart' && (
-        <div style={{ padding: '5px' }}>
-          <h2 style={{ color: '#FF6600', textAlign: 'center' }}>سلة المشتريات 🛒</h2>
-          {Object.keys(cart).length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#666', marginTop: '50px' }}>السلة فارغة حالياً 🧡</p>
-          ) : (
-            <>
-      {Object.keys(getGroupedCart()).map((shopName) => (
-  <div key={shopName} style={{ backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #333' }}>
-    {/* اسم المطعم */}
-    <h3 style={{ color: '#FF6600', marginBottom: '10px', fontSize: '18px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
-      {shopName}
-    </h3>
+  <div style={{ padding: '10px', color: '#fff' }}>
+    <h2 style={{ color: '#FF6600', textAlign: 'center', marginBottom: '20px' }}>🛒 سلة الطلبات</h2>
     
-    {/* المنتجات داخل السلة لهذا المطعم */}
-    {getGroupedCart()[shopName].map((item, idx) => (
-      <div key={idx} style={{ marginBottom: '15px', borderBottom: '1px dotted #333', paddingBottom: '10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontWeight: 'bold', color: '#fff' }}>{item.name}</div>
-            <div style={{ color: '#888', fontSize: '14px' }}>{item.count} × {item.price} ج.م</div>
-          </div>
-          <div style={{ fontWeight: 'bold', color: '#FF6600' }}>
-            {item.price * item.count} ج.م
-          </div>
-        </div>
-        
-        {/* حقل الملاحظات اللي كان موجود في إعداداتك القديمة */}
-        <input 
-          placeholder="إضافة ملاحظات (مثلاً: بدون شطة)"
-          value={itemNotes[item.name] || ""}
-          onChange={(e) => setItemNotes({...itemNotes, [item.name]: e.target.value})}
-          style={{ width: '100%', marginTop: '8px', padding: '5px', backgroundColor: '#000', border: '1px solid #444', color: '#fff', borderRadius: '5px', fontSize: '12px' }}
-        />
-      </div>
-    ))}
-  </div>
-))}
-
-              <div style={{ backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', border: '1px solid #FF6600' }}>
-                <h4 style={{ margin: '0 0 15px 0', color: '#FF6600' }}>🛵 بيانات التوصيل:</h4>
-                <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
-                <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
-                <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
-                <button onClick={handleGetLocation} style={{ width: '100%', padding: '10px', backgroundColor: locationUrl ? '#1b5e20' : '#444', color: '#fff', border: 'none', borderRadius: '10px', marginBottom: '10px' }}>
-                  {locationUrl ? "✅ تم تحديد موقعك" : "📍 تحديد موقعي تلقائياً (GPS)"}
-                </button>
-                <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>إجمالي الحساب: {calculateTotal()} ج.م</div>
-                <button onClick={sendOrder} style={{ width: '100%', padding: '15px', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '12px', marginTop: '15px', fontWeight: 'bold' }}>إرسال للواتساب ✅</button>
+    {Object.keys(cart).length === 0 ? (
+      <p style={{ textAlign: 'center', color: '#666' }}>السلة فارغة حالياً</p>
+    ) : (
+      <>
+        {Object.keys(getGroupedCart()).map((shopName) => (
+          <div key={shopName} style={{ backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #333' }}>
+            <h3 style={{ color: '#FF6600', marginBottom: '10px', fontSize: '18px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
+              {shopName}
+            </h3>
+            {getGroupedCart()[shopName].map((item, idx) => (
+              <div key={idx} style={{ marginBottom: '15px', borderBottom: '1px dotted #333', paddingBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                    <div style={{ color: '#888', fontSize: '14px' }}>{item.count} × {item.price} ج.م</div>
+                  </div>
+                  <div style={{ fontWeight: 'bold', color: '#FF6600' }}>
+                    {item.price * item.count} ج.م
+                  </div>
+                </div>
+                {/* حقل الملاحظات اللي اتفقنا عليه */}
+                <input 
+                  placeholder="إضافة ملاحظات للطلب..."
+                  value={itemNotes[item.name] || ""}
+                  onChange={(e) => setItemNotes({...itemNotes, [item.name]: e.target.value})}
+                  style={{ width: '100%', marginTop: '8px', padding: '8px', backgroundColor: '#000', border: '1px solid #444', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
+                />
               </div>
-            </>
-          )}
+            ))}
+          </div>
+        ))}
+        
+        {/* جزء البيانات الشخصية (الاسم، الموبايل، العنوان) */}
+        <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
+          <h4 style={{ color: '#FF6600', marginBottom: '15px' }}>بيانات التوصيل:</h4>
+          <input 
+            placeholder="الاسم بالكامل" 
+            value={customerInfo.name} 
+            onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+            style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
+          />
+          <input 
+            placeholder="رقم الموبايل" 
+            value={customerInfo.phone} 
+            onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+            style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
+          />
+          <input 
+            placeholder="العنوان بالتفصيل" 
+            value={customerInfo.address} 
+            onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+            style={{ width: '100%', padding: '12px', marginBottom: '10px', backgroundColor: '#222', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
+          />
+          <button 
+            onClick={handleGetLocation}
+            style={{ width: '100%', padding: '10px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px' }}
+          >
+            📍 تحديد موقعي الحالي تلقائياً
+          </button>
         </div>
-      )}
+
+        {/* الإجمالي والطلب */}
+        <div style={{ textAlign: 'center', padding: '20px', backgroundColor: '#FF6600', borderRadius: '12px' }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' }}>
+            الإجمالي: {getTotalPrice()} ج.م
+          </div>
+          <button 
+            onClick={sendWhatsApp}
+            style={{ backgroundColor: '#fff', color: '#FF6600', border: 'none', padding: '12px 30px', borderRadius: '30px', fontWeight: 'bold', fontSize: '18px', width: '100%' }}
+          >
+            تأكيد الطلب (واتساب) ✅
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+)}
+
 
       {activeTab === 'addShop' && (
         <div style={{ padding: '20px', textAlign: 'center', minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
