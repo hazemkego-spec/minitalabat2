@@ -438,23 +438,38 @@ export default function MiniTalabat() {
             <p style={{ textAlign: 'center', color: '#666', marginTop: '50px' }}>السلة فارغة حالياً 🧡</p>
           ) : (
             <>
-              {Object.keys(getGroupedCart()).map(shopName => (
-                <div key={shopName} style={{ marginBottom: '15px', border: '1px solid #333', borderRadius: '12px', overflow: 'hidden' }}>
-                  <div style={{ backgroundColor: '#333', padding: '8px 15px', color: '#FF6600', fontWeight: 'bold' }}>📍 متجر: {shopName}</div>
-                  {getGroupedCart()[shopName].map(item => (
-                    <div key={item.key} style={{ padding: '12px', borderBottom: '1px solid #222', backgroundColor: '#1e1e1e' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{item.name} <small style={{color: '#888'}}>(الكمية: {item.quantity})</small></span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <b style={{color: '#FF6600'}}>{item.price * item.quantity}ج</b>
-                          <button onClick={() => removeFromCart(item.key)} style={{ color: '#ff4444', background: 'none', border: '1px solid #ff4444', borderRadius: '50%', width: '22px', height: '22px' }}>-</button>
-                        </div>
-                      </div>
-                      <input placeholder="أضف ملاحظة..." value={item.note} onChange={(e) => updateItemNote(item.key, e.target.value)} style={{ width: '100%', backgroundColor: 'transparent', color: '#aaa', border: 'none', borderBottom: '1px solid #444', fontSize: '12px', marginTop: '8px', outline: 'none' }} />
-                    </div>
-                  ))}
-                </div>
-              ))}
+      {Object.keys(getGroupedCart()).map((shopName) => (
+  <div key={shopName} style={{ backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid #333' }}>
+    {/* اسم المطعم */}
+    <h3 style={{ color: '#FF6600', marginBottom: '10px', fontSize: '18px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
+      {shopName}
+    </h3>
+    
+    {/* المنتجات داخل السلة لهذا المطعم */}
+    {getGroupedCart()[shopName].map((item, idx) => (
+      <div key={idx} style={{ marginBottom: '15px', borderBottom: '1px dotted #333', paddingBottom: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontWeight: 'bold', color: '#fff' }}>{item.name}</div>
+            <div style={{ color: '#888', fontSize: '14px' }}>{item.count} × {item.price} ج.م</div>
+          </div>
+          <div style={{ fontWeight: 'bold', color: '#FF6600' }}>
+            {item.price * item.count} ج.م
+          </div>
+        </div>
+        
+        {/* حقل الملاحظات اللي كان موجود في إعداداتك القديمة */}
+        <input 
+          placeholder="إضافة ملاحظات (مثلاً: بدون شطة)"
+          value={itemNotes[item.name] || ""}
+          onChange={(e) => setItemNotes({...itemNotes, [item.name]: e.target.value})}
+          style={{ width: '100%', marginTop: '8px', padding: '5px', backgroundColor: '#000', border: '1px solid #444', color: '#fff', borderRadius: '5px', fontSize: '12px' }}
+        />
+      </div>
+    ))}
+  </div>
+))}
+
               <div style={{ backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', border: '1px solid #FF6600' }}>
                 <h4 style={{ margin: '0 0 15px 0', color: '#FF6600' }}>🛵 بيانات التوصيل:</h4>
                 <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
