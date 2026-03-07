@@ -351,17 +351,49 @@ export default function MiniTalabat() {
                 </div>
               </div>
 
-              {selectedShop.items.map(item => (
-                <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', marginBottom: '10px', border: '1px solid #222' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontWeight: 'bold' }}>{item.name}</span>
-                    <span style={{ color: '#FF6600', fontSize: '14px', marginTop: '4px' }}>{item.price} ج.م</span>
-                  </div>
-                  {selectedShop.isOpen && (
-                    <button onClick={() => addToCart(selectedShop.name, item)} style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '10px', width: '40px', height: '40px', fontSize: '20px', fontWeight: 'bold' }}>+</button>
-                  )}
-                </div>
-              ))}
+              {selectedShop.menuCategories ? (
+  selectedShop.menuCategories.map((category, idx) => (
+    <div key={idx} style={{ marginBottom: '20px' }}>
+      <h3 style={{ color: '#FF6600', borderBottom: '1px solid #333', paddingBottom: '5px', marginBottom: '10px' }}>
+        {category.title}
+      </h3>
+      {category.items.map((item, itemIdx) => (
+        <div key={itemIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
+          <div>
+            <div style={{ fontWeight: 'bold', color: '#fff' }}>{item.name}</div>
+            <div style={{ color: '#FF6600' }}>{item.price} ج.م</div>
+          </div>
+          {selectedShop.isOpen && (
+            <button 
+              onClick={() => addToCart(selectedShop.name, item)}
+              style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', padding: '5px 15px', borderRadius: '20px', cursor: 'pointer' }}
+            >
+              +
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  ))
+) : (
+  selectedShop.items?.map((item, idx) => (
+    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
+      <div>
+        <div style={{ fontWeight: 'bold', color: '#fff' }}>{item.name}</div>
+        <div style={{ color: '#FF6600' }}>{item.price} ج.م</div>
+      </div>
+      {selectedShop.isOpen && (
+        <button 
+          onClick={() => addToCart(selectedShop.name, item)}
+          style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', padding: '5px 15px', borderRadius: '20px', cursor: 'pointer' }}
+        >
+          +
+        </button>
+      )}
+    </div>
+  ))
+)}
+
             </div>
           )}
         </>
