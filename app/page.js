@@ -11,7 +11,8 @@ export default function MiniTalabat() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [orderCount, setOrderCount] = useState(0); 
   const [selectedShop, setSelectedShop] = useState(null); // حالة المتجر المختار
-  
+  const [activeSubTab, setActiveSubTab] = useState("");
+
   const MAIN_PHONE = "201122947479"; 
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
 
@@ -351,48 +352,79 @@ export default function MiniTalabat() {
                 </div>
               </div>
 
-              {selectedShop.menuCategories ? (
-  selectedShop.menuCategories.map((category, idx) => (
-    <div key={idx} style={{ marginBottom: '20px' }}>
-      <h3 style={{ color: '#FF6600', borderBottom: '1px solid #333', paddingBottom: '5px', marginBottom: '10px' }}>
-        {category.title}
-      </h3>
-      {category.items.map((item, itemIdx) => (
-        <div key={itemIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
-          <div>
-            <div style={{ fontWeight: 'bold', color: '#fff' }}>{item.name}</div>
-            <div style={{ color: '#FF6600' }}>{item.price} ج.م</div>
-          </div>
-          {selectedShop.isOpen && (
-            <button 
-              onClick={() => addToCart(selectedShop.name, item)}
-              style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', padding: '5px 15px', borderRadius: '20px', cursor: 'pointer' }}
-            >
-              +
-            </button>
-          )}
-        </div>
-      ))}
-    </div>
-  ))
-) : (
-  selectedShop.items?.map((item, idx) => (
-    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
+ {/* 1. شريط الأقسام (Tabs) - بيظهر فقط لو المحل فيه أقسام */}
+{selectedShop.menuCategories && (
+  <div style={{ 
+    display: 'flex', 
+    overflowX: 'auto', 
+    gap: '10px', 
+    padding: '10px 0', 
+    marginBottom: '20px',
+    scrollbarWidth: 'none', // لإخفاء شريط التمرير في المتصفحات
+    msOverflowStyle: 'none' 
+  }}>
+    {selectedShop.menuCategories.map((cat, index) => (
+      <button 
+        key={index}
+        onClick={() => setActiveSubTab(cat.title)}
+        style={{
+          padding: '8px 18px',
+          borderRadius: '25px',
+          backgroundColor: (activeSubTab === cat.title || (!activeSubTab && index === 0)) ? '#FF6600' : '#2a2a2a',
+          color: '#fff',
+          border: 'none',
+          whiteSpace: 'nowrap',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          transition: '0.3s'
+        }}
+      >
+        {cat.title}
+      </button>
+    ))}
+  </div>
+)}
+
+{/* 2. عرض أصناف القسم المختار فقط */}
+<div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+  {(selectedShop.menuCategories ? 
+    (selectedShop.menuCategories.find(c => c.title === activeSubTab) || selectedShop.menuCategories[0]).items : 
+    selectedShop.items
+  )?.map((item, idx) => (
+    <div key={idx} style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      backgroundColor: '#1a1a1a', 
+      padding: '15px', 
+      borderRadius: '12px',
+      border: '1px solid #222'
+    }}>
       <div>
-        <div style={{ fontWeight: 'bold', color: '#fff' }}>{item.name}</div>
-        <div style={{ color: '#FF6600' }}>{item.price} ج.م</div>
+        <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '16px' }}>{item.name}</div>
+        <div style={{ color: '#FF6600', marginTop: '4px' }}>{item.price} ج.م</div>
       </div>
       {selectedShop.isOpen && (
         <button 
           onClick={() => addToCart(selectedShop.name, item)}
-          style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', padding: '5px 15px', borderRadius: '20px', cursor: 'pointer' }}
+          style={{ 
+            backgroundColor: '#FF6600', 
+            color: '#fff', 
+            border: 'none', 
+            width: '35px', 
+            height: '35px', 
+            borderRadius: '50%', 
+            fontSize: '20px',
+            cursor: 'pointer' 
+          }}
         >
           +
         </button>
       )}
     </div>
-  ))
-)}
+  ))}
+</div>
+
 
             </div>
           )}
