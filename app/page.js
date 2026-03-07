@@ -513,7 +513,6 @@ export default function MiniTalabat() {
   </div>
 )}
 
-
       {activeTab === 'addShop' && (
         <div style={{ padding: '20px', textAlign: 'center', minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h2 style={{ color: '#FF6600' }}>خليك شريك في النجاح!</h2>
