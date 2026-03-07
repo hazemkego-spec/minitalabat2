@@ -35,8 +35,111 @@ export default function MiniTalabat() {
 
   // إضافة أيقونات تعبيرية للمتاجر لتناسب شكل المربعات
   const shops = [
-    { 
+        { 
       id: 1, 
+      category: "مطاعم", 
+      name: "جزارة ومشويات محمد صوان", 
+      isOpen: true, 
+      icon: "🥩", 
+      menuCategories: [
+        { 
+          title: "المشويات 🍗", 
+          items: [
+            { name: "كفتة بلدي (كيلو)", price: 400 }, { name: "كفتة بلدي (نص)", price: 200 }, { name: "كفتة بلدي (ربع)", price: 100 },
+            { name: "طرب بلدي (كيلو)", price: 500 }, { name: "طرب بلدي (نص)", price: 250 }, { name: "طرب بلدي (ربع)", price: 125 },
+            { name: "مشكل كفتة وكباب (كيلو)", price: 600 }, { name: "مشكل كفتة وطرب (كيلو)", price: 450 },
+            { name: "برجر بلدي (كيلو)", price: 350 }, { name: "سجق بلدي (كيلو)", price: 350 },
+            { name: "كباب ضاني (كيلو)", price: 800 }, { name: "ريش ضاني (كيلو)", price: 800 },
+            { name: "استيك كندوز (كيلو)", price: 600 }, { name: "استيك فلتو (كيلو)", price: 650 },
+            { name: "شيش طاووق (كيلو)", price: 350 }, 
+            { name: "فرخة كاملة (شواية/شيش/تكا)", price: 300 }, { name: "نص فرخة", price: 155 }, { name: "ربع فرخة", price: 80 },
+            { name: "كبدة ضاني (كيلو)", price: 650 }, { name: "كبدة كندوز (كيلو)", price: 600 }, { name: "مخاصي (كيلو)", price: 400 }
+          ] 
+        },
+        { 
+          title: "الصواني 🥘", 
+          items: [
+            { name: "صينية محمد صوان (8 أفراد)", price: 1200 },
+            { name: "صينية الوحش", price: 900 },
+            { name: "صينية ليلة العمر", price: 1450 },
+            { name: "صينية ك مشكل", price: 700 },
+            { name: "صينية شهر الخير", price: 950 },
+            { name: "صينية الصحاب", price: 650 },
+            { name: "صينية المحطة", price: 1300 },
+            { name: "صينية ميكس مشويات صوان", price: 1850 }
+          ] 
+        },
+        { 
+          title: "الوجبات 🍱", 
+          items: [
+            { name: "وجبة محمد صوان", price: 100 },
+            { name: "وجبة شيش طاووق", price: 100 },
+            { name: "وجبة كفتة", price: 110 },
+            { name: "وجبة النووي", price: 120 }
+          ] 
+        },
+        { 
+          title: "الحمام والفتة 🕊️", 
+          items: [
+            { name: "جوز حمام محشي (أرز/فريك)", price: 300 },
+            { name: "فرد حمام محشي (أرز/فريك)", price: 150 },
+            { name: "فتة كوارع", price: 150 },
+            { name: "فتة باللحمة", price: 180 },
+            { name: "فتة عكاوي", price: 150 }
+          ] 
+        },
+        { 
+          title: "الطواجن 🍲", 
+          items: [
+            { name: "طاجن لحمة بالبصل", price: 180 }, { name: "طاجن بطاطس باللحمة", price: 180 },
+            { name: "طاجن بامية باللحمة", price: 180 }, { name: "طاجن لحمة بورق العنب", price: 200 },
+            { name: "طاجن كوارع بالبصل", price: 180 }, { name: "طاجن كوارع بورق العنب", price: 200 },
+            { name: "طاجن عكاوي بورق العنب", price: 200 }, { name: "طاجن عكاوي سادة", price: 180 },
+            { name: "طاجن مخاصي", price: 180 }, { name: "طاجن عصب", price: 120 },
+            { name: "طاجن كفتة هندي/طحينة", price: 180 },
+            { name: "طاجن شيش طاووق سادة", price: 150 }, { name: "طاجن شيش طاووق جبنة", price: 170 }
+          ] 
+        },
+        { 
+          title: "الجريل 🔥", 
+          items: [
+            { name: "حواوشي سادة", price: 20 }, { name: "حواوشي خضار", price: 30 },
+            { name: "حواوشي ميكس جبن", price: 35 }, { name: "حواوشي محمد صوان", price: 40 },
+            { name: "حواوشي بسطرمة", price: 45 }, { name: "حواوشي سجق/سلامي", price: 40 },
+            { name: "ورقة لحمة (1/4 ك)", price: 180 }, { name: "ورقة كبدة (1/4 ك)", price: 180 },
+            { name: "ورقة سجق/شيش (1/4 ك)", price: 120 }
+          ] 
+        },
+        { 
+          title: "المحاشي والممبار 🥖", 
+          items: [
+            { name: "كيلو ممبار", price: 300 }, { name: "نص ممبار", price: 150 }, { name: "ربع ممبار", price: 75 },
+            { name: "كيلو ورق عنب", price: 200 }, { name: "نص ورق عنب", price: 100 }, { name: "ربع ورق عنب", price: 50 },
+            { name: "كيلو محشي مشكل", price: 180 }, { name: "نص محشي مشكل", price: 90 }
+          ] 
+        },
+        { 
+          title: "السندوتشات 🌯", 
+          items: [
+            { name: "سندوتش كفتة بلدي", price: 40 }, { name: "سندوتش كباب بلدي", price: 95 },
+            { name: "سندوتش طرب بلدي", price: 65 }, { name: "سندوتش سجق بلدي", price: 50 },
+            { name: "سندوتش كبدة بلدي", price: 65 }, { name: "سندوتش بوم فريت", price: 20 }
+          ] 
+        },
+        { 
+          title: "المطبخ والمكرونة 🍝", 
+          items: [
+            { name: "طاجن ملوخية/بامية سادة", price: 50 }, { name: "لسان عصفور", price: 20 },
+            { name: "أرز بسمتي كبير", price: 35 }, { name: "أرز بالخلطة كبير", price: 50 },
+            { name: "مكرونة بشاميل/نجرسكو", price: 50 }, { name: "مكرونة بلونيز", price: 60 },
+            { name: "مكرونة بالصلصة", price: 25 },
+            { name: "سلطة خضراء/طحينة/باذنجان", price: 15 }, { name: "باكت بوم فريت", price: 20 }
+          ] 
+        }
+      ] 
+    },
+    { 
+      id: 2, 
       category: "مطاعم", 
       name: "حضرموت عنتر", 
       isOpen: true, 
@@ -50,12 +153,12 @@ export default function MiniTalabat() {
         { name: "سلطة خضراء + طحينة", price: 15 }
       ] 
     },
-    { id: 2, category: "مطاعم", name: "مطعم السعادة", isOpen: true, items: [{ name: "بيتزا", price: 120 }, { name: "كريب", price: 80 }], icon: "🍕" },
-    { id: 3, category: "سوبر ماركت", name: "سوبر ماركت الخير", isOpen: true, items: [{ name: "لبن", price: 35 }, { name: "جبنة", price: 70 }], icon: "🛒" },
-    { id: 4, category: "صيدليات", name: "صيدلية الشفاء", isOpen: true, items: [{ name: "بندول", price: 30 }], icon: "💊" },
-    { id: 5, category: "عطارة", name: "عطارة مكة", isOpen: false, items: [{ name: "فلفل أسود", price: 20 }], icon: "🌿" },
-    { id: 6, category: "منظفات", name: "عالم النظافة", isOpen: true, items: [{ name: "مسحوق غسيل", price: 45 }], icon: "🧼" },
-    { id: 7, category: "خضروات وفواكه", name: "خضري العيلة", isOpen: true, items: [{ name: "طماطم 1ك", price: 15 }], icon: "🍎" }
+    { id: 3, category: "مطاعم", name: "مطعم السعادة", isOpen: true, items: [{ name: "بيتزا", price: 120 }, { name: "كريب", price: 80 }], icon: "🍕" },
+    { id: 4, category: "سوبر ماركت", name: "سوبر ماركت الخير", isOpen: true, items: [{ name: "لبن", price: 35 }, { name: "جبنة", price: 70 }], icon: "🛒" },
+    { id: 5, category: "صيدليات", name: "صيدلية الشفاء", isOpen: true, items: [{ name: "بندول", price: 30 }], icon: "💊" },
+    { id: 6, category: "عطارة", name: "عطارة مكة", isOpen: false, items: [{ name: "فلفل أسود", price: 20 }], icon: "🌿" },
+    { id: 7, category: "منظفات", name: "عالم النظافة", isOpen: true, items: [{ name: "مسحوق غسيل", price: 45 }], icon: "🧼" },
+    { id: 8, category: "خضروات وفواكه", name: "خضري العيلة", isOpen: true, items: [{ name: "طماطم 1ك", price: 15 }], icon: "🍎" }
   ];
 
   const filteredShops = shops.filter(shop => {
