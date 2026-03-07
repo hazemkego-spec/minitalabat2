@@ -268,28 +268,33 @@ export default function MiniTalabat() {
         </div>
       )}
 
-          <header style={{ width: '100%', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            
-            {/* الحالة 1: الصفحة الرئيسية (عرض الكفر والبحث) */}
+                    <header style={{ width: '100%', textAlign: 'center', marginBottom: '20px' }}>
             {!selectedShop ? (
-              <>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', height: '180px', backgroundImage: 'url("/cover.png")', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0 0 25px 25px', position: 'relative' }}>
                   <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: '0 0 25px 25px' }}></div>
                 </div>
-                
                 <div style={{ marginTop: '-45px', zIndex: 5, position: 'relative' }}>
-                  <img src="/mall-logo.png" alt="Mall Logo" style={{ width: '90px', height: '90px', borderRadius: '50%', border: '4px solid #121212', backgroundColor: '#1e1e1e', filter: 'drop-shadow(0 0 10px rgba(255,102,0,0.4))' }} />
+                  <img src="/mall-logo.png" alt="Mall Logo" style={{ width: '90px', height: '90px', borderRadius: '50%', border: '4px solid #121212', backgroundColor: '#1e1e1e' }} />
                 </div>
-
                 <div style={{ position: 'relative', marginTop: '15px', width: '95%' }}>
                   <input 
                     type="text" 
-                    placeholder="ابحث عن متجر أو صنف..." 
+                    placeholder="ابحث عن متجر..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #333', backgroundColor: '#1e1e1e', color: '#fff', outline: 'none', fontSize: '14px' }}
+                    style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #333', backgroundColor: '#1e1e1e', color: '#fff', outline: 'none' }}
                   />
                 </div>
+              </div>
+            ) : (
+              <div style={{ marginTop: '20px', padding: '10px' }}>
+                <div style={{ fontSize: '45px', marginBottom: '10px' }}>{selectedShop.icon}</div>
+                <h2 style={{ margin: 0, color: '#FF6600', fontSize: '22px', fontWeight: 'bold' }}>{selectedShop.name}</h2>
+              </div>
+            )}
+          </header>
+
               </>
             ) : (
               /* الحالة 2: داخل المتجر (عرض اللوجو الخاص بالمتجر فقط) */
