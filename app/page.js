@@ -268,27 +268,49 @@ export default function MiniTalabat() {
         </div>
       )}
 
-      {activeTab === 'home' && (
-        <>
-          <header style={{ position: 'relative', width: '100%', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '100%', height: '230px', backgroundImage: 'url("/cover.png")', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0 0 25px 25px', position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '0 0 25px 25px' }}></div>
-            </div>
+          <header style={{ width: '100%', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            
+            {/* الحالة 1: الصفحة الرئيسية (عرض الكفر والبحث) */}
+            {!selectedShop ? (
+              <>
+                <div style={{ width: '100%', height: '180px', backgroundImage: 'url("/cover.png")', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0 0 25px 25px', position: 'relative' }}>
+                  <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: '0 0 25px 25px' }}></div>
+                </div>
+                
+                <div style={{ marginTop: '-45px', zIndex: 5, position: 'relative' }}>
+                  <img src="/mall-logo.png" alt="Mall Logo" style={{ width: '90px', height: '90px', borderRadius: '50%', border: '4px solid #121212', backgroundColor: '#1e1e1e', filter: 'drop-shadow(0 0 10px rgba(255,102,0,0.4))' }} />
+                </div>
 
-            <img src="/mall-logo.png" alt="Logo" style={{ width: '85px', height: '85px', borderRadius: '50%', border: '4px solid #121212', position: 'absolute', top: '180px', zIndex: 2, filter: 'drop-shadow(0 0 12px #FF6600)' }} />
-
-            {!selectedShop && (
-              <div style={{ position: 'relative', marginTop: '60px', marginBottom: '15px', width: '95%', zIndex: 1 }}>
-                <input 
-                  type="text" 
-                  placeholder="ابحث عن متجر..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #333', backgroundColor: '#1e1e1e', color: '#fff', outline: 'none', fontSize: '14px' }}
-                />
+                <div style={{ position: 'relative', marginTop: '15px', width: '95%' }}>
+                  <input 
+                    type="text" 
+                    placeholder="ابحث عن متجر أو صنف..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #333', backgroundColor: '#1e1e1e', color: '#fff', outline: 'none', fontSize: '14px' }}
+                  />
+                </div>
+              </>
+            ) : (
+              /* الحالة 2: داخل المتجر (عرض اللوجو الخاص بالمتجر فقط) */
+              <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                <div style={{ 
+                  fontSize: '50px', 
+                  backgroundColor: '#1e1e1e', 
+                  width: '90px', 
+                  height: '90px', 
+                  lineHeight: '90px', 
+                  borderRadius: '50%', 
+                  margin: '0 auto 10px',
+                  border: '2px solid #FF6600',
+                  boxShadow: '0 0 15px rgba(255,102,0,0.2)'
+                }}>
+                  {selectedShop.icon}
+                </div>
               </div>
             )}
           </header>
+
 
           {!selectedShop ? (
             <>
