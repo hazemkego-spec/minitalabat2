@@ -268,7 +268,7 @@ export default function MiniTalabat() {
         </div>
       )}
 
-                    <header style={{ width: '100%', textAlign: 'center', marginBottom: '20px' }}>
+          <header style={{ width: '100%', textAlign: 'center', marginBottom: '20px' }}>
             {!selectedShop ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', height: '180px', backgroundImage: 'url("/cover.png")', backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '0 0 25px 25px', position: 'relative' }}>
@@ -294,29 +294,6 @@ export default function MiniTalabat() {
               </div>
             )}
           </header>
-
-              </>
-            ) : (
-              /* الحالة 2: داخل المتجر (عرض اللوجو الخاص بالمتجر فقط) */
-              <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <div style={{ 
-                  fontSize: '50px', 
-                  backgroundColor: '#1e1e1e', 
-                  width: '90px', 
-                  height: '90px', 
-                  lineHeight: '90px', 
-                  borderRadius: '50%', 
-                  margin: '0 auto 10px',
-                  border: '2px solid #FF6600',
-                  boxShadow: '0 0 15px rgba(255,102,0,0.2)'
-                }}>
-                  {selectedShop.icon}
-                </div>
-              </div>
-            )}
-          </header>
-
-
           {!selectedShop ? (
             <>
               <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', marginBottom: '20px', paddingBottom: '5px', scrollbarWidth: 'none' }}>
