@@ -11,7 +11,7 @@ export default function MiniTalabat() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [orderCount, setOrderCount] = useState(0); 
   const [selectedShop, setSelectedShop] = useState(null);
-  const [activeSubTab, setActiveSubTab] = useState(""); // للحفاظ على القسم النشط داخل المطعم
+  const [activeSubTab, setActiveSubTab] = useState(""); 
 
   const MAIN_PHONE = "201122947479"; 
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
@@ -35,7 +35,7 @@ export default function MiniTalabat() {
   const categories = ["الكل", "مطاعم", "سوبر ماركت", "صيدليات", "عطارة", "منظفات", "خضروات وفواكه"];
 
   const shops = [
-        { 
+    { 
       id: 1, 
       category: "مطاعم", 
       name: "جزارة ومشويات محمد صوان", 
@@ -179,12 +179,10 @@ export default function MiniTalabat() {
     setItemNotes({ ...itemNotes, [key]: note });
   };
 
-  // دالة مطورة لجلب السعر تدعم النظامين
   const getItemPrice = (key) => {
     const [shopName, itemName] = key.split('-');
     const shop = shops.find(s => s.name === shopName);
     if (!shop) return 0;
-    
     if (shop.menuCategories) {
       let foundPrice = 0;
       shop.menuCategories.forEach(cat => {
@@ -193,7 +191,6 @@ export default function MiniTalabat() {
       });
       return foundPrice;
     }
-    
     const item = shop.items?.find(i => i.name === itemName);
     return item ? item.price : 0;
   };
@@ -268,6 +265,8 @@ export default function MiniTalabat() {
         </div>
       )}
 
+      {activeTab === 'home' && (
+        <>
           <header style={{ width: '100%', textAlign: 'center', marginBottom: '20px' }}>
             {!selectedShop ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -286,12 +285,15 @@ export default function MiniTalabat() {
                     style={{ width: '100%', padding: '12px 15px', borderRadius: '25px', border: '1px solid #333', backgroundColor: '#1e1e1e', color: '#fff', outline: 'none' }}
                   />
                 </div>
+              </div>
             ) : (
               <div style={{ marginTop: '20px', padding: '10px' }}>
                 <div style={{ fontSize: '45px', marginBottom: '10px' }}>{selectedShop.icon}</div>
                 <h2 style={{ margin: 0, color: '#FF6600', fontSize: '22px', fontWeight: 'bold' }}>{selectedShop.name}</h2>
-              </div> )}
+              </div>
+            )}
           </header>
+
           {!selectedShop ? (
             <>
               <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', marginBottom: '20px', paddingBottom: '5px', scrollbarWidth: 'none' }}>
@@ -302,7 +304,7 @@ export default function MiniTalabat() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', padding: '5px' }}>
                 {filteredShops.map(shop => (
-                  <div key={shop.id} onClick={() => {setSelectedShop(shop); setActiveSubTab("");}} style={{ backgroundColor: '#1e1e1e', borderRadius: '15px', padding: '20px 10px', textAlign: 'center', border: '1px solid #333', cursor: 'pointer', transition: '0.3s' }}>
+                  <div key={shop.id} onClick={() => {setSelectedShop(shop); setActiveSubTab("");}} style={{ backgroundColor: '#1e1e1e', borderRadius: '15px', padding: '20px 10px', textAlign: 'center', border: '1px solid #333', cursor: 'pointer' }}>
                     <div style={{ fontSize: '35px', marginBottom: '10px' }}>{shop.icon}</div>
                     <h4 style={{ margin: '5px 0', fontSize: '14px' }}>{shop.name}</h4>
                     <span style={{ fontSize: '10px', color: shop.isOpen ? '#4caf50' : '#f44336' }}>{shop.isOpen ? '● مفتوح الآن' : '● مغلق'}</span>
@@ -314,13 +316,9 @@ export default function MiniTalabat() {
             <div style={{ padding: '0 5px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                 <button onClick={() => setSelectedShop(null)} style={{ backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '20px' }}>→</button>
-                <div>
-                  <h2 style={{ margin: 0, color: '#FF6600', fontSize: '18px' }}>{selectedShop.name}</h2>
-                  <small style={{ color: '#888' }}>{selectedShop.menuCategories ? "اختر من الأقسام بالأسفل" : "قائمة المنتجات"}</small>
-                </div>
+                <small style={{ color: '#888' }}>{selectedShop.menuCategories ? "اختر من الأقسام بالأسفل" : "قائمة المنتجات"}</small>
               </div>
 
-              {/* نظام الـ Tabs العلوي يظهر فقط في حالة وجود مصفوفة menuCategories */}
               {selectedShop.menuCategories && (
                 <div style={{ display: 'flex', overflowX: 'auto', gap: '10px', paddingBottom: '15px', marginBottom: '15px', scrollbarWidth: 'none' }}>
                   {selectedShop.menuCategories.map((cat, i) => (
@@ -339,7 +337,6 @@ export default function MiniTalabat() {
                 </div>
               )}
 
-              {/* عرض العناصر بناءً على الفلتر أو القائمة العادية */}
               <div style={{ display: 'grid', gap: '10px' }}>
                 {(selectedShop.menuCategories ? 
                   (selectedShop.menuCategories.find(c => c.title === activeSubTab) || selectedShop.menuCategories[0]).items : 
