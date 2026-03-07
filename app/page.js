@@ -35,12 +35,27 @@ export default function MiniTalabat() {
 
   // إضافة أيقونات تعبيرية للمتاجر لتناسب شكل المربعات
   const shops = [
-    { id: 1, category: "مطاعم", name: "مطعم السعادة", isOpen: true, items: [{ name: "بيتزا", price: 120 }, { name: "كريب", price: 80 }], icon: "🍕" },
-    { id: 2, category: "سوبر ماركت", name: "سوبر ماركت الخير", isOpen: true, items: [{ name: "لبن", price: 35 }, { name: "جبنة", price: 70 }], icon: "🛒" },
-    { id: 3, category: "صيدليات", name: "صيدلية الشفاء", isOpen: true, items: [{ name: "بندول", price: 30 }], icon: "💊" },
-    { id: 4, category: "عطارة", name: "عطارة مكة", isOpen: false, items: [{ name: "فلفل أسود", price: 20 }], icon: "🌿" },
-    { id: 5, category: "منظفات", name: "عالم النظافة", isOpen: true, items: [{ name: "مسحوق غسيل", price: 45 }], icon: "🧼" },
-    { id: 6, category: "خضروات وفواكه", name: "خضري العيلة", isOpen: true, items: [{ name: "طماطم 1ك", price: 15 }], icon: "🍎" }
+    { 
+      id: 1, 
+      category: "مطاعم", 
+      name: "حضرموت عنتر", 
+      isOpen: true, 
+      icon: "🍗", 
+      items: [
+        { name: "ربع فرخة مندية + أرز", price: 95 },
+        { name: "وجبة كفتة (4 قطع)", price: 110 },
+        { name: "طاجن عكاوي بالبصل", price: 220 },
+        { name: "فرد حمام محشي", price: 140 },
+        { name: "طبق أرز بسمتي إضافي", price: 35 },
+        { name: "سلطة خضراء + طحينة", price: 15 }
+      ] 
+    },
+    { id: 2, category: "مطاعم", name: "مطعم السعادة", isOpen: true, items: [{ name: "بيتزا", price: 120 }, { name: "كريب", price: 80 }], icon: "🍕" },
+    { id: 3, category: "سوبر ماركت", name: "سوبر ماركت الخير", isOpen: true, items: [{ name: "لبن", price: 35 }, { name: "جبنة", price: 70 }], icon: "🛒" },
+    { id: 4, category: "صيدليات", name: "صيدلية الشفاء", isOpen: true, items: [{ name: "بندول", price: 30 }], icon: "💊" },
+    { id: 5, category: "عطارة", name: "عطارة مكة", isOpen: false, items: [{ name: "فلفل أسود", price: 20 }], icon: "🌿" },
+    { id: 6, category: "منظفات", name: "عالم النظافة", isOpen: true, items: [{ name: "مسحوق غسيل", price: 45 }], icon: "🧼" },
+    { id: 7, category: "خضروات وفواكه", name: "خضري العيلة", isOpen: true, items: [{ name: "طماطم 1ك", price: 15 }], icon: "🍎" }
   ];
 
   const filteredShops = shops.filter(shop => {
