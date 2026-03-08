@@ -16,6 +16,9 @@ export default function MiniTalabat() {
   const MAIN_PHONE = "201122947479"; 
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
 
+  // رابط اللوجو الجديد لمطعم صوان
+  const SAWAN_LOGO_URL = "https://i.ibb.co/5xb01b0P/image-5.png";
+
   useEffect(() => {
     const saved = localStorage.getItem('miniTalabat_user');
     if (saved) setCustomerInfo(JSON.parse(saved));
@@ -40,7 +43,8 @@ export default function MiniTalabat() {
       category: "مطاعم", 
       name: "جزارة ومشويات محمد صوان", 
       isOpen: true, 
-      icon: "🥩",
+      // تم تعديل الأيقونة هنا لتصبح اللوجو الجديد
+      icon: <img src={SAWAN_LOGO_URL} alt="صوان" style={{ width: '45px', height: '45px', borderRadius: '50%', border: '2px solid #FF6600', objectFit: 'cover' }} />,
       menuCategories: [
         { 
           title: "قسم المشويات 🍗", 
@@ -183,15 +187,20 @@ export default function MiniTalabat() {
     const [shopName, itemName] = key.split('-');
     const shop = shops.find(s => s.name === shopName);
     if (!shop) return 0;
+    
+    // دعم لجلب السعر في حال وجود أيقونة بدلاً من النص
+    const currentItemName = (typeof itemName === 'string') ? itemName : itemName?.props?.alt;
+
     if (shop.menuCategories) {
       let foundPrice = 0;
       shop.menuCategories.forEach(cat => {
-        const item = cat.items.find(i => i.name === itemName);
+        const item = cat.items.find(i => i.name === currentItemName);
         if (item) foundPrice = item.price;
       });
       return foundPrice;
     }
-    const item = shop.items?.find(i => i.name === itemName);
+    
+    const item = shop.items?.find(i => i.name === currentItemName);
     return item ? item.price : 0;
   };
 
@@ -208,8 +217,10 @@ export default function MiniTalabat() {
     Object.keys(cart).forEach(key => {
       const [shopName, itemName] = key.split('-');
       if (!grouped[shopName]) grouped[shopName] = [];
+      // جلب الاسم الصحيح لعرضه في السلة
+      const displayName = (typeof itemName === 'string') ? itemName : itemName?.props?.alt;
       grouped[shopName].push({
-        key, name: itemName, quantity: cart[key], price: getItemPrice(key), note: itemNotes[key] || ""
+        key, name: displayName, quantity: cart[key], price: getItemPrice(key), note: itemNotes[key] || ""
       });
     });
     return grouped;
@@ -241,6 +252,7 @@ export default function MiniTalabat() {
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
+        // تصحيح بسيط لرابط الخريطة ليعمل بشكل احترافي
         const url = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
         setLocationUrl(url);
         alert("تم تحديد موقعك بنجاح ✅");
@@ -287,8 +299,13 @@ export default function MiniTalabat() {
                 </div>
               </div>
             ) : (
-              <div style={{ marginTop: '20px', padding: '10px' }}>
-                <div style={{ fontSize: '45px', marginBottom: '10px' }}>{selectedShop.icon}</div>
+              <div style={{ marginTop: '20px', padding: '10px', textAlign: 'center' }}>
+                {/* تم تعديل عرض اللوجو داخل صفحة المطعم ليتناسب مع الصورة */}
+                {typeof selectedShop.icon === 'string' ? (
+                  <div style={{ fontSize: '45px', marginBottom: '10px' }}>{selectedShop.icon}</div>
+                ) : (
+                  <img src={SAWAN_LOGO_URL} alt="صوان" style={{ width: '90px', height: '90px', borderRadius: '50%', border: '4px solid #FF6600', objectFit: 'cover', marginBottom: '10px', boxShadow: '0 0 15px rgba(255,102,0,0.3)' }} />
+                )}
                 <h2 style={{ margin: 0, color: '#FF6600', fontSize: '22px', fontWeight: 'bold' }}>{selectedShop.name}</h2>
               </div>
             )}
@@ -305,7 +322,12 @@ export default function MiniTalabat() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', padding: '5px' }}>
                 {filteredShops.map(shop => (
                   <div key={shop.id} onClick={() => {setSelectedShop(shop); setActiveSubTab("");}} style={{ backgroundColor: '#1e1e1e', borderRadius: '15px', padding: '20px 10px', textAlign: 'center', border: '1px solid #333', cursor: 'pointer' }}>
-                    <div style={{ fontSize: '35px', marginBottom: '10px' }}>{shop.icon}</div>
+                    {/* عرض الأيقونة أو اللوجو في قائمة المحلات */}
+                    {typeof shop.icon === 'string' ? (
+                      <div style={{ fontSize: '35px', marginBottom: '10px' }}>{shop.icon}</div>
+                    ) : (
+                      <div style={{ marginBottom: '10px' }}>{shop.icon}</div>
+                    )}
                     <h4 style={{ margin: '5px 0', fontSize: '14px' }}>{shop.name}</h4>
                     <span style={{ fontSize: '10px', color: shop.isOpen ? '#4caf50' : '#f44336' }}>{shop.isOpen ? '● مفتوح الآن' : '● مغلق'}</span>
                   </div>
