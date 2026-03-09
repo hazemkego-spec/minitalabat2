@@ -16,8 +16,8 @@ export default function MiniTalabat() {
   const MAIN_PHONE = "201122947479"; 
   const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', address: '' });
 
-  // رابط اللوجو الجديد لمطعم صوان
-  const SAWAN_LOGO_URL = "https://i.ibb.co/5xb01b0P/image-5.png";
+  // السطر المعدل لاستخدام الصورة من داخل المشروع
+const SAWAN_LOGO_URL = "/sawan-logo.png";
 
   useEffect(() => {
     const saved = localStorage.getItem('miniTalabat_user');
