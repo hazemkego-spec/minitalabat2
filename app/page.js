@@ -10,6 +10,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
+const [selectedShop, setSelectedShop] = useState(null);
 
   // بيانات السلة (مؤقتاً)
   const [cart, setCart] = useState({});
