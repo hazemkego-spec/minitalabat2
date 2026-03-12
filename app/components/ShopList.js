@@ -1,34 +1,56 @@
-"use client";
+// app/components/ShopList.js
 import React from "react";
 
-export default function ShopList({ categories, activeCategory, setActiveCategory, filteredShops, setSelectedShop }) {
-  return (
-    <>
-      <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', marginBottom: '20px', paddingBottom: '5px', scrollbarWidth: 'none' }}>
-        {categories.map(cat => (
-          <button 
-            key={cat} 
-            onClick={() => setActiveCategory(cat)} 
-            style={{ padding: '8px 18px', borderRadius: '20px', border: 'none', backgroundColor: activeCategory === cat ? '#FF6600' : '#1e1e1e', color: '#fff', whiteSpace: 'nowrap', fontSize: '13px' }}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+const shops = [
+  {
+    id: 1,
+    category: "مطاعم",
+    name: "مطعم المشويات البلدي",
+    isOpen: true,
+    logo: "/restaurant-logo.png",
+    cover: "/restaurant-cover.jpg",
+    menuCategories: [
+      {
+        title: "قسم المشويات 🍗",
+        items: [
+          { name: "كفتة بلدي (كيلو)", price: 400 },
+          { name: "شيش طاووق (كيلو)", price: 350 }
+        ]
+      },
+      {
+        title: "قسم اللحوم 🥩",
+        items: [
+          { name: "لحم بلدي (كيلو)", price: 300 },
+          { name: "كبدة بلدي (كيلو)", price: 280 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    category: "سوبر ماركت",
+    name: "سوبر ماركت الخير",
+    isOpen: true,
+    logo: "/supermarket-logo.png",
+    cover: "/supermarket-cover.jpg",
+    items: [
+      { name: "لبن", price: 35 },
+      { name: "جبنة", price: 70 },
+      { name: "زيت", price: 90 }
+    ]
+  },
+  {
+    id: 3,
+    category: "صيدليات",
+    name: "صيدلية الشفاء",
+    isOpen: true,
+    logo: "/pharmacy-logo.png",
+    cover: "/pharmacy-cover.jpg",
+    items: [
+      { name: "بندول", price: 30 },
+      { name: "فيتامين سي", price: 50 }
+    ]
+  }
+];
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', padding: '5px' }}>
-        {filteredShops.map(shop => (
-          <div key={shop.id} onClick={() => {setSelectedShop(shop);}} style={{ backgroundColor: '#1e1e1e', borderRadius: '15px', padding: '20px 10px', textAlign: 'center', border: '1px solid #333', cursor: 'pointer' }}>
-            {typeof shop.icon === 'string' ? (
-              <div style={{ fontSize: '35px', marginBottom: '10px' }}>{shop.icon}</div>
-            ) : (
-              <div style={{ marginBottom: '10px' }}>{shop.icon}</div>
-            )}
-            <h4 style={{ margin: '5px 0', fontSize: '14px' }}>{shop.name}</h4>
-            <span style={{ fontSize: '10px', color: shop.isOpen ? '#4caf50' : '#f44336' }}>{shop.isOpen ? '● مفتوح الآن' : '● مغلق'}</span>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
+export default shops;
