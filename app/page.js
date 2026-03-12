@@ -10,6 +10,89 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
 
+  // بيانات السلة (مؤقتاً فاضية لحد ما نكمل)
+  const [cart, setCart] = useState({});
+  const [itemNotes, setItemNotes] = useState({});
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    phone: "",
+    address: ""
+  });
+  const [locationUrl, setLocationUrl] = useState("");
+
+  // دوال السلة (مؤقتة للتجربة)
+  const addToCart = (shopName, item) => {
+    const key = `${shopName}-${item.name}`;
+    setCart((prev) => ({
+      ...prev,
+      [key]: prev[key]
+        ? { ...prev[key], quantity: prev[key].quantity + 1 }
+        : { ...item, quantity: 1, key }
+    }));
+  };
+
+  const removeFromCart = (key) => {
+    setCart((prev) => {
+      const newCart = { ...prev };
+      delete newCart[key];
+      return newCart;
+    });
+  };
+
+  const updateItemNote = (key, note) => {
+    setItemNotes((prev) => ({ ...prev, [key]: note }));
+  };
+
+  const calculateTotal = () =>
+    Object.values(cart).reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+  const getGroupedCart = () => {
+    const grouped = {};
+    Object.values(cart).forEach((item) => {
+      const shopName = item.key.split("-")[0];
+      if (!grouped[shopName]) grouped[shopName] = [];
+      grouped[shopName].push(item);
+    });
+    return grouped;
+  };
+
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+        setLocationUrl(
+          `https://www.google.com/maps?q=${latitude},${longitude}`
+        );
+      });
+    }
+  };
+
+  const sendOrder = () => {
+    let message = `طلب جديد من ${customerInfo.name}\n📞 ${customerInfo.phone}\n🏠 ${customerInfo.address}\n`;
+    if (locationUrl) message += `📍 الموقع: ${locationUrl}\n\n`;
+
+    Object.keys(getGroupedCart()).forEach((shopName) => {
+      message += `🛍️ متجر: ${shopName}\n`;
+      getGroupedCart()[shopName].forEach((item) => {
+        message += `- ${item.name} (x${item.quantity}) = ${
+          item.price * item.quantity
+        } ج\n`;
+        if (itemNotes[item.key]) {
+          message += `  ملاحظات: ${itemNotes[item.key]}\n`;
+        }
+      });
+      message += "\n";
+    });
+
+    message += `💰 الإجمالي: ${calculateTotal()} ج.م\n`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  };
+
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة"];
 
   return (
@@ -75,22 +158,24 @@ export default function HomePage() {
               </button>
             ))}
           </div>
+
+          {/* هنا لاحقاً هنضيف عرض المتاجر حسب الفئة المختارة */}
         </>
       )}
 
       {activeTab === "cart" && (
         <Cart
-          cart={{}} // مؤقتاً فاضي لحد ما نكمل
-          itemNotes={{}}
-          removeFromCart={() => {}}
-          updateItemNote={() => {}}
-          calculateTotal={() => 0}
-          getGroupedCart={() => ({})}
-          customerInfo={{ name: "", phone: "", address: "" }}
-          setCustomerInfo={() => {}}
-          locationUrl=""
-          handleGetLocation={() => {}}
-          sendOrder={() => {}}
+          cart={cart}
+          itemNotes={itemNotes}
+          removeFromCart={removeFromCart}
+          updateItemNote={updateItemNote}
+          calculateTotal={calculateTotal}
+          getGroupedCart={getGroupedCart}
+          customerInfo={customerInfo}
+          setCustomerInfo={setCustomerInfo}
+          locationUrl={locationUrl}
+          handleGetLocation={handleGetLocation}
+          sendOrder={sendOrder}
         />
       )}
 
