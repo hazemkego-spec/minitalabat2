@@ -4,13 +4,14 @@ import React, { useState } from "react";
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
 import InstallGuide from "./components/InstallGuide";
+import shops from "./components/ShopList"; // استدعاء قائمة المتاجر
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
 
-  // بيانات السلة (مؤقتاً فاضية لحد ما نكمل)
+  // بيانات السلة (مؤقتاً)
   const [cart, setCart] = useState({});
   const [itemNotes, setItemNotes] = useState({});
   const [customerInfo, setCustomerInfo] = useState({
@@ -20,7 +21,7 @@ export default function HomePage() {
   });
   const [locationUrl, setLocationUrl] = useState("");
 
-  // دوال السلة (مؤقتة للتجربة)
+  // دوال السلة
   const addToCart = (shopName, item) => {
     const key = `${shopName}-${item.name}`;
     setCart((prev) => ({
@@ -95,6 +96,21 @@ export default function HomePage() {
 
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة"];
 
+  // فلترة المتاجر حسب الفئة والبحث
+  const filteredShops = shops.filter((shop) => {
+    const matchCategory =
+      selectedCategory === "الكل" || shop.category === selectedCategory;
+    const matchSearch =
+      shop.name.includes(searchTerm) ||
+      (shop.items &&
+        shop.items.some((item) => item.name.includes(searchTerm))) ||
+      (shop.menuCategories &&
+        shop.menuCategories.some((cat) =>
+          cat.items.some((item) => item.name.includes(searchTerm))
+        ));
+    return matchCategory && matchSearch;
+  });
+
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
       
@@ -159,7 +175,57 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* هنا لاحقاً هنضيف عرض المتاجر حسب الفئة المختارة */}
+          {/* عرض المتاجر حسب الفئة والبحث */}
+          <div style={{ padding: "15px" }}>
+            {filteredShops.length === 0 ? (
+              <p>لا توجد متاجر مطابقة 🔍</p>
+            ) : (
+              filteredShops.map((shop) => (
+                <div
+                  key={shop.id}
+                  style={{
+                    backgroundColor: "#1e1e1e",
+                    borderRadius: "15px",
+                    padding: "10px",
+                    marginBottom: "10px"
+                  }}
+                >
+                  <img
+                    src={shop.cover}
+                    alt="cover"
+                    style={{
+                      width: "100%",
+                      height: "120px",
+                      borderRadius: "10px",
+                      objectFit: "cover"
+                    }}
+                  />
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <img
+                      src={shop.logo}
+                      alt={shop.name}
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        borderRadius: "50%",
+                        border: "2px solid #FF6600",
+                        marginTop: "-25px"
+                      }}
+                    />
+                    <h4 style={{ color: "#fff" }}>{shop.name}</h4>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: shop.isOpen ? "#4caf50" : "#f44336"
+                    }}
+                  >
+                    {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </>
       )}
 
