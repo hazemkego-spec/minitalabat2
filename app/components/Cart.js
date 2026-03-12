@@ -1,58 +1,153 @@
-"use client";
+// app/components/Cart.js
 import React from "react";
 
-export default function Cart({ cart, getGroupedCart, removeFromCart, updateItemNote, customerInfo, setCustomerInfo, locationUrl, handleGetLocation, calculateTotal, sendOrder }) {
-  const inputStyle = { 
-    width: '100%', 
-    padding: '12px', 
-    borderRadius: '10px', 
-    border: '1px solid #333', 
-    backgroundColor: '#121212', 
-    color: '#fff', 
-    marginBottom: '10px', 
-    outline: 'none' 
+export default function Cart({
+  cart,
+  itemNotes,
+  removeFromCart,
+  updateItemNote,
+  calculateTotal,
+  getGroupedCart,
+  customerInfo,
+  setCustomerInfo,
+  locationUrl,
+  handleGetLocation,
+  sendOrder
+}) {
+  const inputStyle = {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #333",
+    backgroundColor: "#121212",
+    color: "#fff",
+    marginBottom: "10px",
+    outline: "none"
   };
 
   return (
-    <div style={{ padding: '5px' }}>
-      <h2 style={{ color: '#FF6600', textAlign: 'center' }}>سلة المشتريات 🛒</h2>
+    <div style={{ padding: "10px" }}>
+      <h2 style={{ color: "#FF6600" }}>سلة المشتريات 🛒</h2>
+
       {Object.keys(cart).length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#666', marginTop: '50px' }}>السلة فارغة حالياً 🧡</p>
+        <p>السلة فارغة حالياً 🧡</p>
       ) : (
         <>
-          {Object.keys(getGroupedCart()).map(shopName => (
-            <div key={shopName} style={{ marginBottom: '15px', border: '1px solid #333', borderRadius: '12px', overflow: 'hidden' }}>
-              <div style={{ backgroundColor: '#333', padding: '8px 15px', color: '#FF6600', fontWeight: 'bold' }}>📍 متجر: {shopName}</div>
-              {getGroupedCart()[shopName].map(item => (
-                <div key={item.key} style={{ padding: '12px', borderBottom: '1px solid #222', backgroundColor: '#1e1e1e' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{item.name} <small style={{color: '#888'}}>(الكمية: {item.quantity})</small></span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <b style={{color: '#FF6600'}}>{item.price * item.quantity}ج</b>
-                      <button onClick={() => removeFromCart(item.key)} style={{ color: '#ff4444', background: 'none', border: '1px solid #ff4444', borderRadius: '50%', width: '22px', height: '22px' }}>-</button>
-                    </div>
+          {Object.keys(getGroupedCart()).map((shopName) => (
+            <div key={shopName}>
+              <h3 style={{ color: "#FF6600" }}>📍 متجر: {shopName}</h3>
+              {getGroupedCart()[shopName].map((item) => (
+                <div
+                  key={item.key}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    backgroundColor: "#1e1e1e",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    marginBottom: "10px"
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "5px"
+                    }}
+                  >
+                    <span>
+                      {item.name} (x{item.quantity})
+                    </span>
+                    <span>{item.price * item.quantity} ج</span>
                   </div>
-                  <input 
-                    placeholder="أضف ملاحظة..." 
-                    value={item.note} 
-                    onChange={(e) => updateItemNote(item.key, e.target.value)} 
-                    style={{ width: '100%', backgroundColor: 'transparent', color: '#aaa', border: 'none', borderBottom: '1px solid #444', fontSize: '12px', marginTop: '8px', outline: 'none' }} 
+
+                  {/* ملاحظات على الصنف */}
+                  <input
+                    type="text"
+                    placeholder="ملاحظات على الطلب (اختياري)"
+                    value={itemNotes[item.key] || ""}
+                    onChange={(e) =>
+                      updateItemNote(item.key, e.target.value)
+                    }
+                    style={inputStyle}
                   />
+
+                  <button
+                    onClick={() => removeFromCart(item.key)}
+                    style={{
+                      backgroundColor: "#f44336",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "5px",
+                      marginTop: "5px"
+                    }}
+                  >
+                    - إزالة
+                  </button>
                 </div>
               ))}
             </div>
           ))}
-          <div style={{ backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', border: '1px solid #FF6600' }}>
-            <h4 style={{ margin: '0 0 15px 0', color: '#FF6600' }}>🛵 بيانات التوصيل:</h4>
-            <input placeholder="الاسم" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} style={inputStyle} />
-            <input placeholder="الموبايل" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} style={inputStyle} />
-            <input placeholder="العنوان بالتفصيل" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} style={inputStyle} />
-            <button onClick={handleGetLocation} style={{ width: '100%', padding: '10px', backgroundColor: locationUrl ? '#1b5e20' : '#444', color: '#fff', border: 'none', borderRadius: '10px', marginBottom: '10px' }}>
-              {locationUrl ? "✅ تم تحديد موقعك" : "📍 تحديد موقعي تلقائياً (GPS)"}
-            </button>
-            <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>إجمالي الحساب: {calculateTotal()} ج.م</div>
-            <button onClick={sendOrder} style={{ width: '100%', padding: '15px', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '12px', marginTop: '15px', fontWeight: 'bold' }}>إرسال للواتساب ✅</button>
-          </div>
+
+          {/* بيانات العميل */}
+          <input
+            placeholder="الاسم"
+            value={customerInfo.name}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, name: e.target.value })
+            }
+            style={inputStyle}
+          />
+          <input
+            placeholder="الموبايل"
+            value={customerInfo.phone}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, phone: e.target.value })
+            }
+            style={inputStyle}
+          />
+          <input
+            placeholder="العنوان"
+            value={customerInfo.address}
+            onChange={(e) =>
+              setCustomerInfo({ ...customerInfo, address: e.target.value })
+            }
+            style={inputStyle}
+          />
+
+          {/* تحديد الموقع */}
+          <button
+            onClick={handleGetLocation}
+            style={{
+              backgroundColor: "#333",
+              color: "#fff",
+              borderRadius: "8px",
+              padding: "10px",
+              marginBottom: "10px"
+            }}
+          >
+            {locationUrl ? "✅ تم تحديد موقعك" : "📍 تحديد موقعي"}
+          </button>
+
+          {/* الإجمالي */}
+          <h3>الإجمالي: {calculateTotal()} ج.م</h3>
+
+          {/* إرسال الطلب */}
+          <button
+            onClick={sendOrder}
+            style={{
+              backgroundColor: "#25D366",
+              color: "#fff",
+              padding: "12px",
+              borderRadius: "10px",
+              border: "none",
+              fontWeight: "bold",
+              width: "100%"
+            }}
+          >
+            إرسال الطلب عبر واتساب ✅
+          </button>
         </>
       )}
     </div>
