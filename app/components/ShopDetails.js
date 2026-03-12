@@ -1,131 +1,109 @@
 // app/components/ShopDetails.js
-import React from "react";
+import React, { useState } from "react";
 
 export default function ShopDetails({ shop, onBack, addToCart }) {
-  if (!shop) return null;
+  const [activeCategory, setActiveCategory] = useState(
+    shop.menuCategories[0]?.title || ""
+  );
 
   return (
     <div style={{ padding: "10px" }}>
-      {/* زر الرجوع */}
-      <button
-        onClick={onBack}
-        style={{
-          backgroundColor: "#333",
-          color: "#fff",
-          borderRadius: "50%",
-          width: "40px",
-          height: "40px",
-          marginBottom: "10px"
-        }}
-      >
-        ←
-      </button>
-
-      {/* صورة الـ cover */}
-      <img
-        src={shop.cover}
-        alt="cover"
-        style={{
-          width: "100%",
-          height: "150px",
-          borderRadius: "10px",
-          objectFit: "cover",
-          marginBottom: "10px"
-        }}
-      />
-
-      {/* اللوجو واسم المتجر */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
+        <button
+          onClick={onBack}
+          style={{
+            backgroundColor: "#333",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            padding: "8px 12px",
+            marginRight: "10px",
+            cursor: "pointer"
+          }}
+        >
+          ⬅ رجوع
+        </button>
         <img
           src={shop.logo}
           alt={shop.name}
           style={{
-            width: "60px",
-            height: "60px",
+            width: "50px",
+            height: "50px",
             borderRadius: "50%",
-            border: "2px solid #FF6600"
+            border: "2px solid #FF6600",
+            marginRight: "10px"
           }}
         />
-        <h2 style={{ color: "#FF6600" }}>{shop.name}</h2>
+        <h3 style={{ color: "#FF6600" }}>{shop.name}</h3>
       </div>
 
-      {/* حالة المتجر */}
-      <span
+      {/* Categories Tabs */}
+      <div
         style={{
-          fontSize: "12px",
-          color: shop.isOpen ? "#4caf50" : "#f44336",
-          marginBottom: "15px",
-          display: "block"
+          display: "flex",
+          overflowX: "auto",
+          gap: "10px",
+          marginBottom: "15px"
         }}
       >
-        {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-      </span>
+        {shop.menuCategories.map((cat) => (
+          <button
+            key={cat.title}
+            onClick={() => setActiveCategory(cat.title)}
+            style={{
+              flex: "0 0 auto",
+              padding: "8px 15px",
+              borderRadius: "20px",
+              border: "none",
+              backgroundColor: activeCategory === cat.title ? "#FF6600" : "#333",
+              color: "#fff",
+              fontWeight: "bold",
+              cursor: "pointer"
+            }}
+          >
+            {cat.title}
+          </button>
+        ))}
+      </div>
 
-      {/* عرض الأصناف */}
-      {shop.menuCategories ? (
-        shop.menuCategories.map((cat, idx) => (
-          <div key={idx} style={{ marginBottom: "20px" }}>
-            <h3 style={{ color: "#FF6600" }}>{cat.title}</h3>
-            {cat.items.map((item) => (
-              <div
-                key={item.name}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  backgroundColor: "#1e1e1e",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  marginBottom: "10px"
-                }}
-              >
-                <span>
-                  {item.name} - {item.price} ج.م
-                </span>
+      {/* Items of Active Category */}
+      <div>
+        {shop.menuCategories
+          .find((cat) => cat.title === activeCategory)
+          ?.items.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: "#1e1e1e",
+                borderRadius: "10px",
+                padding: "10px",
+                marginBottom: "10px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <span>{item.name}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ color: "#FF6600" }}>{item.price} ج</span>
                 <button
                   onClick={() => addToCart(shop.name, item)}
                   style={{
-                    backgroundColor: "#FF6600",
+                    backgroundColor: "#25D366",
                     color: "#fff",
-                    borderRadius: "5px",
-                    padding: "5px 10px"
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "5px 10px",
+                    cursor: "pointer"
                   }}
                 >
-                  +
+                  ➕ أضف
                 </button>
               </div>
-            ))}
-          </div>
-        ))
-      ) : (
-        (shop.items || []).map((item) => (
-          <div
-            key={item.name}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              backgroundColor: "#1e1e1e",
-              padding: "10px",
-              borderRadius: "10px",
-              marginBottom: "10px"
-            }}
-          >
-            <span>
-              {item.name} - {item.price} ج.م
-            </span>
-            <button
-              onClick={() => addToCart(shop.name, item)}
-              style={{
-                backgroundColor: "#FF6600",
-                color: "#fff",
-                borderRadius: "5px",
-                padding: "5px 10px"
-              }}
-            >
-              +
-            </button>
-          </div>
-        ))
-      )}
+            </div>
+          ))}
+      </div>
     </div>
   );
 }
