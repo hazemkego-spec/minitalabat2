@@ -1,18 +1,49 @@
-"use client";
+// app/components/InstallGuide.js
 import React from "react";
 
-export default function InstallGuide({ setShowInstallGuide }) {
+export default function InstallGuide({ onClose }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ backgroundColor: '#1e1e1e', borderRadius: '20px', padding: '25px', border: '2px solid #FF6600', position: 'relative', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <button onClick={() => setShowInstallGuide(false)} style={{ position: 'absolute', top: '10px', left: '10px', background: 'none', border: 'none', color: '#FF6600', fontSize: '22px', fontWeight: 'bold' }}>✕</button>
-        <h3 style={{ color: '#FF6600', marginBottom: '20px' }}>ثبت تطبيق ميني طلبات!</h3>
-        <div style={{ textAlign: 'right', fontSize: '14px', lineHeight: '1.8', color: '#fff' }}>
-          <p><b>🍎 آيفون:</b> مشاركة 📤 ثم "إضافة للشاشة الرئيسية" ➕</p>
-          <p><b>🤖 أندرويد:</b> خيارات ⁝ ثم "تثبيت التطبيق" 📲</p>
-        </div>
-        <button onClick={() => setShowInstallGuide(false)} style={{ width: '100%', padding: '12px', backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '12px', marginTop: '20px', fontWeight: 'bold' }}>ابدأ التسوق!</button>
-      </div>
+    <div
+      style={{
+        backgroundColor: "#121212",
+        color: "#fff",
+        padding: "20px",
+        borderRadius: "15px",
+        margin: "20px",
+        textAlign: "center",
+        border: "1px solid #333"
+      }}
+    >
+      <h2 style={{ color: "#FF6600" }}>👋 أهلاً بيك في MiniTalabat</h2>
+      <p style={{ margin: "15px 0" }}>
+        التطبيق ده بيساعدك تطلب من المتاجر بسهولة، وتتابع سلة مشترياتك، وتبعت
+        الطلب مباشرة عبر واتساب.
+      </p>
+
+      <ul style={{ textAlign: "left", margin: "15px 0" }}>
+        <li>🏠 من الرئيسية تقدر تختار المتجر اللي يعجبك.</li>
+        <li>🛒 من السلة تتابع الأصناف اللي اخترتها وتحسب الإجمالي.</li>
+        <li>🏪 من "أضف متجرك" تقدر تسجل متجرك وتعرض منتجاتك.</li>
+      </ul>
+
+      <p style={{ margin: "15px 0" }}>
+        جرب التطبيق دلوقتي، ولو عندك أي ملاحظات أو اقتراحات شاركنا بيها 🧡
+      </p>
+
+      <button
+        onClick={onClose}
+        style={{
+          backgroundColor: "#FF6600",
+          color: "#fff",
+          border: "none",
+          borderRadius: "10px",
+          padding: "10px 20px",
+          marginTop: "10px",
+          fontWeight: "bold"
+        }}
+      >
+        🚀 ابدأ الاستخدام
+      </button>
     </div>
   );
 }
