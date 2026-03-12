@@ -1,15 +1,17 @@
 // app/page.js
 "use client";
 import React, { useState } from "react";
+import NavBar from "./components/NavBar";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("الكل");
+  const [activeTab, setActiveTab] = useState("home");
 
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة"];
 
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff" }}>
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
       {/* Cover */}
       <img
         src="/cover.png"
@@ -81,6 +83,9 @@ export default function HomePage() {
       </div>
 
       {/* هنا لاحقاً هنضيف عرض المتاجر حسب الفئة المختارة */}
+
+      {/* NavBar */}
+      <NavBar activeTab={activeTab} setActiveTab={setActiveTab} setSelectedShop={() => {}} />
     </div>
   );
 }
