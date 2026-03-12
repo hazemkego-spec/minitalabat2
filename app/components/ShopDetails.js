@@ -1,37 +1,131 @@
-"use client";
+// app/components/ShopDetails.js
 import React from "react";
 
-export default function ShopDetails({ selectedShop, activeSubTab, setActiveSubTab, addToCart, setSelectedShop }) {
+export default function ShopDetails({ shop, onBack, addToCart }) {
+  if (!shop) return null;
+
   return (
-    <div style={{ padding: '0 5px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={() => setSelectedShop(null)} style={{ backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '20px' }}>→</button>
-        <small style={{ color: '#888' }}>{selectedShop.menuCategories ? "اختر من الأقسام بالأسفل" : "قائمة المنتجات"}</small>
+    <div style={{ padding: "10px" }}>
+      {/* زر الرجوع */}
+      <button
+        onClick={onBack}
+        style={{
+          backgroundColor: "#333",
+          color: "#fff",
+          borderRadius: "50%",
+          width: "40px",
+          height: "40px",
+          marginBottom: "10px"
+        }}
+      >
+        ←
+      </button>
+
+      {/* صورة الـ cover */}
+      <img
+        src={shop.cover}
+        alt="cover"
+        style={{
+          width: "100%",
+          height: "150px",
+          borderRadius: "10px",
+          objectFit: "cover",
+          marginBottom: "10px"
+        }}
+      />
+
+      {/* اللوجو واسم المتجر */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img
+          src={shop.logo}
+          alt={shop.name}
+          style={{
+            width: "60px",
+            height: "60px",
+            borderRadius: "50%",
+            border: "2px solid #FF6600"
+          }}
+        />
+        <h2 style={{ color: "#FF6600" }}>{shop.name}</h2>
       </div>
 
-      {selectedShop.menuCategories && (
-        <div style={{ display: 'flex', overflowX: 'auto', gap: '10px', paddingBottom: '15px', marginBottom: '15px', scrollbarWidth: 'none' }}>
-          {selectedShop.menuCategories.map((cat, i) => (
-            <button key={i} onClick={() => setActiveSubTab(cat.title)} style={{ padding: '8px 20px', borderRadius: '20px', border: 'none', backgroundColor: (activeSubTab === cat.title || (!activeSubTab && i === 0)) ? '#FF6600' : '#1e1e1e', color: '#fff', whiteSpace: 'nowrap', fontSize: '13px', fontWeight: 'bold' }}>
-              {cat.title}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* حالة المتجر */}
+      <span
+        style={{
+          fontSize: "12px",
+          color: shop.isOpen ? "#4caf50" : "#f44336",
+          marginBottom: "15px",
+          display: "block"
+        }}
+      >
+        {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+      </span>
 
-      <div style={{ display: 'grid', gap: '10px' }}>
-        {(selectedShop.menuCategories ? (selectedShop.menuCategories.find(c => c.title === activeSubTab) || selectedShop.menuCategories[0]).items : selectedShop.items).map(item => (
-          <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1e1e1e', padding: '15px', borderRadius: '15px', border: '1px solid #222' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 'bold' }}>{item.name}</span>
-              <span style={{ color: '#FF6600', fontSize: '14px', marginTop: '4px' }}>{item.price} ج.م</span>
-            </div>
-            {selectedShop.isOpen && (
-              <button onClick={() => addToCart(selectedShop.name, item)} style={{ backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '10px', width: '40px', height: '40px', fontSize: '20px', fontWeight: 'bold' }}>+</button>
-            )}
+      {/* عرض الأصناف */}
+      {shop.menuCategories ? (
+        shop.menuCategories.map((cat, idx) => (
+          <div key={idx} style={{ marginBottom: "20px" }}>
+            <h3 style={{ color: "#FF6600" }}>{cat.title}</h3>
+            {cat.items.map((item) => (
+              <div
+                key={item.name}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  backgroundColor: "#1e1e1e",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  marginBottom: "10px"
+                }}
+              >
+                <span>
+                  {item.name} - {item.price} ج.م
+                </span>
+                <button
+                  onClick={() => addToCart(shop.name, item)}
+                  style={{
+                    backgroundColor: "#FF6600",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    padding: "5px 10px"
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        ))
+      ) : (
+        (shop.items || []).map((item) => (
+          <div
+            key={item.name}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              backgroundColor: "#1e1e1e",
+              padding: "10px",
+              borderRadius: "10px",
+              marginBottom: "10px"
+            }}
+          >
+            <span>
+              {item.name} - {item.price} ج.م
+            </span>
+            <button
+              onClick={() => addToCart(shop.name, item)}
+              style={{
+                backgroundColor: "#FF6600",
+                color: "#fff",
+                borderRadius: "5px",
+                padding: "5px 10px"
+              }}
+            >
+              +
+            </button>
+          </div>
+        ))
+      )}
     </div>
   );
 }
