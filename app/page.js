@@ -184,6 +184,7 @@ const [selectedShop, setSelectedShop] = useState(null);
               filteredShops.map((shop) => (
                 <div
                   key={shop.id}
+onClick={() => setSelectedShop(shop)}
                   style={{
                     backgroundColor: "#1e1e1e",
                     borderRadius: "15px",
