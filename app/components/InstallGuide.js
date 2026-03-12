@@ -30,6 +30,7 @@ export default function InstallGuide({ onClose }) {
         جرب التطبيق دلوقتي، ولو عندك أي ملاحظات أو اقتراحات شاركنا بيها 🧡
       </p>
 
+      {/* زر بدء الاستخدام */}
       <button
         onClick={onClose}
         style={{
@@ -44,6 +45,25 @@ export default function InstallGuide({ onClose }) {
       >
         🚀 ابدأ الاستخدام
       </button>
+
+      {/* زر واتساب للتواصل */}
+      <a
+        href="https://wa.me/201234567890" // ضع رقمك هنا
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-block",
+          marginTop: "15px",
+          backgroundColor: "#25D366",
+          color: "#fff",
+          padding: "10px 20px",
+          borderRadius: "10px",
+          textDecoration: "none",
+          fontWeight: "bold"
+        }}
+      >
+        📲 تواصل معنا عبر واتساب
+      </a>
     </div>
   );
 }
