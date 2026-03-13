@@ -201,9 +201,6 @@ const [selectedShop, setSelectedShop] = useState(null);
           </div>
         ))
       )}
-    </div>
-  </>
-)}
 
 {activeTab === "home" && selectedShop && (
   <ShopDetails
