@@ -3,6 +3,7 @@ import { useState } from "react";
 import ShopDetails from "./components/ShopDetails";
 import Cart from "./components/Cart";
 import NavBar from "./components/NavBar";
+import ShopList from "./components/ShopList";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("home");
