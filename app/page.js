@@ -257,8 +257,85 @@ onClick={() => setSelectedShop(shop)}
       )}
 
       {activeTab === "addShop" && (
-        <InstallGuide onClose={() => setActiveTab("home")} />
-      )}
+  <>
+    {/* Cover */}
+    <img
+      src="/cover.png"
+      alt="App Cover"
+      style={{ width: "100%", height: "180px", objectFit: "cover" }}
+    />
+
+    {/* Logo */}
+    <div style={{ textAlign: "center", marginTop: "-40px" }}>
+      <img
+        src="/mall-logo.png"
+        alt="Mall Logo"
+        style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          border: "3px solid #FF6600",
+          backgroundColor: "#fff"
+        }}
+      />
+    </div>
+
+    {/* InstallGuide الأصلي */}
+    <InstallGuide onClose={() => setActiveTab("home")} />
+
+    {/* الجزء الجديد لإضافة متجر */}
+    <div style={{ padding: "15px", marginTop: "20px" }}>
+      <h3 style={{ color: "#fff" }}>أدخل بيانات متجرك الجديد:</h3>
+      <input
+        type="text"
+        placeholder="اسم المتجر"
+        style={{
+          width: "100%",
+          padding: "10px",
+          marginBottom: "10px",
+          borderRadius: "8px",
+          border: "1px solid #333",
+          backgroundColor: "#1e1e1e",
+          color: "#fff"
+        }}
+      />
+      <input
+        type="text"
+        placeholder="الفئة (مطعم، صيدلية...)"
+        style={{
+          width: "100%",
+          padding: "10px",
+          marginBottom: "10px",
+          borderRadius: "8px",
+          border: "1px solid #333",
+          backgroundColor: "#1e1e1e",
+          color: "#fff"
+        }}
+      />
+      <button
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "8px",
+          border: "none",
+          backgroundColor: "#FF6600",
+          color: "#fff",
+          fontWeight: "bold",
+          cursor: "pointer"
+        }}
+      >
+        حفظ المتجر
+      </button>
+    </div>
+
+    {/* رقم الواتساب للتواصل */}
+    <div style={{ padding: "15px", marginTop: "20px", textAlign: "center" }}>
+      <p style={{ color: "#fff" }}>
+        للتواصل معنا مباشرة: <strong>01122947479</strong>
+      </p>
+    </div>
+  </>
+)}
 
       {/* NavBar */}
       <NavBar activeTab={activeTab} setActiveTab={setActiveTab} setSelectedShop={() => {}} />
