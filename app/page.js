@@ -149,90 +149,66 @@ const [selectedShop, setSelectedShop] = useState(null);
         onChange={(e) => setSearchTerm(e.target.value)}
       />
     </div>
-  </>
-)}
 
-          {/* Categories Scroll */}
-          <div style={{ display: "flex", overflowX: "auto", padding: "10px", gap: "10px" }}>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
+    {/* عرض المتاجر حسب الفئة والبحث */}
+    <div style={{ padding: "15px" }}>
+      {filteredShops.length === 0 ? (
+        <p>لا توجد متاجر مطابقة 🔍</p>
+      ) : (
+        filteredShops.map((shop) => (
+          <div
+            key={shop.id}
+            onClick={() => setSelectedShop(shop)}
+            style={{
+              backgroundColor: "#1e1e1e",
+              borderRadius: "15px",
+              padding: "10px",
+              marginBottom: "10px"
+            }}
+          >
+            <img
+              src={shop.cover}
+              alt="cover"
+              style={{
+                width: "100%",
+                height: "120px",
+                borderRadius: "10px",
+                objectFit: "cover"
+              }}
+            />
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "-25px" }}>
+              <img
+                src={shop.logo}
+                alt="logo"
                 style={{
-                  flex: "0 0 auto",
-                  padding: "8px 15px",
-                  borderRadius: "20px",
-                  border: "none",
-                  backgroundColor: selectedCategory === cat ? "#FF6600" : "#333",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  cursor: "pointer"
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "50%",
+                  border: "2px solid #FF6600",
+                  backgroundColor: "#fff"
                 }}
-              >
-                {cat}
-              </button>
-            ))}
+              />
+              <h4 style={{ color: "#fff" }}>{shop.name}</h4>
+            </div>
+            <span
+              style={{
+                fontSize: "10px",
+                color: shop.isOpen ? "#4caf50" : "#f44336"
+              }}
+            >
+              {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+            </span>
           </div>
-
-          {/* عرض المتاجر حسب الفئة والبحث */}
-          <div style={{ padding: "15px" }}>
-            {filteredShops.length === 0 ? (
-              <p>لا توجد متاجر مطابقة 🔍</p>
-            ) : (
-              filteredShops.map((shop) => (
-                <div
-                  key={shop.id}
-onClick={() => setSelectedShop(shop)}
-                  style={{
-                    backgroundColor: "#1e1e1e",
-                    borderRadius: "15px",
-                    padding: "10px",
-                    marginBottom: "10px"
-                  }}
-                >
-                  <img
-                    src={shop.cover}
-                    alt="cover"
-                    style={{
-                      width: "100%",
-                      height: "120px",
-                      borderRadius: "10px",
-                      objectFit: "cover"
-                    }}
-                  />
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <img
-                      src={shop.logo}
-                      alt={shop.name}
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        border: "2px solid #FF6600",
-                        marginTop: "-25px"
-                      }}
-                    />
-                    <h4 style={{ color: "#fff" }}>{shop.name}</h4>
-                  </div>
-                  <span
-  style={{
-    fontSize: "10px",
-    color: shop.isOpen ? "#4caf50" : "#f44336"
-  }}
->
-  {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-</span>
-</div>
-))}
-)}
-</div>
-</>
+        ))
+      )}
+    </div>
+  </>
 )}
 
 {activeTab === "home" && selectedShop && (
   <ShopDetails
     shop={selectedShop}
-    onBack={() => setSelectedShop(null)}   // زر الرجوع يرجعك للمتاجر
+    onBack={() => setSelectedShop(null)}
     addToCart={addToCart}
   />
 )}
