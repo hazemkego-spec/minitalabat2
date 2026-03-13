@@ -1,262 +1,202 @@
-// app/page.js
 "use client";
-import React, { useState } from "react";
-import NavBar from "./components/NavBar";
-import Cart from "./components/Cart";
-import InstallGuide from "./components/InstallGuide";
-import shops from "./components/ShopList"; // استدعاء قائمة المتاجر
-import ShopDetails from "./components/ShopDetails";
+import { useState } from "react";
+import ShopDetails from "./ShopDetails";
+import Cart from "./Cart";
 
-export default function HomePage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("الكل");
+export default function Page() {
   const [activeTab, setActiveTab] = useState("home");
-const [selectedShop, setSelectedShop] = useState(null);
-
-  // بيانات السلة (مؤقتاً)
-  const [cart, setCart] = useState({});
+  const [selectedShop, setSelectedShop] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [cart, setCart] = useState([]);
   const [itemNotes, setItemNotes] = useState({});
-  const [customerInfo, setCustomerInfo] = useState({
-    name: "",
-    phone: "",
-    address: ""
-  });
+  const [customerInfo, setCustomerInfo] = useState({});
   const [locationUrl, setLocationUrl] = useState("");
 
-  // دوال السلة
-  const addToCart = (shopName, item) => {
-    const key = `${shopName}-${item.name}`;
-    setCart((prev) => ({
-      ...prev,
-      [key]: prev[key]
-        ? { ...prev[key], quantity: prev[key].quantity + 1 }
-        : { ...item, quantity: 1, key }
-    }));
+  const addToCart = (item) => {
+    setCart([...cart, item]);
   };
 
-  const removeFromCart = (key) => {
-    setCart((prev) => {
-      const newCart = { ...prev };
-      delete newCart[key];
-      return newCart;
-    });
+  const removeFromCart = (index) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
   };
 
-  const updateItemNote = (key, note) => {
-    setItemNotes((prev) => ({ ...prev, [key]: note }));
+  const updateItemNote = (index, note) => {
+    setItemNotes({ ...itemNotes, [index]: note });
   };
 
-  const calculateTotal = () =>
-    Object.values(cart).reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => total + item.price, 0);
+  };
 
   const getGroupedCart = () => {
     const grouped = {};
-    Object.values(cart).forEach((item) => {
-      const shopName = item.key.split("-")[0];
-      if (!grouped[shopName]) grouped[shopName] = [];
-      grouped[shopName].push(item);
+    cart.forEach((item) => {
+      if (!grouped[item.shop]) grouped[item.shop] = [];
+      grouped[item.shop].push(item);
     });
     return grouped;
   };
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const { latitude, longitude } = pos.coords;
+      navigator.geolocation.getCurrentPosition((position) => {
         setLocationUrl(
-          `https://www.google.com/maps?q=${latitude},${longitude}`
+          `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`
         );
       });
     }
   };
 
-  const sendOrder = () => {
-    let message = `طلب جديد من ${customerInfo.name}\n📞 ${customerInfo.phone}\n🏠 ${customerInfo.address}\n`;
-    if (locationUrl) message += `📍 الموقع: ${locationUrl}\n\n`;
-
-    Object.keys(getGroupedCart()).forEach((shopName) => {
-      message += `🛍️ متجر: ${shopName}\n`;
-      getGroupedCart()[shopName].forEach((item) => {
-        message += `- ${item.name} (x${item.quantity}) = ${
-          item.price * item.quantity
-        } ج\n`;
-        if (itemNotes[item.key]) {
-          message += `  ملاحظات: ${itemNotes[item.key]}\n`;
-        }
-      });
-      message += "\n";
-    });
-
-    message += `💰 الإجمالي: ${calculateTotal()} ج.م\n`;
-
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-  };
-
-  const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة"];
-
-  // فلترة المتاجر حسب الفئة والبحث
-  const filteredShops = shops.filter((shop) => {
-    const matchCategory =
-      selectedCategory === "الكل" || shop.category === selectedCategory;
-    const matchSearch =
-      shop.name.includes(searchTerm) ||
-      (shop.items &&
-        shop.items.some((item) => item.name.includes(searchTerm))) ||
-      (shop.menuCategories &&
-        shop.menuCategories.some((cat) =>
-          cat.items.some((item) => item.name.includes(searchTerm))
-        ));
-    return matchCategory && matchSearch;
-  });
-
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
-      
+{/* الصفحة الرئيسية */}
       {activeTab === "home" && !selectedShop && (
-  <>
-    {/* Cover */}
-    <img 
-      src="/cover.png" 
-      alt="App Cover" 
-      style={{ width: "100%", height: "180px", objectFit: "cover" }} 
-    />
+        <>
+          {/* Cover */}
+          <img
+            src="/cover.png"
+            alt="App Cover"
+            style={{ width: "100%", height: "180px", objectFit: "cover" }}
+          />
 
-    {/* Logo */}
-    <div style={{ textAlign: "center", marginTop: "-40px" }}>
-      <img
-        src="/mall-logo.png"
-        alt="Mall Logo"
-        style={{
-          width: "80px",
-          height: "80px",
-          borderRadius: "50%",
-          border: "3px solid #FF6600",
-          backgroundColor: "#fff"
-        }}
-      />
-    </div>
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginTop: "-40px" }}>
+            <img
+              src="/mall-logo.png"
+              alt="Mall Logo"
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                border: "3px solid #FF6600",
+                backgroundColor: "#fff"
+              }}
+            />
+          </div>
 
-    {/* Search Bar */}
-    <div style={{ padding: "15px" }}>
-      <input
-        type="text"
-        placeholder="ابحث عن متجر أو صنف..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
+          {/* Search Bar */}
+          <div style={{ padding: "15px" }}>
+            <input
+              type="text"
+              placeholder="ابحث عن متجر أو صنف..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-    {/* عرض المتاجر حسب الفئة والبحث */}
-    <div style={{ padding: "15px" }}>
-      {filteredShops.length === 0 ? (
-  <p>لا توجد متاجر مطابقة 🔍</p>
-) : (
-  filteredShops.map((shop) => (
-    <div
-      key={shop.id}
-      onClick={() => setSelectedShop(shop)}
-      style={{
-        backgroundColor: "#1e1e1e",
-        borderRadius: "15px",
-        padding: "10px",
-        marginBottom: "10px"
-      }}
-    >
-      <img
-        src={shop.cover}
-        alt="cover"
-        style={{
-          width: "100%",
-          height: "120px",
-          borderRadius: "10px",
-          objectFit: "cover"
-        }}
-      />
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "-25px" }}>
-        <img
-          src={shop.logo}
-          alt="logo"
-          style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "50%",
-            border: "2px solid #FF6600",
-            backgroundColor: "#fff"
-          }}
-        />
-        <h4 style={{ color: "#fff" }}>{shop.name}</h4>
-      </div>
-      <span
-        style={{
-          fontSize: "10px",
-          color: shop.isOpen ? "#4caf50" : "#f44336"
-        }}
-      >
-        {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-      </span>
-    </div>   {/* ← هنا قفلة المتجر */}
-  ))          {/* ← هنا قفلة الـ map */}
-)}             {/* ← هنا قفلة الشرط */}
-    </div>
-  </>
-)}
+          {/* عرض المتاجر */}
+          <div style={{ padding: "15px" }}>
+            {filteredShops.length === 0 ? (
+              <p>لا توجد متاجر مطابقة 🔍</p>
+            ) : (
+              filteredShops.map((shop) => (
+                <div
+                  key={shop.id}
+                  onClick={() => setSelectedShop(shop)}
+                  style={{
+                    backgroundColor: "#1e1e1e",
+                    borderRadius: "15px",
+                    padding: "10px",
+                    marginBottom: "10px"
+                  }}
+                >
+                  <img
+                    src={shop.cover}
+                    alt="cover"
+                    style={{
+                      width: "100%",
+                      height: "120px",
+                      borderRadius: "10px",
+                      objectFit: "cover"
+                    }}
+                  />
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "-25px" }}>
+                    <img
+                      src={shop.logo}
+                      alt="logo"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        border: "2px solid #FF6600",
+                        backgroundColor: "#fff"
+                      }}
+                    />
+                    <h4 style={{ color: "#fff" }}>{shop.name}</h4>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: shop.isOpen ? "#4caf50" : "#f44336"
+                    }}
+                  >
+                    {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
 
-{activeTab === "home" && selectedShop && (
-  <ShopDetails
-    shop={selectedShop}
-    onBack={() => setSelectedShop(null)}
-    addToCart={addToCart}
-  />
-)}
-
-{activeTab === "cart" && (
-  <Cart
-    cart={cart}
-    itemNotes={itemNotes}
-    removeFromCart={removeFromCart}
-    updateItemNote={updateItemNote}
-    calculateTotal={calculateTotal}
-    getGroupedCart={getGroupedCart}
-    customerInfo={customerInfo}
-    setCustomerInfo={setCustomerInfo}
-    locationUrl={locationUrl}
-    handleGetLocation={handleGetLocation}
-    sendOrder={sendOrder}
-  />
-)}
-
+      {/* صفحة أضف متجرك */}
       {activeTab === "addShop" && (
-  <>
-    {/* Cover */}
-    <img 
-      src="/cover.png" 
-      alt="App Cover" 
-      style={{ width: "100%", height: "180px", objectFit: "cover" }} 
-    />
+        <>
+          {/* Cover */}
+          <img
+            src="/cover.png"
+            alt="App Cover"
+            style={{ width: "100%", height: "180px", objectFit: "cover" }}
+          />
 
-    {/* Logo */}
-    <div style={{ textAlign: "center", marginTop: "-40px" }}>
-      <img
-        src="/mall-logo.png"
-        alt="Mall Logo"
-        style={{
-          width: "80px",
-          height: "80px",
-          borderRadius: "50%",
-          border: "3px solid #FF6600",
-          backgroundColor: "#fff"
-        }}
-      />
-    </div>
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginTop: "-40px" }}>
+            <img
+              src="/mall-logo.png"
+              alt="Mall Logo"
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                border: "3px solid #FF6600",
+                backgroundColor: "#fff"
+              }}
+            />
+          </div>
 
-    {/* باقي كود صفحة أضف متجرك */}
-    <div style={{ padding: "15px" }}>
-      <p style={{ color: "#fff" }}>أدخل بيانات متجرك هنا...</p>
-      {/* هنا هتحط الفورم أو المدخلات الخاصة بإضافة متجر جديد */}
+          {/* باقي كود صفحة أضف متجرك */}
+          <div style={{ padding: "15px" }}>
+            <p style={{ color: "#fff" }}>أدخل بيانات متجرك هنا...</p>
+          </div>
+        </>
+      )}
+{/* تفاصيل المتجر */}
+      {activeTab === "home" && selectedShop && (
+        <ShopDetails
+          shop={selectedShop}
+          onBack={() => setSelectedShop(null)}
+          addToCart={addToCart}
+        />
+      )}
+
+      {/* السلة */}
+      {activeTab === "cart" && (
+        <Cart
+          cart={cart}
+          itemNotes={itemNotes}
+          removeFromCart={removeFromCart}
+          updateItemNote={updateItemNote}
+          calculateTotal={calculateTotal}
+          getGroupedCart={getGroupedCart}
+          customerInfo={customerInfo}
+          setCustomerInfo={setCustomerInfo}
+          locationUrl={locationUrl}
+          handleGetLocation={handleGetLocation}
+          sendOrder={sendOrder}
+        />
+      )}
     </div>
-  </>
-)}
+  );
+}
