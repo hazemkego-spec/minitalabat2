@@ -116,44 +116,41 @@ const [selectedShop, setSelectedShop] = useState(null);
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
       
-      {activeTab === "home" && (
-        <>
-          {/* Cover */}
-          <img src="/cover.png" alt="App Cover" style={{ width: "100%", height: "180px", objectFit: "cover" }} />
+      {activeTab === "home" && !selectedShop && (
+  <>
+    {/* Cover */}
+    <img 
+      src="/cover.png" 
+      alt="App Cover" 
+      style={{ width: "100%", height: "180px", objectFit: "cover" }} 
+    />
 
-          {/* Logo */}
-          <div style={{ textAlign: "center", marginTop: "-40px" }}>
-            <img
-              src="/mall-logo.png"
-              alt="Mall Logo"
-              style={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "50%",
-                border: "3px solid #FF6600",
-                backgroundColor: "#fff"
-              }}
-            />
-          </div>
+    {/* Logo */}
+    <div style={{ textAlign: "center", marginTop: "-40px" }}>
+      <img
+        src="/mall-logo.png"
+        alt="Mall Logo"
+        style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          border: "3px solid #FF6600",
+          backgroundColor: "#fff"
+        }}
+      />
+    </div>
 
-          {/* Search Bar */}
-          <div style={{ padding: "15px" }}>
-            <input
-              type="text"
-              placeholder="ابحث عن متجر أو صنف..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #333",
-                backgroundColor: "#1e1e1e",
-                color: "#fff",
-                outline: "none"
-              }}
-            />
-          </div>
+    {/* Search Bar */}
+    <div style={{ padding: "15px" }}>
+      <input
+        type="text"
+        placeholder="ابحث عن متجر أو صنف..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+  </>
+)}
 
           {/* Categories Scroll */}
           <div style={{ display: "flex", overflowX: "auto", padding: "10px", gap: "10px" }}>
@@ -257,11 +254,33 @@ onClick={() => setSelectedShop(shop)}
       )}
 
       {activeTab === "addShop" && (
-        <InstallGuide onClose={() => setActiveTab("home")} />
-      )}
+  <>
+    {/* Cover */}
+    <img 
+      src="/cover.png" 
+      alt="App Cover" 
+      style={{ width: "100%", height: "180px", objectFit: "cover" }} 
+    />
 
-      {/* NavBar */}
-      <NavBar activeTab={activeTab} setActiveTab={setActiveTab} setSelectedShop={() => {}} />
+    {/* Logo */}
+    <div style={{ textAlign: "center", marginTop: "-40px" }}>
+      <img
+        src="/mall-logo.png"
+        alt="Mall Logo"
+        style={{
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          border: "3px solid #FF6600",
+          backgroundColor: "#fff"
+        }}
+      />
     </div>
-  );
-}
+
+    {/* باقي كود صفحة أضف متجرك */}
+    <div style={{ padding: "15px" }}>
+      <p style={{ color: "#fff" }}>أدخل بيانات متجرك هنا...</p>
+      {/* هنا هتحط الفورم أو المدخلات الخاصة بإضافة متجر جديد */}
+    </div>
+  </>
+)}
