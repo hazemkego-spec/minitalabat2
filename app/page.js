@@ -224,6 +224,7 @@ onClick={() => setSelectedShop(shop)}
 </span>
 </div>
 ))}
+)}
 </div>
 </>
 )}
