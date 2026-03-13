@@ -215,18 +215,19 @@ onClick={() => setSelectedShop(shop)}
                     <h4 style={{ color: "#fff" }}>{shop.name}</h4>
                   </div>
                   <span
-                    style={{
-                      fontSize: "10px",
-                      color: shop.isOpen ? "#4caf50" : "#f44336"
-                    }}
-                  >
-                    {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-                  </span>
-                </div>
-              ))
-            )}
-        </>
-      )}
+  style={{
+    fontSize: "10px",
+    color: shop.isOpen ? "#4caf50" : "#f44336"
+  }}
+>
+  {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+</span>
+</div>
+))}
+</div>
+</>
+)}
+
 {activeTab === "home" && selectedShop && (
   <ShopDetails
     shop={selectedShop}
@@ -235,21 +236,21 @@ onClick={() => setSelectedShop(shop)}
   />
 )}
 
-      {activeTab === "cart" && (
-        <Cart
-          cart={cart}
-          itemNotes={itemNotes}
-          removeFromCart={removeFromCart}
-          updateItemNote={updateItemNote}
-          calculateTotal={calculateTotal}
-          getGroupedCart={getGroupedCart}
-          customerInfo={customerInfo}
-          setCustomerInfo={setCustomerInfo}
-          locationUrl={locationUrl}
-          handleGetLocation={handleGetLocation}
-          sendOrder={sendOrder}
-        />
-      )}
+{activeTab === "cart" && (
+  <Cart
+    cart={cart}
+    itemNotes={itemNotes}
+    removeFromCart={removeFromCart}
+    updateItemNote={updateItemNote}
+    calculateTotal={calculateTotal}
+    getGroupedCart={getGroupedCart}
+    customerInfo={customerInfo}
+    setCustomerInfo={setCustomerInfo}
+    locationUrl={locationUrl}
+    handleGetLocation={handleGetLocation}
+    sendOrder={sendOrder}
+  />
+)}
 
       {activeTab === "addShop" && (
   <>
