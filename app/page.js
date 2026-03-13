@@ -5,6 +5,7 @@ import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
 import InstallGuide from "./components/InstallGuide";
 import shops from "./components/ShopList"; // استدعاء قائمة المتاجر
+import ShopDetails from "./components/ShopDetails";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
