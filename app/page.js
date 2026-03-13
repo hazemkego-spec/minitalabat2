@@ -153,54 +153,54 @@ const [selectedShop, setSelectedShop] = useState(null);
     {/* عرض المتاجر حسب الفئة والبحث */}
     <div style={{ padding: "15px" }}>
       {filteredShops.length === 0 ? (
-        <p>لا توجد متاجر مطابقة 🔍</p>
-      ) : (
-        filteredShops.map((shop) => (
-          <div
-            key={shop.id}
-            onClick={() => setSelectedShop(shop)}
-            style={{
-              backgroundColor: "#1e1e1e",
-              borderRadius: "15px",
-              padding: "10px",
-              marginBottom: "10px"
-            }}
-          >
-            <img
-              src={shop.cover}
-              alt="cover"
-              style={{
-                width: "100%",
-                height: "120px",
-                borderRadius: "10px",
-                objectFit: "cover"
-              }}
-            />
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "-25px" }}>
-              <img
-                src={shop.logo}
-                alt="logo"
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  border: "2px solid #FF6600",
-                  backgroundColor: "#fff"
-                }}
-              />
-              <h4 style={{ color: "#fff" }}>{shop.name}</h4>
-            </div>
-            <span
-              style={{
-                fontSize: "10px",
-                color: shop.isOpen ? "#4caf50" : "#f44336"
-              }}
-            >
-              {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-            </span>
-          </div>
-        ))
-      )}
+  <p>لا توجد متاجر مطابقة 🔍</p>
+) : (
+  filteredShops.map((shop) => (
+    <div
+      key={shop.id}
+      onClick={() => setSelectedShop(shop)}
+      style={{
+        backgroundColor: "#1e1e1e",
+        borderRadius: "15px",
+        padding: "10px",
+        marginBottom: "10px"
+      }}
+    >
+      <img
+        src={shop.cover}
+        alt="cover"
+        style={{
+          width: "100%",
+          height: "120px",
+          borderRadius: "10px",
+          objectFit: "cover"
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "-25px" }}>
+        <img
+          src={shop.logo}
+          alt="logo"
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            border: "2px solid #FF6600",
+            backgroundColor: "#fff"
+          }}
+        />
+        <h4 style={{ color: "#fff" }}>{shop.name}</h4>
+      </div>
+      <span
+        style={{
+          fontSize: "10px",
+          color: shop.isOpen ? "#4caf50" : "#f44336"
+        }}
+      >
+        {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+      </span>
+    </div>   {/* ← هنا قفلة المتجر */}
+  ))          {/* ← هنا قفلة الـ map */}
+)}             {/* ← هنا قفلة الشرط */}
     </div>
   </>
 )}
