@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import ShopDetails from "./ShopDetails";
-import Cart from "./Cart";
+import ShopDetails from "./components/ShopDetails";
+import Cart from "./components/Cart";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("home");
