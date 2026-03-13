@@ -3,7 +3,6 @@ import { useState } from "react";
 import ShopDetails from "./components/ShopDetails";
 import Cart from "./components/Cart";
 import NavBar from "./components/NavBar";
-import ShopList from "./components/ShopList";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("home");
@@ -14,24 +13,16 @@ export default function Page() {
   const [customerInfo, setCustomerInfo] = useState({});
   const [locationUrl, setLocationUrl] = useState("");
 
-  const addToCart = (item) => {
-    setCart([...cart, item]);
-  };
-
+  const addToCart = (item) => setCart([...cart, item]);
   const removeFromCart = (index) => {
     const newCart = [...cart];
     newCart.splice(index, 1);
     setCart(newCart);
   };
-
   const updateItemNote = (index, note) => {
     setItemNotes({ ...itemNotes, [index]: note });
   };
-
-  const calculateTotal = () => {
-    return cart.reduce((total, item) => total + item.price, 0);
-  };
-
+  const calculateTotal = () => cart.reduce((total, item) => total + item.price, 0);
   const getGroupedCart = () => {
     const grouped = {};
     cart.forEach((item) => {
@@ -40,7 +31,6 @@ export default function Page() {
     });
     return grouped;
   };
-
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -53,7 +43,7 @@ export default function Page() {
 
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
-{/* الصفحة الرئيسية */}
+      {/* الصفحة الرئيسية */}
       {activeTab === "home" && !selectedShop && (
         <>
           {/* Cover */}
@@ -168,7 +158,6 @@ export default function Page() {
             />
           </div>
 
-          {/* باقي كود صفحة أضف متجرك */}
           <div style={{ padding: "15px" }}>
             <p style={{ color: "#fff" }}>أدخل بيانات متجرك هنا...</p>
           </div>
@@ -199,6 +188,9 @@ export default function Page() {
           sendOrder={sendOrder}
         />
       )}
+
+      {/* NavBar */}
+      <NavBar activeTab={activeTab} setActiveTab={setActiveTab} setSelectedShop={setSelectedShop} />
     </div>
   );
 }
