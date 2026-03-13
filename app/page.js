@@ -226,7 +226,6 @@ onClick={() => setSelectedShop(shop)}
               ))
             )}
         </>
-
       )}
 {activeTab === "home" && selectedShop && (
   <ShopDetails
