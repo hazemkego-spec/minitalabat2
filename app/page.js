@@ -229,7 +229,15 @@ onClick={() => setSelectedShop(shop)}
             )}
           </div>
         </>
+
       )}
+{activeTab === "home" && selectedShop && (
+  <ShopDetails
+    shop={selectedShop}
+    onBack={() => setSelectedShop(null)}   // زر الرجوع يرجعك للمتاجر
+    addToCart={addToCart}
+  />
+)}
 
       {activeTab === "cart" && (
         <Cart
