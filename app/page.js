@@ -214,7 +214,7 @@ const [selectedShop, setSelectedShop] = useState(null);
         />
 
         {/* اسم المتجر */}
-        <h4 style={{ color: "#fff", margin: "5px 0" }}>{shop.name}</h4>
+        <h4 style={{ color: "#fff", margin: "2px 0" }}>{shop.name}</h4>
 
         {/* حالة المتجر */}
         <span
