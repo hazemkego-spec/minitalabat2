@@ -258,27 +258,6 @@ const [selectedShop, setSelectedShop] = useState(null);
 
       {activeTab === "addShop" && (
   <>
-    {/* Cover */}
-    <img
-      src="/cover.png"
-      alt="App Cover"
-      style={{ width: "100%", height: "180px", objectFit: "cover" }}
-    />
-
-    {/* Logo */}
-    <div style={{ textAlign: "center", marginTop: "-40px" }}>
-      <img
-        src="/mall-logo.png"
-        alt="Mall Logo"
-        style={{
-          width: "80px",
-          height: "80px",
-          borderRadius: "50%",
-          border: "3px solid #FF6600",
-          backgroundColor: "#fff"
-        }}
-      />
-    </div>
 
     {/* InstallGuide الأصلي */}
     <InstallGuide onClose={() => setActiveTab("home")} />
