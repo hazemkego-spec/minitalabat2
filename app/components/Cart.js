@@ -135,19 +135,18 @@ export default function Cart({
 
           {/* إرسال الطلب */}
           <button
-            onClick={sendOrder}
-            style={{
-              backgroundColor: "#25D366",
-              color: "#fff",
-              padding: "12px",
-              borderRadius: "10px",
-              border: "none",
-              fontWeight: "bold",
-              width: "100%"
-            }}
-          >
-            إرسال الطلب عبر واتساب ✅
-          </button>
+  onClick={handleSendOrder}
+  style={{
+    backgroundColor: "#25D366",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    padding: "10px 20px",
+    cursor: "pointer"
+  }}
+>
+  📲 إرسال الطلب
+</button>
         </>
       )}
     </div>
