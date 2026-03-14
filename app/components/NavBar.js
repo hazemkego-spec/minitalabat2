@@ -1,79 +1,59 @@
-// NavBar.js
+// app/components/NavBar.js
 import React from "react";
 
-const NavBar = ({ activeTab, setActiveTab }) => {
+export default function NavBar({ activeTab, setActiveTab, setSelectedShop }) {
   return (
-    <div
+    <nav
       style={{
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "#121212",
+        backgroundColor: "#1e1e1e",
         display: "flex",
         justifyContent: "space-around",
-        padding: "10px 0",
-        borderTop: "1px solid #333",
-        zIndex: 1000
+        padding: "12px 0",
+        borderTop: "2px solid #333"
       }}
     >
       <button
-        onClick={() => setActiveTab("home")}
+        onClick={() => {
+          setActiveTab("home");
+          setSelectedShop(null);
+        }}
         style={{
-          flex: 1,
-          backgroundColor: activeTab === "home" ? "#FF6600" : "transparent",
-          color: "#fff",
+          color: activeTab === "home" ? "#FF6600" : "#888",
+          background: "none",
           border: "none",
-          padding: "10px",
-          cursor: "pointer"
+          fontSize: "16px"
         }}
       >
         🏠 الرئيسية
       </button>
 
       <button
-        onClick={() => setActiveTab("shops")}
-        style={{
-          flex: 1,
-          backgroundColor: activeTab === "shops" ? "#FF6600" : "transparent",
-          color: "#fff",
-          border: "none",
-          padding: "10px",
-          cursor: "pointer"
-        }}
-      >
-        🛍️ المتاجر
-      </button>
-
-      <button
         onClick={() => setActiveTab("cart")}
         style={{
-          flex: 1,
-          backgroundColor: activeTab === "cart" ? "#FF6600" : "transparent",
-          color: "#fff",
+          color: activeTab === "cart" ? "#FF6600" : "#888",
+          background: "none",
           border: "none",
-          padding: "10px",
-          cursor: "pointer"
+          fontSize: "16px"
         }}
       >
         🛒 السلة
       </button>
 
       <button
-        onClick={() => setActiveTab("pharmacy")}
+        onClick={() => setActiveTab("addShop")}
         style={{
-          flex: 1,
-          backgroundColor: activeTab === "pharmacy" ? "#FF6600" : "transparent",
-          color: "#fff",
+          color: activeTab === "addShop" ? "#FF6600" : "#888",
+          background: "none",
           border: "none",
-          padding: "10px",
-          cursor: "pointer"
+          fontSize: "16px"
         }}
       >
-        💊 صيدلية د/ هاني فاروق
+        🏪 أضف متجرك
       </button>
-    </div>
+    </nav>
   );
-};
-
-export default NavBar;
+}
