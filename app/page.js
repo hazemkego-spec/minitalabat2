@@ -119,7 +119,7 @@ const [selectedShop, setSelectedShop] = useState(null);
       {activeTab === "home" && (
         <>
           {/* Cover */}
-          <img src="/cover.png" alt="App Cover" style={{ width: "100%", height: "200px", objectFit: "cover" }} />
+          <img src="/cover.png" alt="App Cover" style={{ width: "100%", height: "170px", objectFit: "cover" }} />
 
           {/* Logo */}
           <div style={{ textAlign: "center", marginTop: "-40px" }}>
