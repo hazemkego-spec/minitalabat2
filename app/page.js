@@ -91,7 +91,7 @@ const [selectedShop, setSelectedShop] = useState(null);
   message += `💰 الإجمالي: ${calculateTotal()} ج.م\n`;
   message += `📞 للتواصل: 01122947479\n`;   // ← هنا أضفنا رقم الواتساب
 
-  const url = `https://wa.me/01122947479?text=${encodeURIComponent(message)}`; // ← هنا غيرنا الرابط ليبعت على رقمك مباشرة
+  const url = `https://wa.me/201122947479?text=${encodeURIComponent(message)}`; // ← هنا غيرنا الرابط ليبعت على رقمك مباشرة
   window.open(url, "_blank");
 };
 
