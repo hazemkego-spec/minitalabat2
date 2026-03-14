@@ -74,27 +74,26 @@ const [selectedShop, setSelectedShop] = useState(null);
   };
 
   const sendOrder = () => {
-    let message = `طلب جديد من ${customerInfo.name}\n📞 ${customerInfo.phone}\n🏠 ${customerInfo.address}\n`;
-    if (locationUrl) message += `📍 الموقع: ${locationUrl}\n\n`;
+  let message = `طلب جديد من ${customerInfo.name}\n📞 ${customerInfo.phone}\n🏠 ${customerInfo.address}\n`;
+  if (locationUrl) message += `📍 الموقع: ${locationUrl}\n\n`;
 
-    Object.keys(getGroupedCart()).forEach((shopName) => {
-      message += `🛍️ متجر: ${shopName}\n`;
-      getGroupedCart()[shopName].forEach((item) => {
-        message += `- ${item.name} (x${item.quantity}) = ${
-          item.price * item.quantity
-        } ج\n`;
-        if (itemNotes[item.key]) {
-          message += `  ملاحظات: ${itemNotes[item.key]}\n`;
-        }
-      });
-      message += "\n";
+  Object.keys(getGroupedCart()).forEach((shopName) => {
+    message += `🛍️ متجر: ${shopName}\n`;
+    getGroupedCart()[shopName].forEach((item) => {
+      message += `- ${item.name} (x${item.quantity}) = ${item.price * item.quantity} ج\n`;
+      if (itemNotes[item.key]) {
+        message += `  ملاحظات: ${itemNotes[item.key]}\n`;
+      }
     });
+    message += "\n";
+  });
 
-    message += `💰 الإجمالي: ${calculateTotal()} ج.م\n`;
+  message += `💰 الإجمالي: ${calculateTotal()} ج.م\n`;
+  message += `📞 للتواصل: 01122947479\n`;   // ← هنا أضفنا رقم الواتساب
 
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-  };
+  const url = `https://wa.me/01122947479?text=${encodeURIComponent(message)}`; // ← هنا غيرنا الرابط ليبعت على رقمك مباشرة
+  window.open(url, "_blank");
+};
 
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة"];
 
