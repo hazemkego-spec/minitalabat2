@@ -48,7 +48,7 @@ export default function InstallGuide({ onClose }) {
 
       {/* زر واتساب للتواصل */}
       <a
-        href="https://wa.me/201234567890" // ضع رقمك هنا
+        href="https://wa.me/201122947479" // ضع رقمك هنا
         target="_blank"
         rel="noopener noreferrer"
         style={{
