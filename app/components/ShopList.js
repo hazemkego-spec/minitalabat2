@@ -9,7 +9,7 @@ const shops = [
     name: "جزارة ومشويات محمد صوان",
     isOpen: true,
     logo: "/sawan-logo.png",
-    cover: "/cover.png",
+    cover: "/sawan-logo.png",
     menuCategories: [
       {
         title: "ركن المشويات 🍗",
