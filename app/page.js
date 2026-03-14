@@ -35,15 +35,24 @@ const [selectedShop, setSelectedShop] = useState(null);
     }));
   };
 
-const [customerData, setCustomerData] = useState(() => {
-  const saved = localStorage.getItem("customerData");
-  return saved ? JSON.parse(saved) : { name: "", phone: "", address: "" };
-});
+const [customerData, setCustomerData] = useState({ name: "", phone: "", address: "" });
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("customerData");
+    if (saved) {
+      setCustomerData(JSON.parse(saved));
+    }
+  }
+}, []);
 
 const handleCustomerChange = (field, value) => {
   const updated = { ...customerData, [field]: value };
   setCustomerData(updated);
-  localStorage.setItem("customerData", JSON.stringify(updated));
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem("customerData", JSON.stringify(updated));
+  }
 };
 
 const handleSendOrder = () => {
