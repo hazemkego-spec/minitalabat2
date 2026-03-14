@@ -204,9 +204,9 @@ const [selectedShop, setSelectedShop] = useState(null);
           src={shop.logo}
           alt={shop.name}
           style={{
-            width: "60px",
-            height: "60px",
-            borderRadius: "50%",
+            width: "70px",
+            height: "70px",
+            borderRadius: "20%",
             border: "2px solid #FF6600",
             backgroundColor: "#fff",
             marginBottom: "10px"
