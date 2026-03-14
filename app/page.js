@@ -116,126 +116,127 @@ const [selectedShop, setSelectedShop] = useState(null);
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
       
-      {activeTab === "home" && (
-        <>
-          {/* Cover */}
-          <img src="/cover.png" alt="App Cover" style={{ width: "100%", height: "165px", objectFit: "cover" }} />
+      {/* الرئيسية فقط */}
+{activeTab === "home" && !selectedShop && (
+  <>
+    {/* Cover */}
+    <img
+      src="/cover.png"
+      alt="App Cover"
+      style={{ width: "100%", height: "165px", objectFit: "cover" }}
+    />
 
-          {/* Logo */}
-          <div style={{ textAlign: "center", marginTop: "-40px" }}>
-            <img
-              src="/mall-logo.png"
-              alt="Mall Logo"
-              style={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "50%",
-                border: "3px solid #FF6600",
-                backgroundColor: "#fff"
-              }}
-            />
-          </div>
-
-          {/* Search Bar */}
-          <div style={{ padding: "15px" }}>
-            <input
-              type="text"
-              placeholder="ابحث عن متجر أو صنف..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #333",
-                backgroundColor: "#1e1e1e",
-                color: "#fff",
-                outline: "none"
-              }}
-            />
-          </div>
-
-          {/* Categories Scroll */}
-          <div style={{ display: "flex", overflowX: "auto", padding: "10px", gap: "10px" }}>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  flex: "0 0 auto",
-                  padding: "8px 15px",
-                  borderRadius: "20px",
-                  border: "none",
-                  backgroundColor: selectedCategory === cat ? "#FF6600" : "#333",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  cursor: "pointer"
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* عرض المتاجر كمربعات */}
-<div style={{ 
-  padding: "15px", 
-  display: "grid", 
-  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
-  gap: "15px" 
-}}>
-  {filteredShops.length === 0 ? (
-    <p>لا توجد متاجر مطابقة 🔍</p>
-  ) : (
-    filteredShops.map((shop) => (
-      <div
-        key={shop.id}
-        onClick={() => setSelectedShop(shop)}
+    {/* Logo */}
+    <div style={{ textAlign: "center", marginTop: "-40px" }}>
+      <img
+        src="/mall-logo.png"
+        alt="Mall Logo"
         style={{
-          backgroundColor: "#1e1e1e",
-          borderRadius: "15px",
-          padding: "10px",
-          textAlign: "center",
-          cursor: "pointer"
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          border: "3px solid #FF6600",
+          backgroundColor: "#fff"
         }}
-      >
-        {/* اللوجو */}
-        <img
-          src={shop.logo}
-          alt={shop.name}
-          style={{
-            width: "70px",
-            height: "70px",
-            borderRadius: "20%",
-            border: "2px solid #FF6600",
-            backgroundColor: "#fff",
-            marginBottom: "10px"
-          }}
-        />
+      />
+    </div>
 
-        {/* اسم المتجر */}
-        <h4 style={{ color: "#fff", margin: "2px 0" }}>{shop.name}</h4>
+    {/* Search Bar */}
+    <div style={{ padding: "15px" }}>
+      <input
+        type="text"
+        placeholder="ابحث عن متجر أو صنف..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "10px",
+          border: "1px solid #333",
+          backgroundColor: "#1e1e1e",
+          color: "#fff",
+          outline: "none"
+        }}
+      />
+    </div>
 
-        {/* حالة المتجر */}
-        <span
+    {/* Categories Scroll */}
+    <div style={{ display: "flex", overflowX: "auto", padding: "10px", gap: "10px" }}>
+      {categories.map((cat) => (
+        <button
+          key={cat}
+          onClick={() => setSelectedCategory(cat)}
           style={{
-            fontSize: "12px",
-            color: shop.isOpen ? "#4caf50" : "#f44336"
+            flex: "0 0 auto",
+            padding: "8px 15px",
+            borderRadius: "20px",
+            border: "none",
+            backgroundColor: selectedCategory === cat ? "#FF6600" : "#333",
+            color: "#fff",
+            fontWeight: "bold",
+            cursor: "pointer"
           }}
         >
-          {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-        </span>
-      </div>
-    ))
-  )}
-</div>
-        </>
+          {cat}
+        </button>
+      ))}
+    </div>
 
+    {/* عرض المتاجر */}
+    <div style={{ 
+      padding: "15px", 
+      display: "grid", 
+      gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
+      gap: "15px" 
+    }}>
+      {filteredShops.length === 0 ? (
+        <p>لا توجد متاجر مطابقة 🔍</p>
+      ) : (
+        filteredShops.map((shop) => (
+          <div
+            key={shop.id}
+            onClick={() => setSelectedShop(shop)}
+            style={{
+              backgroundColor: "#1e1e1e",
+              borderRadius: "15px",
+              padding: "10px",
+              textAlign: "center",
+              cursor: "pointer"
+            }}
+          >
+            <img
+              src={shop.logo}
+              alt={shop.name}
+              style={{
+                width: "70px",
+                height: "70px",
+                borderRadius: "20%",
+                border: "2px solid #FF6600",
+                backgroundColor: "#fff",
+                marginBottom: "10px"
+              }}
+            />
+            <h4 style={{ color: "#fff", margin: "2px 0" }}>{shop.name}</h4>
+            <span
+              style={{
+                fontSize: "12px",
+                color: shop.isOpen ? "#4caf50" : "#f44336"
+              }}
+            >
+              {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+            </span>
+          </div>
+        ))
       )}
+    </div>
+  </>
+)}
+
+{/* صفحة المتجر منفصلة */}
 {activeTab === "home" && selectedShop && (
   <ShopDetails
     shop={selectedShop}
-    onBack={() => setSelectedShop(null)}   // زر الرجوع يرجعك للمتاجر
+    onBack={() => setSelectedShop(null)}
     addToCart={addToCart}
   />
 )}
