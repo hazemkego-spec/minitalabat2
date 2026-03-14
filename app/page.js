@@ -35,34 +35,6 @@ const [selectedShop, setSelectedShop] = useState(null);
     }));
   };
 
-const [customerData, setCustomerData] = useState({ name: "", phone: "", address: "" });
-
-useEffect(() => {
-  if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("customerData");
-    if (saved) {
-      setCustomerData(JSON.parse(saved));
-    }
-  }
-}, []);
-
-const handleCustomerChange = (field, value) => {
-  const updated = { ...customerData, [field]: value };
-  setCustomerData(updated);
-
-  if (typeof window !== "undefined") {
-    localStorage.setItem("customerData", JSON.stringify(updated));
-  }
-};
-
-const handleSendOrder = () => {
-  if (!customerData.name || !customerData.phone || !customerData.address) {
-    alert("من فضلك أدخل بياناتك كاملة قبل إرسال الطلب");
-    return;
-  }
-
-  // هنا تكمل إرسال الطلب
-};
   const removeFromCart = (key) => {
     setCart((prev) => {
       const newCart = { ...prev };
