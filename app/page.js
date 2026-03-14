@@ -1,3 +1,4 @@
+
 // app/page.js
 "use client";
 import React, { useState } from "react";
@@ -192,16 +193,6 @@ onClick={() => setSelectedShop(shop)}
                     marginBottom: "10px"
                   }}
                 >
-                  <img
-                    src={shop.cover}
-                    alt="cover"
-                    style={{
-                      width: "100%",
-                      height: "120px",
-                      borderRadius: "10px",
-                      objectFit: "cover"
-                    }}
-                  />
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <img
                       src={shop.logo}
