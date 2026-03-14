@@ -115,20 +115,7 @@ const [selectedShop, setSelectedShop] = useState(null);
 
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
-
-{/* السعر الإجمالي يظهر دايمًا */}
-<div style={{
-  backgroundColor: "#FF6600",
-  color: "#fff",
-  padding: "10px",
-  textAlign: "center",
-  fontWeight: "bold",
-  borderRadius: "8px",
-  margin: "10px"
-}}>
-  الإجمالي: {totalPrice} ج
-</div>
-      
+     
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
   <>
