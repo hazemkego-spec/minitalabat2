@@ -35,6 +35,25 @@ const [selectedShop, setSelectedShop] = useState(null);
     }));
   };
 
+const [customerData, setCustomerData] = useState(() => {
+  const saved = localStorage.getItem("customerData");
+  return saved ? JSON.parse(saved) : { name: "", phone: "", address: "" };
+});
+
+const handleCustomerChange = (field, value) => {
+  const updated = { ...customerData, [field]: value };
+  setCustomerData(updated);
+  localStorage.setItem("customerData", JSON.stringify(updated));
+};
+
+const handleSendOrder = () => {
+  if (!customerData.name || !customerData.phone || !customerData.address) {
+    alert("من فضلك أدخل بياناتك كاملة قبل إرسال الطلب");
+    return;
+  }
+
+  // هنا تكمل إرسال الطلب
+};
   const removeFromCart = (key) => {
     setCart((prev) => {
       const newCart = { ...prev };
