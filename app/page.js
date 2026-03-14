@@ -177,48 +177,58 @@ const [selectedShop, setSelectedShop] = useState(null);
             ))}
           </div>
 
-          {/* عرض المتاجر حسب الفئة والبحث */}
-          <div style={{ padding: "15px" }}>
-            {filteredShops.length === 0 ? (
-              <p>لا توجد متاجر مطابقة 🔍</p>
-            ) : (
-              filteredShops.map((shop) => (
-                <div
-                  key={shop.id}
-onClick={() => setSelectedShop(shop)}
-                  style={{
-                    backgroundColor: "#1e1e1e",
-                    borderRadius: "15px",
-                    padding: "10px",
-                    marginBottom: "10px"
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <img
-                      src={shop.logo}
-                      alt={shop.name}
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        borderRadius: "50%",
-                        border: "2px solid #FF6600",
-                        marginTop: "-25px"
-                      }}
-                    />
-                    <h4 style={{ color: "#fff" }}>{shop.name}</h4>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "10px",
-                      color: shop.isOpen ? "#4caf50" : "#f44336"
-                    }}
-                  >
-                    {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
+          {/* عرض المتاجر كمربعات */}
+<div style={{ 
+  padding: "15px", 
+  display: "grid", 
+  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
+  gap: "15px" 
+}}>
+  {filteredShops.length === 0 ? (
+    <p>لا توجد متاجر مطابقة 🔍</p>
+  ) : (
+    filteredShops.map((shop) => (
+      <div
+        key={shop.id}
+        onClick={() => setSelectedShop(shop)}
+        style={{
+          backgroundColor: "#1e1e1e",
+          borderRadius: "15px",
+          padding: "10px",
+          textAlign: "center",
+          cursor: "pointer"
+        }}
+      >
+        {/* اللوجو */}
+        <img
+          src={shop.logo}
+          alt={shop.name}
+          style={{
+            width: "60px",
+            height: "60px",
+            borderRadius: "50%",
+            border: "2px solid #FF6600",
+            backgroundColor: "#fff",
+            marginBottom: "10px"
+          }}
+        />
+
+        {/* اسم المتجر */}
+        <h4 style={{ color: "#fff", margin: "5px 0" }}>{shop.name}</h4>
+
+        {/* حالة المتجر */}
+        <span
+          style={{
+            fontSize: "12px",
+            color: shop.isOpen ? "#4caf50" : "#f44336"
+          }}
+        >
+          {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+        </span>
+      </div>
+    ))
+  )}
+</div>
         </>
 
       )}
