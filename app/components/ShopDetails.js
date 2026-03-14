@@ -24,17 +24,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
         >
           ⬅ رجوع
         </button>
-        <img
-          src={shop.logo}
-          alt={shop.name}
-          style={{
-            width: "50px",
-            height: "50px",
-            borderRadius: "50%",
-            border: "2px solid #FF6600",
-            marginRight: "10px"
-          }}
-        />
+        {/* اسم المتجر فقط بدون لوجو */}
         <h3 style={{ color: "#FF6600" }}>{shop.name}</h3>
       </div>
 
