@@ -15,7 +15,10 @@ export default function HomePage() {
 const [selectedShop, setSelectedShop] = useState(null);
 
   // بيانات السلة (مؤقتاً)
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState([]);
+
+// حساب السعر الإجمالي
+const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
   const [itemNotes, setItemNotes] = useState({});
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
