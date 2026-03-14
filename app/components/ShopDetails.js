@@ -8,7 +8,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
 
   return (
     <div style={{ padding: "10px" }}>
-      {/ Header /}
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
         <button
           onClick={onBack}
@@ -24,21 +24,11 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
         >
           ⬅ رجوع
         </button>
-        <img
-          src={shop.logo}
-          alt={shop.name}
-          style={{
-            width: "50px",
-            height: "50px",
-            borderRadius: "50%",
-            border: "2px solid #FF6600",
-            marginRight: "10px"
-          }}
-        />
+        {/* اسم المتجر فقط بدون لوجو */}
         <h3 style={{ color: "#FF6600" }}>{shop.name}</h3>
       </div>
 
-      {/ Categories Tabs /}
+      {/* Categories Tabs */}
       <div
         style={{
           display: "flex",
@@ -67,7 +57,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
         ))}
       </div>
 
-      {/ Items of Active Category /}
+      {/* Items of Active Category */}
       <div>
         {shop.menuCategories
           .find((cat) => cat.title === activeCategory)
