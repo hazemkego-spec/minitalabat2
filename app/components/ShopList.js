@@ -220,6 +220,7 @@ cover: "/sawan-logo.png",
       }
     ]
   }
+  `
 
 {
     id: 5,
