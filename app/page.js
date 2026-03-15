@@ -96,7 +96,7 @@ const [selectedShop, setSelectedShop] = useState(null);
   window.open(url, "_blank");
 };
 
-  const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة"];
+  const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
   // فلترة المتاجر حسب الفئة والبحث
   const filteredShops = shops.filter((shop) => {
