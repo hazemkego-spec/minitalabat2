@@ -206,7 +206,6 @@ const [selectedShop, setSelectedShop] = useState(null);
           cursor: "pointer",
         }}
       >
-        {/* صورة اللوجو */}
         <img
           src={shop.logo}
           alt={shop.name}
@@ -219,11 +218,7 @@ const [selectedShop, setSelectedShop] = useState(null);
             marginBottom: "10px",
           }}
         />
-
-        {/* اسم المتجر */}
         <h4 style={{ color: "#fff", margin: "2px 0" }}>{shop.name}</h4>
-
-        {/* حالة المتجر (مفتوح/مغلق) */}
         <span
           style={{
             fontSize: "12px",
