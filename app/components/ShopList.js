@@ -226,10 +226,11 @@ cover: "/sawan-logo.png",
     category: "صيدليات",
     name: "صيدلية د / هاني فاروق",
     isOpen: true,
-    logo: "/sawan-logo.png",
-cover: "/sawan-logo.png",
-    menuCategories: [
-      {
+    logo: "/HanyFarPharmlogo.png",
+cover: "/HanyFarPharmlogo.png",
+    menuCategories: []
+  }
+  `
   // ... باقي المتاجر
 ];
 
