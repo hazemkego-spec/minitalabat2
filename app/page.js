@@ -183,54 +183,54 @@ const [selectedShop, setSelectedShop] = useState(null);
     </div>
 
     {/* عرض المتاجر */}
-<div
-  style={{
-    padding: "15px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-    gap: "15px",
-  }}
->
-  {filteredShops.length === 0 ? (
-    <p>لا توجد متاجر مطابقة 🔍</p>
-  ) : (
-    filteredShops.map((shop) => (
-      <div
-        key={shop.id}
-        onClick={() => setSelectedShop(shop)}
-        style={{
-          backgroundColor: "#1e1e1e",
-          borderRadius: "15px",
-          padding: "10px",
-          textAlign: "center",
-          cursor: "pointer",
-        }}
-      >
-        <img
-          src={shop.logo}
-          alt={shop.name}
-          style={{
-            width: "70px",
-            height: "70px",
-            borderRadius: "20%",
-            border: "2px solid #FF6600",
-            backgroundColor: "#fff",
-            marginBottom: "10px",
-          }}
-        />
-        <h4 style={{ color: "#fff", margin: "2px 0" }}>{shop.name}</h4>
-        <span
-          style={{
-            fontSize: "12px",
-            color: shop.isOpen ? "#4caf50" : "#f44336",
-          }}
-        >
-          {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
-        </span>
-      </div>
-    ))
-  )}
-</div>
+    <div style={{ 
+      padding: "15px", 
+      display: "grid", 
+      gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
+      gap: "15px" 
+    }}>
+      {filteredShops.length === 0 ? (
+        <p>لا توجد متاجر مطابقة 🔍</p>
+      ) : (
+        filteredShops.map((shop) => (
+          <div
+            key={shop.id}
+            onClick={() => setSelectedShop(shop)}
+            style={{
+              backgroundColor: "#1e1e1e",
+              borderRadius: "15px",
+              padding: "10px",
+              textAlign: "center",
+              cursor: "pointer"
+            }}
+          >
+            <img
+              src={shop.logo}
+              alt={shop.name}
+              style={{
+                width: "70px",
+                height: "70px",
+                borderRadius: "20%",
+                border: "2px solid #FF6600",
+                backgroundColor: "#fff",
+                marginBottom: "10px"
+              }}
+            />
+            <h4 style={{ color: "#fff", margin: "2px 0" }}>{shop.name}</h4>
+            <span
+              style={{
+                fontSize: "12px",
+                color: shop.isOpen ? "#4caf50" : "#f44336"
+              }}
+            >
+              {shop.isOpen ? "● مفتوح الآن" : "● مغلق"}
+            </span>
+          </div>
+        ))
+      )}
+    </div>
+  </>
+)}
 
 {/* صفحة المتجر منفصلة */}
 {activeTab === "home" && selectedShop && (
@@ -315,13 +315,6 @@ const [selectedShop, setSelectedShop] = useState(null);
       </p>
     </div>
   </>
-)}
-
-{activeTab === "pharmacy" && (
-  <ShopDetails
-    shop={shops.find(s => s.name === "صيدلية د/ هاني فاروق")}
-    addToCart={addToCart}
-  />
 )}
 
       {/* NavBar */}
