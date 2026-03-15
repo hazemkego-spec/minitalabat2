@@ -317,6 +317,13 @@ const [selectedShop, setSelectedShop] = useState(null);
   </>
 )}
 
+{activeTab === "pharmacy" && (
+  <ShopDetails
+    shop={shops.find(s => s.name === "صيدلية د/ هاني فاروق")}
+    addToCart={addToCart}
+  />
+)}
+
       {/* NavBar */}
       <NavBar activeTab={activeTab} setActiveTab={setActiveTab} setSelectedShop={() => {}} />
     </div>
