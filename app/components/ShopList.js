@@ -744,6 +744,27 @@ cover: "/sawan-logo.png",
         ]
       }
     ]
+  },
+  {
+    id: 9,
+    category: "مصنعات اللحوم",
+    name: "مصنعات اليُمن",
+    isOpen: true,
+    logo: "/Msn3atElyomn.png",
+    cover: "/Msn3atElyomn.png",
+    menuCategories: [
+      {
+        title: "🥩 منتجات اللحوم المصنعة",
+        items: [
+          { name: "برجر", price: 300 },
+          { name: "عصب", price: 100 },
+          { name: "سجق", price: 270 },
+          { name: "حواوشي", price: 270 },
+          { name: "كفتة", price: 300 },
+          { name: "مفروم", price: 300 }
+        ]
+      }
+    ]
   }
 
   // ... باقي المتاجر
