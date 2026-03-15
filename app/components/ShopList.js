@@ -444,8 +444,172 @@ cover: "/sawan-logo.png",
         ]
       }
     ]
-  }
+  },
 
+  {
+    id: 7,
+    category: "سوبر ماركت",
+    name: "سوبر ماركت الحسيني",
+    isOpen: true,
+    logo: "/Elhuseny.png",
+    cover: "/Elhuseny.png",
+    menuCategories: [
+      {
+        title: "🥖 الحبوب والمكرونة",
+        items: [
+          { name: "أرز مصري 1 كجم", price: 34 },
+          { name: "أرز بسمتي 1 كجم", price: 65 },
+          { name: "مكرونة 400 جم", price: 10 },
+          { name: "مكرونة 1 كجم", price: 22 },
+          { name: "شعرية", price: 9 },
+          { name: "دقيق أبيض 1 كجم", price: 24 },
+          { name: "دقيق فاخر", price: 28 },
+          { name: "سميد", price: 28 },
+          { name: "شوفان", price: 35 }
+        ]
+      },
+      {
+        title: "🫘 البقوليات",
+        items: [
+          { name: "عدس أصفر", price: 65 },
+          { name: "عدس بجبة", price: 60 },
+          { name: "فول بلدي", price: 62 },
+          { name: "حمص", price: 70 },
+          { name: "لوبيا", price: 60 },
+          { name: "فاصوليا بيضاء", price: 70 },
+          { name: "ترمس", price: 45 }
+        ]
+      },
+      {
+        title: "🧂 السكر والزيوت",
+        items: [
+          { name: "سكر 1 كجم", price: 34 },
+          { name: "سكر بني", price: 40 },
+          { name: "زيت عباد الشمس 1 لتر", price: 92 },
+          { name: "زيت خليط 1 لتر", price: 85 },
+          { name: "زيت ذرة", price: 95 },
+          { name: "سمن نباتي 1 كجم", price: 85 },
+          { name: "سمن بلدي 500 جم", price: 110 }
+        ]
+      },
+      {
+        title: "🧀 الألبان والجبن",
+        items: [
+          { name: "لبن 1 لتر", price: 35 },
+          { name: "لبن نصف لتر", price: 18 },
+          { name: "زبادي", price: 6 },
+          { name: "جبنة بيضاء", price: 60 },
+          { name: "جبنة اسطنبولي", price: 70 },
+          { name: "جبنة رومي", price: 220 },
+          { name: "جبنة شيدر", price: 55 },
+          { name: "جبنة مثلثات", price: 35 }
+        ]
+      },
+      {
+        title: "🥚 البيض",
+        items: [
+          { name: "كرتونة بيض أبيض", price: 140 },
+          { name: "كرتونة بيض أحمر", price: 146 },
+          { name: "بيض بلدي", price: 160 }
+        ]
+      },
+      {
+        title: "🥫 المعلبات",
+        items: [
+          { name: "تونة عادية", price: 30 },
+          { name: "تونة قطع", price: 45 },
+          { name: "فول معلب", price: 10 },
+          { name: "فاصوليا معلبة", price: 12 },
+          { name: "ذرة حلوة", price: 20 },
+          { name: "مشروم", price: 30 },
+          { name: "صلصة طماطم", price: 8 }
+        ]
+      },
+      {
+        title: "🍪 البسكويت والسناكس",
+        items: [
+          { name: "بسكويت شاي", price: 12 },
+          { name: "بسكويت كريمة", price: 15 },
+          { name: "ويفر", price: 10 },
+          { name: "كيك", price: 8 },
+          { name: "شيبسي", price: 10 },
+          { name: "فشار", price: 12 },
+          { name: "شوكولاتة", price: 15 }
+        ]
+      },
+      {
+        title: "🍬 الحلويات",
+        items: [
+          { name: "لبان", price: 5 },
+          { name: "توفي", price: 5 },
+          { name: "شوكولاتة بار", price: 20 },
+          { name: "بسكويت شوكولاتة", price: 18 }
+        ]
+      },
+      {
+        title: "🥤 المشروبات",
+        items: [
+          { name: "مياه معدنية صغيرة", price: 5 },
+          { name: "مياه معدنية كبيرة", price: 8 },
+          { name: "كوكاكولا / بيبسي", price: 10 },
+          { name: "عصير صغير", price: 8 },
+          { name: "عصير 1 لتر", price: 25 },
+          { name: "مياه غازية", price: 8 }
+        ]
+      },
+      {
+        title: "☕ المشروبات الساخنة",
+        items: [
+          { name: "شاي 40 فتلة", price: 35 },
+          { name: "شاي 100 فتلة", price: 65 },
+          { name: "قهوة سادة", price: 80 },
+          { name: "نسكافيه صغير", price: 45 },
+          { name: "كاكاو", price: 50 }
+        ]
+      },
+      {
+        title: "🧂 التوابل",
+        items: [
+          { name: "ملح", price: 6 },
+          { name: "كمون", price: 10 },
+          { name: "فلفل أسود", price: 12 },
+          { name: "كركم", price: 10 },
+          { name: "بهارات مشكلة", price: 12 },
+          { name: "شطة", price: 10 }
+        ]
+      },
+      {
+        title: "🧼 المنظفات",
+        items: [
+          { name: "مسحوق غسيل 1 كجم", price: 45 },
+          { name: "مسحوق غسيل أوتوماتيك", price: 80 },
+          { name: "صابون أطباق", price: 15 },
+          { name: "كلور", price: 12 },
+          { name: "معطر أرضيات", price: 35 },
+          { name: "صابون غسيل", price: 10 }
+        ]
+      },
+      {
+        title: "🧻 المنتجات الورقية",
+        items: [
+          { name: "مناديل 5 علب", price: 35 },
+          { name: "ورق تواليت 4 رول", price: 30 },
+          { name: "مناديل مطبخ", price: 25 }
+        ]
+      },
+      {
+        title: "🧴 العناية الشخصية",
+        items: [
+          { name: "شامبو", price: 60 },
+          { name: "بلسم", price: 55 },
+          { name: "صابون استحمام", price: 15 },
+          { name: "معجون أسنان", price: 35 },
+          { name: "فرشة أسنان", price: 20 },
+          { name: "مزيل عرق", price: 70 }
+        ]
+      }
+    ]
+  }
   // ... باقي المتاجر
 ];
 
