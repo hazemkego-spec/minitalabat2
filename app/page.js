@@ -15,18 +15,6 @@ const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("home");
 const [selectedShop, setSelectedShop] = useState(null);
 
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-
-  useEffect(() => {
-    // التأكد إذا كان التطبيق مفتوحاً من المتصفح وليس من الشاشة الرئيسية
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    
-    if (!isStandalone) {
-      // إذا كان مفتوحاً من المتصفح، أظهر رسالة التثبيت دائماً عند الفتح
-      setShowInstallPrompt(true);
-    }
-  }, []);
-
   // بيانات السلة (مؤقتاً)
   const [cart, setCart] = useState([]);
   const [itemNotes, setItemNotes] = useState({});
@@ -168,36 +156,7 @@ const [selectedShop, setSelectedShop] = useState(null);
   });
 
   return (
-  <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
-    
-    {/* رسالة التثبيت الإجبارية عند فتح المتصفح */}
-    {showInstallPrompt && (
-      <div style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.9)',
-        zIndex: 10000, // أعلى من كل شيء بما في ذلك الـ NavBar
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
-        <InstallGuide onClose={() => setShowInstallPrompt(false)} />
-        <button 
-          onClick={() => setShowInstallPrompt(false)}
-          style={{
-            marginTop: '20px',
-            backgroundColor: 'transparent',
-            color: '#888',
-            border: 'none',
-            textDecoration: 'underline',
-            fontSize: '14px'
-          }}
-        >
-          متابعة من المتصفح (غير مستحسن)
-        </button>
-      </div>
-    )}
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px" }}>
      
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
