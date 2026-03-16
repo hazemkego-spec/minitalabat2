@@ -11,29 +11,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
-  
-    // 1. تعريف الحالة (State)
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-
-  // 2. الكود السحري اللي بيفحص الحالة في كل مرة الصفحة تفتح
-  useEffect(() => {
-    const checkPWA = () => {
-      // فحص هل العميل فاتح من الأيقونة (Standalone) أم من المتصفح؟
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                           || window.navigator.standalone === true; 
-
-      if (!isStandalone) {
-        // لو مش مثبت، أظهر رسالة التعليمات فوراً ودائماً
-        setShowInstallPrompt(true);
-      }
-    };
-
-    checkPWA();
-    // زيادة تأكيد: بنفحص تاني لو حصل تغيير في الشاشة
-    window.addEventListener('resize', checkPWA);
-    return () => window.removeEventListener('resize', checkPWA);
-  }, []);
-
+   
   // بيانات السلة
   const [cart, setCart] = useState([]);
   const [itemNotes, setItemNotes] = useState({});
@@ -152,40 +130,6 @@ export default function HomePage() {
 
     return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
-      
-      {/* رسالة التثبيت الإجبارية - تظهر دائماً في المتصفح */}
-      {showInstallPrompt && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.98)', // تعتيم شبه كامل للتركيز على التثبيت
-          zIndex: 100000, // رقم فائق القوة
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '20px'
-        }}>
-          {/* مكون التعليمات */}
-          <InstallGuide onClose={() => setShowInstallPrompt(false)} />
-          
-          <button 
-            onClick={() => setShowInstallPrompt(false)}
-            style={{
-              marginTop: '30px',
-              backgroundColor: '#333',
-              color: '#fff',
-              border: '1px solid #555',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            إغلاق ومتابعة من المتصفح مؤقتاً
-          </button>
-        </div>
-      )}
      
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
