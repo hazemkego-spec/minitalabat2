@@ -9,22 +9,23 @@ export default function NavBar({ activeTab, setActiveTab, setSelectedShop, hasSe
 
   return (
     <nav
-      style={{
-        position: "fixed", // ثابت دائماً
-        bottom: 0,        // في أقصى الأسفل
-        left: 0,
-        right: 0,
-        height: "65px",   // تحديد طول ثابت للشريط
-        backgroundColor: "#1e1e1e",
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center", // توسيط العناصر رأسياً
-        padding: "0 5px",
-        borderTop: "2px solid #333",
-        zIndex: 9999,      // رقم كبير جداً لضمان ظهوره فوق كل شيء
-        touchAction: "none" // يمنع التفاعل مع الـ Zoom في منطقة الشريط
-      }}
-    >
+  style={{
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "70px", // تثبيت الارتفاع
+    backgroundColor: "#1e1e1e",
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    padding: "0 10px",
+    borderTop: "2px solid #333",
+    zIndex: "999999", // أعلى درجة ظهور ممكنة
+    touchAction: "none", // يمنع حركات اللمس المسببة للـ Zoom في الشريط
+    transform: "translateZ(0)", // إجبار الموبايل على استخدام معالج الرسوم لثبات العنصر
+  }}
+>
       {/* زر الرجوع */}
       {(hasSelectedShop || activeTab !== "home") && (
         <button
