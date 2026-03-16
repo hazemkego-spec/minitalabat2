@@ -11,6 +11,7 @@ import ShopDetails from "./components/ShopDetails";
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("الكل");
+const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("home");
 const [selectedShop, setSelectedShop] = useState(null);
 
@@ -99,18 +100,22 @@ const [selectedShop, setSelectedShop] = useState(null);
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
   // فلترة المتاجر حسب الفئة والبحث
-  const filteredShops = shops.filter((shop) => {
-    const matchCategory =
-      selectedCategory === "الكل" || shop.category === selectedCategory;
-    const matchSearch =
-      shop.name.includes(searchTerm) ||
-      (shop.items &&
-        shop.items.some((item) => item.name.includes(searchTerm))) ||
-      (shop.menuCategories &&
-        shop.menuCategories.some((cat) =>
-          cat.items.some((item) => item.name.includes(searchTerm))
-        ));
-    return matchCategory && matchSearch;
+    const filteredShops = shops.filter((shop) => {
+    // 1. التصفية حسب القسم المختارة (الكل، مطاعم، إلخ)
+    const matchCategory = selectedCategory === "الكل" || shop.category === selectedCategory;
+
+    // 2. التصفية حسب كلمة البحث (نحول النص لحروف صغيرة لضمان الدقة)
+    const lowerSearch = searchTerm.toLowerCase();
+    
+    // البحث في اسم المحل
+    const matchShopName = shop.name.toLowerCase().includes(lowerSearch);
+    
+    // البحث في أسماء الأصناف داخل المنيو
+    const matchMenuItem = shop.menuCategories?.some(category => 
+      category.items.some(item => item.name.toLowerCase().includes(lowerSearch))
+    );
+
+    return matchCategory && (matchShopName || matchMenuItem);
   });
 
   return (
