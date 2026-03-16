@@ -18,11 +18,21 @@ const [selectedShop, setSelectedShop] = useState(null);
   // بيانات السلة (مؤقتاً)
   const [cart, setCart] = useState([]);
   const [itemNotes, setItemNotes] = useState({});
-  const [customerInfo, setCustomerInfo] = useState({
-    name: "",
-    phone: "",
-    address: ""
+    // تحويل بيانات العميل لتكون محفوظة تلقائياً
+  const [customerInfo, setCustomerInfo] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('customer_data');
+      return saved ? JSON.parse(saved) : { name: "", phone: "", address: "" };
+    }
+    return { name: "", phone: "", address: "" };
   });
+
+  // دالة لتحديث البيانات وحفظها في نفس الوقت
+  const updateCustomerInfo = (newData) => {
+    setCustomerInfo(newData);
+    localStorage.setItem('customer_data', JSON.stringify(newData));
+  };
+
   const [locationUrl, setLocationUrl] = useState("");
 
   // دوال السلة
