@@ -1,4 +1,3 @@
-// app/components/ShopDetails.js
 import React, { useState } from "react";
 
 export default function ShopDetails({ shop, onBack, addToCart }) {
@@ -8,22 +7,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
 
   return (
     <div style={{ padding: "10px" }}>
-      {/* زر الرجوع */}
-      <div style={{ marginBottom: "15px" }}>
-        <button
-          onClick={onBack}
-          style={{
-            backgroundColor: "#333",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            padding: "8px 12px",
-            cursor: "pointer"
-          }}
-        >
-          ⬅ رجوع
-        </button>
-      </div>
+      {/* تم حذف زر الرجوع العلوي من هنا ليعمل من الـ NavBar السفلي فقط */}
 
       {/* Cover الخاص بالمتجر */}
       {shop.cover && (
@@ -103,9 +87,9 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
                 alignItems: "center"
               }}
             >
-              <span>{item.name}</span>
+              <span style={{ color: "#fff" }}>{item.name}</span>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ color: "#FF6600" }}>{item.price} ج</span>
+                <span style={{ color: "#FF6600", fontWeight: "bold" }}>{item.price} ج</span>
                 <button
                   onClick={() => addToCart(shop.name, item)}
                   style={{
@@ -114,7 +98,8 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
                     border: "none",
                     borderRadius: "8px",
                     padding: "5px 10px",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    fontWeight: "bold"
                   }}
                 >
                   ➕ أضف
