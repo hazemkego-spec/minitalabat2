@@ -146,33 +146,39 @@ export default function HomePage() {
     return matchCategory && (matchShopName || matchMenuItem);
   });
 
-  return (
+    return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
       
-      {/* رسالة التثبيت الإجبارية */}
-      {showInstallPrompt && activeTab === "home" && !selectedShop && (
+      {/* رسالة التثبيت الإجبارية - تظهر دائماً في المتصفح */}
+      {showInstallPrompt && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.95)',
-          zIndex: 10000,
+          backgroundColor: 'rgba(0,0,0,0.98)', // تعتيم شبه كامل للتركيز على التثبيت
+          zIndex: 100000, // رقم فائق القوة
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
           padding: '20px'
         }}>
+          {/* مكون التعليمات */}
           <InstallGuide onClose={() => setShowInstallPrompt(false)} />
+          
           <button 
             onClick={() => setShowInstallPrompt(false)}
             style={{
-              marginTop: '20px', backgroundColor: 'transparent',
-              color: '#FF6600', border: 'none',
-              textDecoration: 'underline', fontSize: '16px',
-              fontWeight: 'bold', cursor: 'pointer'
+              marginTop: '30px',
+              backgroundColor: '#333',
+              color: '#fff',
+              border: '1px solid #555',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              cursor: 'pointer'
             }}
           >
-            متابعة تصفح ميني طلبات
+            إغلاق ومتابعة من المتصفح مؤقتاً
           </button>
         </div>
       )}
