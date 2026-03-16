@@ -12,22 +12,26 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
   
-  // الحالة الجديدة لرسالة التثبيت
+    // 1. تعريف الحالة (State)
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
-  // التأكد من حالة التثبيت عند فتح التطبيق
-    useEffect(() => {
-    // فحص هل التطبيق مفتوح من الشاشة الرئيسية؟
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                         || window.navigator.standalone === true; // للسفاري (آيفون)
+  // 2. الكود السحري اللي بيفحص الحالة في كل مرة الصفحة تفتح
+  useEffect(() => {
+    const checkPWA = () => {
+      // فحص هل العميل فاتح من الأيقونة (Standalone) أم من المتصفح؟
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                           || window.navigator.standalone === true; 
 
-    if (!isStandalone) {
-      // لو مش مثبت، هنظهر الرسالة دائماً
-      setShowInstallPrompt(true);
-    } else {
-      // لو مثبت وفتحه من الأيقونة، نضمن إن الرسالة مختفية
-      setShowInstallPrompt(false);
-    }
+      if (!isStandalone) {
+        // لو مش مثبت، أظهر رسالة التعليمات فوراً ودائماً
+        setShowInstallPrompt(true);
+      }
+    };
+
+    checkPWA();
+    // زيادة تأكيد: بنفحص تاني لو حصل تغيير في الشاشة
+    window.addEventListener('resize', checkPWA);
+    return () => window.removeEventListener('resize', checkPWA);
   }, []);
 
   // بيانات السلة
