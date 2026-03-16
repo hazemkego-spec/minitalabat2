@@ -359,8 +359,17 @@ const [selectedShop, setSelectedShop] = useState(null);
   </>
 )}
 
-      {/* NavBar */}
-      <NavBar activeTab={activeTab} setActiveTab={setActiveTab} setSelectedShop={() => {}} />
+      {/* NavBar المطور */}
+<NavBar 
+  activeTab={activeTab} 
+  setActiveTab={(tab) => {
+    setActiveTab(tab);
+    if (tab === "home") {
+      setSelectedShop(null); // دي اللي هترجعه للرئيسية وتمسح صفحة المتجر
+    }
+  }} 
+  setSelectedShop={setSelectedShop} 
+/>
     </div>
   );
 }
