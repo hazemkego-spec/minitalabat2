@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react"; // أضفنا useEffect هنا
+import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
 import InstallGuide from "./components/InstallGuide";
@@ -12,6 +12,34 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
    
+  // 1. تعريف حالة رسالة التثبيت الأصلية
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  // 2. مراقبة حدث التثبيت من المتصفح
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault(); // منع الظهور التلقائي المزعج
+      setDeferredPrompt(e); // حفظ الحدث لإظهاره عند الضغط
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  // 3. دالة تنفيذ التثبيت عند ضغط الزر
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt(); // إظهار رسالة المتصفح الأصلية
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    }
+    setDeferredPrompt(null); // إخفاء الزر بعد المحاولة
+  };
+
   // بيانات السلة
   const [cart, setCart] = useState([]);
   const [itemNotes, setItemNotes] = useState({});
@@ -128,8 +156,43 @@ export default function HomePage() {
     return matchCategory && (matchShopName || matchMenuItem);
   });
 
-    return (
+  return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
+      
+      {/* عرض بانر التثبيت الأصلي فقط إذا كان متاحاً */}
+      {deferredPrompt && activeTab === "home" && !selectedShop && (
+        <div style={{
+          backgroundColor: "#FF6600",
+          padding: "12px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderRadius: "12px",
+          margin: "15px",
+          boxShadow: "0 4px 15px rgba(255,102,0,0.3)",
+          animation: "slideIn 0.5s ease-out"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "20px" }}>📲</span>
+            <span style={{ fontWeight: "bold", fontSize: "14px" }}>ثبت التطبيق لطلب أسرع!</span>
+          </div>
+          <button 
+            onClick={handleInstallClick}
+            style={{
+              backgroundColor: "#fff",
+              color: "#FF6600",
+              border: "none",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              fontSize: "13px",
+              cursor: "pointer"
+            }}
+          >
+            تثبيت الآن
+          </button>
+        </div>
+      )}
      
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
