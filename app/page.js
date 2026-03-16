@@ -75,27 +75,53 @@ const [selectedShop, setSelectedShop] = useState(null);
     }
   };
 
-  const sendOrder = () => {
-  let message = `طلب جديد من ${customerInfo.name}\n📞 ${customerInfo.phone}\n🏠 ${customerInfo.address}\n`;
-  if (locationUrl) message += `📍 الموقع: ${locationUrl}\n\n`;
+    const sendOrder = () => {
+    // 1. حساب رقم الفاتورة التسلسلي
+    const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
+    const newRef = parseInt(lastRef) + 1;
+    if (typeof window !== 'undefined') localStorage.setItem('invoice_ref', newRef);
 
-  Object.keys(getGroupedCart()).forEach((shopName) => {
-    message += `🛍️ متجر: ${shopName}\n`;
-    getGroupedCart()[shopName].forEach((item) => {
-      message += `- ${item.name} (x${item.quantity}) = ${item.price * item.quantity} ج\n`;
-      if (itemNotes[item.key]) {
-        message += `  ملاحظات: ${itemNotes[item.key]}\n`;
-      }
+    // 2. توقيت الفاتورة
+    const date = new Date().toLocaleDateString('ar-EG');
+    const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+    // 3. بناء جسم الفاتورة بتنسيق شيك
+    let message = `*🧾 فاتورة طلب رقم: #${newRef}*\n`;
+    message += `*━━━━━━━━━━━━━━*\n`;
+    message += `*📅 التاريخ:* ${date}\n`;
+    message += `*⏰ الوقت:* ${time}\n`;
+    message += `*━━━━━━━━━━━━━━*\n\n`;
+
+    message += `*👤 بيانات العميل:*\n`;
+    message += `• الاسم: ${customerInfo.name}\n`;
+    message += `• الهاتف: ${customerInfo.phone}\n`;
+    message += `• العنوان: ${customerInfo.address}\n`;
+    if (locationUrl) message += `📍 الموقع: ${locationUrl}\n`;
+    message += `\n*━━━━━━━━━━━━━━*\n\n`;
+
+    message += `*🛒 الأصناف المطلوبة:*\n`;
+    
+    Object.keys(getGroupedCart()).forEach((shopName) => {
+      message += `\n*🏪 متجر: ${shopName}*\n`;
+      getGroupedCart()[shopName].forEach((item) => {
+        message += `• *${item.name}*\n`;
+        message += `  (الكمية: ${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
+        if (itemNotes[item.key]) {
+          message += `  ⚠️ ملاحظة: ${itemNotes[item.key]}\n`;
+        }
+      });
     });
-    message += "\n";
-  });
 
-  message += `💰 الإجمالي: ${calculateTotal()} ج.م\n`;
-  message += `📞 للتواصل: 01122947479\n`;   // ← هنا أضفنا رقم الواتساب
+    message += `\n*━━━━━━━━━━━━━━*\n`;
+    message += `*💰 إجمالي الحساب: ${calculateTotal()} جنيه*\n`;
+    message += `*━━━━━━━━━━━━━━*\n\n`;
+    message += `*شكراً لطلبكم من مول اليمن ✨*`;
 
-  const url = `https://wa.me/201122947479?text=${encodeURIComponent(message)}`; // ← هنا غيرنا الرابط ليبعت على رقمك مباشرة
-  window.open(url, "_blank");
-};
+    // 4. الإرسال (تأكد من رقم الواتساب الخاص بك هنا)
+    const whatsappPhone = "201122947479"; 
+    const url = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  };
 
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
