@@ -2,7 +2,6 @@ import React from "react";
 
 export default function NavBar({ activeTab, setActiveTab, setSelectedShop, hasSelectedShop }) {
   
-  // دالة موحدة للرجوع للرئيسية وتصفير المتجر
   const handleBackToHome = () => {
     setActiveTab("home");
     setSelectedShop(null);
@@ -11,68 +10,90 @@ export default function NavBar({ activeTab, setActiveTab, setSelectedShop, hasSe
   return (
     <nav
       style={{
-        position: "fixed",
-        bottom: 0,
+        position: "fixed", // ثابت دائماً
+        bottom: 0,        // في أقصى الأسفل
         left: 0,
         right: 0,
+        height: "65px",   // تحديد طول ثابت للشريط
         backgroundColor: "#1e1e1e",
         display: "flex",
         justifyContent: "space-around",
-        padding: "12px 0",
+        alignItems: "center", // توسيط العناصر رأسياً
+        padding: "0 5px",
         borderTop: "2px solid #333",
-        zIndex: 1000 // لضمان ظهور الشريط فوق أي محتوى
+        zIndex: 9999,      // رقم كبير جداً لضمان ظهوره فوق كل شيء
+        touchAction: "none" // يمنع التفاعل مع الـ Zoom في منطقة الشريط
       }}
     >
-      {/* زر الرجوع - يظهر فقط لو العميل داخل صفحة متجر أو في السلة */}
+      {/* زر الرجوع */}
       {(hasSelectedShop || activeTab !== "home") && (
         <button
           onClick={handleBackToHome}
           style={{
-            color: "#FF6600", // لون مميز للرجوع
+            color: "#FF6600",
             background: "none",
             border: "none",
-            fontSize: "16px",
-            fontWeight: "bold"
+            fontSize: "14px",
+            fontWeight: "bold",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center"
           }}
         >
-          🔙 رجوع
+          <span>🔙</span>
+          <span>رجوع</span>
         </button>
       )}
 
+      {/* زر الرئيسية */}
       <button
         onClick={handleBackToHome}
         style={{
           color: activeTab === "home" && !hasSelectedShop ? "#FF6600" : "#888",
           background: "none",
           border: "none",
-          fontSize: "16px"
+          fontSize: "14px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
         }}
       >
-        🏠 الرئيسية
+        <span>🏠</span>
+        <span>الرئيسية</span>
       </button>
 
+      {/* زر السلة */}
       <button
         onClick={() => setActiveTab("cart")}
         style={{
           color: activeTab === "cart" ? "#FF6600" : "#888",
           background: "none",
           border: "none",
-          fontSize: "16px"
+          fontSize: "14px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
         }}
       >
-        🛒 السلة
+        <span>🛒</span>
+        <span>السلة</span>
       </button>
 
+      {/* زر إضافة متجر */}
       <button
         onClick={() => setActiveTab("addShop")}
         style={{
           color: activeTab === "addShop" ? "#FF6600" : "#888",
           background: "none",
           border: "none",
-          fontSize: "16px"
+          fontSize: "14px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
         }}
       >
-        🏪 أضف متجرك
+        <span>🏪</span>
+        <span>المتجر</span>
       </button>
     </nav>
   );
