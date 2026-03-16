@@ -14,6 +14,7 @@ export default function HomePage() {
    
   // 1. تعريف حالة رسالة التثبيت الأصلية
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+const [showIosPrompt, setShowIosPrompt] = useState(false);
 
   // 2. مراقبة حدث التثبيت من المتصفح
   useEffect(() => {
@@ -22,7 +23,17 @@ export default function HomePage() {
       setDeferredPrompt(e); // حفظ الحدث لإظهاره عند الضغط
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+   // --- الجزء الجديد الخاص بالآيفون ---
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                         || window.navigator.standalone === true;
+
+    if (isIos && !isStandalone) {
+      setShowIosPrompt(true);
+    }
+    // ---------------------------------
+
+ window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -193,7 +204,50 @@ export default function HomePage() {
           </button>
         </div>
       )}
-     
+           {/* رسالة مخصصة لمستخدمي الآيفون فقط */}
+      {showIosPrompt && activeTab === "home" && !selectedShop && (
+        <div style={{
+          position: "fixed",
+          bottom: 0, left: 0, right: 0,
+          backgroundColor: "#fff",
+          color: "#333",
+          padding: "20px",
+          borderRadius: "20px 20px 0 0",
+          zIndex: 10000,
+          boxShadow: "0 -5px 25px rgba(0,0,0,0.4)",
+          textAlign: "center",
+          borderTop: "5px solid #FF6600",
+          animation: "slideUp 0.4s ease-out"
+        }}>
+          <h3 style={{ margin: "0 0 10px 0", color: "#FF6600", fontSize: "18px" }}>ثبت تطبيق "ميني طلبات" 🚀</h3>
+          <p style={{ fontSize: "14px", marginBottom: "15px", color: "#555" }}>للوصول السريع وطلب أسهل، اتبع الآتي:</p>
+          
+          <div style={{ textAlign: "right", display: "inline-block", fontSize: "14px", width: "100%" }}>
+            <p style={{ margin: "8px 0" }}>1️⃣ اضغط على زر المشاركة <b>(Share)</b> بالأسفل <span style={{ fontSize: "18px" }}>⎋</span></p>
+            <p style={{ margin: "8px 0" }}>2️⃣ اختر <b>(إضافة إلى الشاشة الرئيسية)</b> <span style={{ fontSize: "18px" }}>➕</span></p>
+            <p style={{ margin: "8px 0" }}>3️⃣ اضغط على <b>(إضافة)</b> الموجودة بالأعلى <span style={{ fontSize: "18px" }}>Done</span></p>
+          </div>
+
+          <button 
+            onClick={() => setShowIosPrompt(false)}
+            style={{
+              marginTop: "15px",
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#FF6600",
+              color: "#fff",
+              border: "none",
+              borderRadius: "12px",
+              fontWeight: "bold",
+              fontSize: "15px",
+              cursor: "pointer"
+            }}
+          >
+            حسناً، فهمت
+          </button>
+        </div>
+      )}
+
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
   <>
