@@ -16,10 +16,17 @@ export default function HomePage() {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
   // التأكد من حالة التثبيت عند فتح التطبيق
-  useEffect(() => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    useEffect(() => {
+    // فحص هل التطبيق مفتوح من الشاشة الرئيسية؟
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                         || window.navigator.standalone === true; // للسفاري (آيفون)
+
     if (!isStandalone) {
+      // لو مش مثبت، هنظهر الرسالة دائماً
       setShowInstallPrompt(true);
+    } else {
+      // لو مثبت وفتحه من الأيقونة، نضمن إن الرسالة مختفية
+      setShowInstallPrompt(false);
     }
   }, []);
 
