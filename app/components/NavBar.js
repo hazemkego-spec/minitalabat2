@@ -1,7 +1,13 @@
-// app/components/NavBar.js
 import React from "react";
 
-export default function NavBar({ activeTab, setActiveTab, setSelectedShop }) {
+export default function NavBar({ activeTab, setActiveTab, setSelectedShop, hasSelectedShop }) {
+  
+  // دالة موحدة للرجوع للرئيسية وتصفير المتجر
+  const handleBackToHome = () => {
+    setActiveTab("home");
+    setSelectedShop(null);
+  };
+
   return (
     <nav
       style={{
@@ -13,16 +19,30 @@ export default function NavBar({ activeTab, setActiveTab, setSelectedShop }) {
         display: "flex",
         justifyContent: "space-around",
         padding: "12px 0",
-        borderTop: "2px solid #333"
+        borderTop: "2px solid #333",
+        zIndex: 1000 // لضمان ظهور الشريط فوق أي محتوى
       }}
     >
+      {/* زر الرجوع - يظهر فقط لو العميل داخل صفحة متجر أو في السلة */}
+      {(hasSelectedShop || activeTab !== "home") && (
+        <button
+          onClick={handleBackToHome}
+          style={{
+            color: "#FF6600", // لون مميز للرجوع
+            background: "none",
+            border: "none",
+            fontSize: "16px",
+            fontWeight: "bold"
+          }}
+        >
+          🔙 رجوع
+        </button>
+      )}
+
       <button
-        onClick={() => {
-          setActiveTab("home");
-          setSelectedShop(null);
-        }}
+        onClick={handleBackToHome}
         style={{
-          color: activeTab === "home" ? "#FF6600" : "#888",
+          color: activeTab === "home" && !hasSelectedShop ? "#FF6600" : "#888",
           background: "none",
           border: "none",
           fontSize: "16px"
