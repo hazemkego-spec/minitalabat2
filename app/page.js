@@ -449,21 +449,25 @@ const [showIosPrompt, setShowIosPrompt] = useState(false);
   </>
 )}
 
-      {/* NavBar المطور مع خاصية الرجوع */}
-<NavBar 
-  activeTab={activeTab} 
-  setActiveTab={(tab) => {
-    setActiveTab(tab);
-    if (tab === "home") setSelectedShop(null);
-  }} 
-  // دالة الرجوع للرئيسية
-  onBack={() => {
-    setSelectedShop(null);
-    setActiveTab("home");
-  }}
-  // نمرر حالة إذا كان هناك متجر مختار حالياً ليظهر زر الرجوع
-  hasSelectedShop={!!selectedShop} 
-/>
+            {/* NavBar المطور مع خاصية الرجوع وإجمالي السعر */}
+      <NavBar 
+        activeTab={activeTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          if (tab === "home") setSelectedShop(null);
+        }} 
+        // دالة الرجوع للرئيسية
+        onBack={() => {
+          setSelectedShop(null);
+          setActiveTab("home");
+        }}
+        // نمرر حالة إذا كان هناك متجر مختار حالياً ليظهر زر الرجوع
+        hasSelectedShop={!!selectedShop} 
+        
+        // --- ➕ الإضافة الجديدة هنا ---
+        totalPrice={calculateTotal()} 
+        // -----------------------------
+      />
     </div>
   );
 }
