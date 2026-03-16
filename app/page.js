@@ -1,24 +1,33 @@
-
-// app/page.js
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // أضفنا useEffect هنا
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
 import InstallGuide from "./components/InstallGuide";
-import shops from "./components/ShopList"; // استدعاء قائمة المتاجر
+import shops from "./components/ShopList"; 
 import ShopDetails from "./components/ShopDetails";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("الكل");
-const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("home");
-const [selectedShop, setSelectedShop] = useState(null);
+  const [selectedShop, setSelectedShop] = useState(null);
+  
+  // الحالة الجديدة لرسالة التثبيت
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
-  // بيانات السلة (مؤقتاً)
+  // التأكد من حالة التثبيت عند فتح التطبيق
+  useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (!isStandalone) {
+      setShowInstallPrompt(true);
+    }
+  }, []);
+
+  // بيانات السلة
   const [cart, setCart] = useState([]);
   const [itemNotes, setItemNotes] = useState({});
-    // تحويل بيانات العميل لتكون محفوظة تلقائياً
+  
+  // بيانات العميل المحفوظة
   const [customerInfo, setCustomerInfo] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('customer_data');
@@ -27,7 +36,6 @@ const [selectedShop, setSelectedShop] = useState(null);
     return { name: "", phone: "", address: "" };
   });
 
-  // دالة لتحديث البيانات وحفظها في نفس الوقت
   const updateCustomerInfo = (newData) => {
     setCustomerInfo(newData);
     localStorage.setItem('customer_data', JSON.stringify(newData));
@@ -35,7 +43,6 @@ const [selectedShop, setSelectedShop] = useState(null);
 
   const [locationUrl, setLocationUrl] = useState("");
 
-  // دوال السلة
   const addToCart = (shopName, item) => {
     const key = `${shopName}-${item.name}`;
     setCart((prev) => ({
@@ -59,10 +66,7 @@ const [selectedShop, setSelectedShop] = useState(null);
   };
 
   const calculateTotal = () =>
-    Object.values(cart).reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const getGroupedCart = () => {
     const grouped = {};
@@ -78,49 +82,39 @@ const [selectedShop, setSelectedShop] = useState(null);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
-        setLocationUrl(
-          `https://www.google.com/maps?q=${latitude},${longitude}`
-        );
+        setLocationUrl(`https://www.google.com/maps?q=${latitude},${longitude}`);
       });
     }
   };
 
-        const sendOrder = () => {
-    // 1. نظام الترقيم التسلسلي
+  const sendOrder = () => {
     const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
     const newRef = parseInt(lastRef) + 1;
     if (typeof window !== 'undefined') localStorage.setItem('invoice_ref', newRef);
 
-    // 2. توقيت الفاتورة
     const date = new Date().toLocaleDateString('ar-EG');
     const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
-    // 3. بناء الفاتورة (Mini Talabat)
     let message = `*🧾 فاتورة طلب رقم: #${newRef}*\n`;
     message += `*━━━━━━━━━━━━━━*\n`;
     message += `*📅 التاريخ:* ${date}\n`;
     message += `*⏰ الوقت:* ${time}\n`;
     message += `*━━━━━━━━━━━━━━*\n\n`;
-
     message += `*👤 بيانات العميل (محفوظة):*\n`;
     message += `• الاسم: ${customerInfo.name}\n`;
     message += `• الهاتف: ${customerInfo.phone}\n`;
     message += `• العنوان: ${customerInfo.address}\n`;
     
-    // إرجاع كود اللوكيشن القديم كما طلبت
     if (locationUrl) message += `📍 الموقع: ${locationUrl}\n`;
     
     message += `\n*🛒 الأصناف المطلوبة:*\n`;
-    
     const groupedCart = getGroupedCart();
     Object.keys(groupedCart).forEach((shopName) => {
       message += `\n*🏪 متجر: ${shopName}*\n`;
       groupedCart[shopName].forEach((item) => {
         message += `• *${item.name}*\n`;
         message += `  الكمية: (${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
-        if (itemNotes[item.key]) {
-          message += `  📝 ملاحظة: ${itemNotes[item.key]}\n`;
-        }
+        if (itemNotes[item.key]) message += `  📝 ملاحظة: ${itemNotes[item.key]}\n`;
       });
     });
 
@@ -130,33 +124,51 @@ const [selectedShop, setSelectedShop] = useState(null);
     message += `*تم الطلب عبر تطبيق Mini Talabat 🚀*`;
 
     const myWhatsapp = "201122947479"; 
-    const finalUrl = `https://wa.me/${myWhatsapp}?text=${encodeURIComponent(message)}`;
-    window.open(finalUrl, "_blank");
+    window.open(`https://wa.me/${myWhatsapp}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
-  // فلترة المتاجر حسب الفئة والبحث
-    const filteredShops = shops.filter((shop) => {
-    // 1. التصفية حسب القسم المختارة (الكل، مطاعم، إلخ)
+  const filteredShops = shops.filter((shop) => {
     const matchCategory = selectedCategory === "الكل" || shop.category === selectedCategory;
-
-    // 2. التصفية حسب كلمة البحث (نحول النص لحروف صغيرة لضمان الدقة)
     const lowerSearch = searchTerm.toLowerCase();
-    
-    // البحث في اسم المحل
     const matchShopName = shop.name.toLowerCase().includes(lowerSearch);
-    
-    // البحث في أسماء الأصناف داخل المنيو
     const matchMenuItem = shop.menuCategories?.some(category => 
       category.items.some(item => item.name.toLowerCase().includes(lowerSearch))
     );
-
     return matchCategory && (matchShopName || matchMenuItem);
   });
 
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px" }}>
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
+      
+      {/* رسالة التثبيت الإجبارية */}
+      {showInstallPrompt && activeTab === "home" && !selectedShop && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.95)',
+          zIndex: 10000,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '20px'
+        }}>
+          <InstallGuide onClose={() => setShowInstallPrompt(false)} />
+          <button 
+            onClick={() => setShowInstallPrompt(false)}
+            style={{
+              marginTop: '20px', backgroundColor: 'transparent',
+              color: '#FF6600', border: 'none',
+              textDecoration: 'underline', fontSize: '16px',
+              fontWeight: 'bold', cursor: 'pointer'
+            }}
+          >
+            متابعة تصفح ميني طلبات
+          </button>
+        </div>
+      )}
      
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
