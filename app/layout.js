@@ -1,7 +1,7 @@
 export const metadata = {
   title: 'Mini Talabat | ميني طلبات',
   description: 'أكبر مول تجاري رقمي في جيبك',
-  metadataBase: new URL('https://minitalabat2.vercel.app'), // السطر ده مهم عشان اللينك يشوف الصورة
+  metadataBase: new URL('https://minitalabat2.vercel.app'),
   manifest: '/manifest.json',
   icons: {
     icon: '/mall-logo.png',
@@ -14,7 +14,7 @@ export const metadata = {
     siteName: 'Mini Talabat',
     images: [
       {
-        url: '/mall-logo.png', // تحديد اللوجو بتاعك للينك
+        url: '/mall-logo.png',
         width: 512,
         height: 512,
       },
@@ -32,9 +32,13 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/mall-logo.png" />
         <meta name="theme-color" content="#FF6600" /> 
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         
-        {/* سطر إضافي لضمان ظهور الصورة في الواتساب */}
+        {/* التعديل الجوهري لمنع الـ Zoom وتثبيت العناصر */}
+        <meta 
+          name="viewport" 
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" 
+        />
+        
         <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.png" />
       </head>
       <body style={{ backgroundColor: '#121212', margin: 0 }}>
