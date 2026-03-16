@@ -359,16 +359,20 @@ const [selectedShop, setSelectedShop] = useState(null);
   </>
 )}
 
-      {/* NavBar المطور */}
+      {/* NavBar المطور مع خاصية الرجوع */}
 <NavBar 
   activeTab={activeTab} 
   setActiveTab={(tab) => {
     setActiveTab(tab);
-    if (tab === "home") {
-      setSelectedShop(null); // دي اللي هترجعه للرئيسية وتمسح صفحة المتجر
-    }
+    if (tab === "home") setSelectedShop(null);
   }} 
-  setSelectedShop={setSelectedShop} 
+  // دالة الرجوع للرئيسية
+  onBack={() => {
+    setSelectedShop(null);
+    setActiveTab("home");
+  }}
+  // نمرر حالة إذا كان هناك متجر مختار حالياً ليظهر زر الرجوع
+  hasSelectedShop={!!selectedShop} 
 />
     </div>
   );
