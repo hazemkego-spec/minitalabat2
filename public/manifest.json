@@ -1,9 +1,11 @@
 {
-  "name": "Mini Talabat",
+  "name": "Mini Talabat | ميني طلبات",
   "short_name": "MiniTalabat",
   "description": "أكبر مول تجاري رقمي في جيبك",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#121212",
   "theme_color": "#FF6600",
   "icons": [
@@ -18,6 +20,13 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/mall-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
-  ]
+  ],
+  "categories": ["shopping", "food"]
 }
