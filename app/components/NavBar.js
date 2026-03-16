@@ -94,7 +94,7 @@ export default function NavBar({ activeTab, setActiveTab, setSelectedShop, hasSe
         }}
       >
         <span>🏪</span>
-        <span>تعليمات و تواصل معنا</span>
+        <span>تعليمات/أضف متجرك</span>
       </button>
     </nav>
   );
