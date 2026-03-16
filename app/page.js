@@ -156,7 +156,7 @@ const [selectedShop, setSelectedShop] = useState(null);
   });
 
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "70px" }}>
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px" }}>
      
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
