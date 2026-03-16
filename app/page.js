@@ -120,7 +120,7 @@ const [selectedShop, setSelectedShop] = useState(null);
     message += `\n*━━━━━━━━━━━━━━*\n`;
     message += `*💰 الإجمالي النهائي: ${calculateTotal()} ج.م*\n`;
     message += `*━━━━━━━━━━━━━━*\n\n`;
-    message += `*تم الطلب عبر تطبيق مول اليمن ✨*`;
+    message += `*تم الطلب عبر Mini Talabat ✨*`;
 
     // 4. إرسال الفاتورة لرقمك الخاص
     const myWhatsapp = "201122947479"; 
