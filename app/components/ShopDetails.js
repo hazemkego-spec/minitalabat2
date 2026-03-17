@@ -16,7 +16,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
           alt={`${shop.name} Cover`}
           style={{
             width: "100%",
-            height: "180px",
+            height: "200px",
             objectFit: "cover",
             borderRadius: "10px",
             marginBottom: "15px"
