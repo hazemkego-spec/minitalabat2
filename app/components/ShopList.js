@@ -749,7 +749,7 @@ cover: "/sawan-logo.png",
     id: 9,
     category: "مصنعات اللحوم",
     name: "مصنعات اليُمن",
-    isOpen: true,
+    isOpen: false,
     logo: "/Msn3atElyomn.png",
     cover: "/Msn3atElyomn.png",
     menuCategories: [
