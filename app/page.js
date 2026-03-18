@@ -129,7 +129,7 @@ export default function HomePage() {
     const groupedCart = getGroupedCart();
     const shopsInCart = Object.keys(groupedCart);
 
-    // دالة داخلية لبناء نص الرسالة لكل محل أو للمدير
+        // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
     const buildMessage = (targetShopName = null) => {
       let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
       msg += `*━━━━━━━━━━━━━━*\n`;
@@ -140,23 +140,33 @@ export default function HomePage() {
       msg += `*━━━━━━━━━━━━━━*\n\n`;
 
       if (targetShopName) {
-        // رسالة مخصصة لمحل معين
+        // --- رسالة مخصصة لمحل معين مع إجمالي خاص به ---
         msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
+        let shopTotal = 0;
         groupedCart[targetShopName].forEach((item) => {
-          msg += `• *${item.name}* (الكمية: ${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
+          const itemTotal = item.price * item.quantity;
+          shopTotal += itemTotal;
+          msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           if (itemNotes[item.key]) msg += `  📝 ملحوظة: ${itemNotes[item.key]}\n`;
         });
+        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; // الإضافة هنا
       } else {
-        // الرسالة الكاملة (للمدير)
+        // --- الرسالة الكاملة للإدارة (المدير) مع تفصيل كل محل وإجمالي كلي ---
         Object.keys(groupedCart).forEach((shop) => {
           msg += `*🏪 متجر: ${shop}*\n`;
+          let shopSubTotal = 0;
           groupedCart[shop].forEach((item) => {
-            msg += `• *${item.name}* (${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
+            const itemTotal = item.price * item.quantity;
+            shopSubTotal += itemTotal;
+            msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           });
+          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; // إجمالي فرعي لكل محل عندك
+          msg += `*──────────────*\n`;
         });
-        msg += `\n*💰 الإجمالي الكلي: ${calculateTotal()} ج.م*\n`;
+        msg += `\n*🏆 الإجمالي الكلي للمطلوب: ${calculateTotal()} ج.م*`;
       }
-      msg += `\n*عبر تطبيق Mini Talabat 🚀*`;
+      
+      msg += `\n\n*عبر تطبيق Mini Talabat 🚀*`;
       return msg;
     };
 
