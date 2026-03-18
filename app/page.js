@@ -1,5 +1,5 @@
 "use client";
-import { db } from "./lib/firebase"; // استدعاء ملف الربط اللي عملناه
+import { db } from "../lib/firebase"; // استدعاء ملف الربط اللي عملناه
 import { ref, push, set } from "firebase/database"; // دوال التعامل مع السيرفر
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
