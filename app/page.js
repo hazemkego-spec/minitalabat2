@@ -11,6 +11,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
+const [showMultiOrderModal, setShowMultiOrderModal] = useState({ isOpen: false });
    
   // 1. تعريف حالة رسالة التثبيت الأصلية
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -115,45 +116,75 @@ const [showIosPrompt, setShowIosPrompt] = useState(false);
     }
   };
 
-  const sendOrder = () => {
+    const sendOrder = () => {
+    // 1. تحديث رقم الفاتورة (كودك الأصلي)
     const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
     const newRef = parseInt(lastRef) + 1;
     if (typeof window !== 'undefined') localStorage.setItem('invoice_ref', newRef);
 
     const date = new Date().toLocaleDateString('ar-EG');
     const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-
-    let message = `*🧾 فاتورة طلب رقم: #${newRef}*\n`;
-    message += `*━━━━━━━━━━━━━━*\n`;
-    message += `*📅 التاريخ:* ${date}\n`;
-    message += `*⏰ الوقت:* ${time}\n`;
-    message += `*━━━━━━━━━━━━━━*\n\n`;
-    message += `*👤 بيانات العميل (محفوظة):*\n`;
-    message += `• الاسم: ${customerInfo.name}\n`;
-    message += `• الهاتف: ${customerInfo.phone}\n`;
-    message += `• العنوان: ${customerInfo.address}\n`;
-    
-    if (locationUrl) message += `📍 الموقع: ${locationUrl}\n`;
-    
-    message += `\n*🛒 الأصناف المطلوبة:*\n`;
     const groupedCart = getGroupedCart();
-    Object.keys(groupedCart).forEach((shopName) => {
-      message += `\n*🏪 متجر: ${shopName}*\n`;
-      groupedCart[shopName].forEach((item) => {
-        message += `• *${item.name}*\n`;
-        message += `  الكمية: (${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
-        if (itemNotes[item.key]) message += `  📝 ملاحظة: ${itemNotes[item.key]}\n`;
+    const shopsInCart = Object.keys(groupedCart);
+
+    // دالة داخلية لبناء نص الرسالة لكل محل أو للمدير
+    const buildMessage = (targetShopName = null) => {
+      let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
+      msg += `*━━━━━━━━━━━━━━*\n`;
+      msg += `*📅 ${date} | ⏰ ${time}*\n`;
+      msg += `*👤 العميل:* ${customerInfo.name}\n`;
+      msg += `*📞 الهاتف:* ${customerInfo.phone}\n`;
+      if (locationUrl) msg += `📍 الموقع: ${locationUrl}\n`;
+      msg += `*━━━━━━━━━━━━━━*\n\n`;
+
+      if (targetShopName) {
+        // رسالة مخصصة لمحل معين
+        msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
+        groupedCart[targetShopName].forEach((item) => {
+          msg += `• *${item.name}* (الكمية: ${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
+          if (itemNotes[item.key]) msg += `  📝 ملحوظة: ${itemNotes[item.key]}\n`;
+        });
+      } else {
+        // الرسالة الكاملة (لك أنت كمدير)
+        Object.keys(groupedCart).forEach((shop) => {
+          msg += `*🏪 متجر: ${shop}*\n`;
+          groupedCart[shop].forEach((item) => {
+            msg += `• *${item.name}* (${item.quantity}) ← *${item.price * item.quantity} ج*\n`;
+          });
+        });
+        msg += `\n*💰 الإجمالي الكلي: ${calculateTotal()} ج.م*\n`;
+      }
+      msg += `\n*عبر تطبيق Mini Talabat 🚀*`;
+      return msg;
+    };
+
+    // المنطق الذكي للتوزيع
+    if (shopsInCart.length === 1) {
+      // حالة: محل واحد فقط
+      const shopName = shopsInCart[0];
+      const shopData = shops.find(s => s.name === shopName);
+      const shopWhatsapp = shopData?.whatsapp || "201122947479"; // لو ملوش رقم يبعت لك
+      
+      // 1. يفتح واتساب المحل
+      window.open(`https://wa.me/${shopWhatsapp}?text=${encodeURIComponent(buildMessage(shopName))}`, "_blank");
+      
+      // 2. يبعت لك نسخة (المدير) بعد ثانية واحدة
+      setTimeout(() => {
+        window.open(`https://wa.me/201122947479?text=${encodeURIComponent(buildMessage())}`, "_blank");
+      }, 1500);
+
+    } else {
+      // حالة: محلات متعددة -> إظهار لوحة التحكم
+      setShowMultiOrderModal({
+        isOpen: true,
+        ref: newRef,
+        date,
+        time,
+        buildMessage // تمرير الدالة لاستخدامها داخل المودال
       });
-    });
-
-    message += `\n*━━━━━━━━━━━━━━*\n`;
-    message += `*💰 الإجمالي النهائي: ${calculateTotal()} ج.م*\n`;
-    message += `*━━━━━━━━━━━━━━*\n\n`;
-    message += `*تم الطلب عبر تطبيق Mini Talabat 🚀*`;
-
-    const myWhatsapp = "201122947479"; 
-    window.open(`https://wa.me/${myWhatsapp}?text=${encodeURIComponent(message)}`, "_blank");
+    }
   };
+
 
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
@@ -168,85 +199,141 @@ const [showIosPrompt, setShowIosPrompt] = useState(false);
   });
 
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
-      
-      {/* عرض بانر التثبيت الأصلي فقط إذا كان متاحاً */}
-      {deferredPrompt && activeTab === "home" && !selectedShop && (
-        <div style={{
-          backgroundColor: "#FF6600",
-          padding: "12px 20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderRadius: "12px",
-          margin: "15px",
-          boxShadow: "0 4px 15px rgba(255,102,0,0.3)",
-          animation: "slideIn 0.5s ease-out"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ fontSize: "20px" }}>📲</span>
-            <span style={{ fontWeight: "bold", fontSize: "14px" }}>ثبت التطبيق لطلب أسرع!</span>
-          </div>
-          <button 
-            onClick={handleInstallClick}
-            style={{
-              backgroundColor: "#fff",
-              color: "#FF6600",
-              border: "none",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              fontSize: "13px",
-              cursor: "pointer"
-            }}
-          >
-            تثبيت الآن
-          </button>
+  <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
+    
+    {/* عرض بانر التثبيت الأصلي (Android/Chrome) */}
+    {deferredPrompt && activeTab === "home" && !selectedShop && (
+      <div style={{
+        backgroundColor: "#FF6600",
+        padding: "12px 20px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderRadius: "12px",
+        margin: "15px",
+        boxShadow: "0 4px 15px rgba(255,102,0,0.3)",
+        animation: "slideIn 0.5s ease-out"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ fontSize: "20px" }}>📲</span>
+          <span style={{ fontWeight: "bold", fontSize: "14px" }}>ثبت التطبيق لطلب أسرع!</span>
         </div>
-      )}
-           {/* رسالة مخصصة لمستخدمي الآيفون فقط */}
-      {showIosPrompt && activeTab === "home" && !selectedShop && (
-        <div style={{
-          position: "fixed",
-          bottom: 0, left: 0, right: 0,
-          backgroundColor: "#fff",
-          color: "#333",
-          padding: "20px",
-          borderRadius: "20px 20px 0 0",
-          zIndex: 10000,
-          boxShadow: "0 -5px 25px rgba(0,0,0,0.4)",
-          textAlign: "center",
-          borderTop: "5px solid #FF6600",
-          animation: "slideUp 0.4s ease-out"
+        <button 
+          onClick={handleInstallClick}
+          style={{
+            backgroundColor: "#fff", color: "#FF6600", border: "none",
+            padding: "8px 16px", borderRadius: "8px", fontWeight: "bold",
+            fontSize: "13px", cursor: "pointer"
+          }}
+        >
+          تثبيت الآن
+        </button>
+      </div>
+    )}
+
+    {/* رسالة مخصصة لمستخدمي الآيفون (iOS) */}
+    {showIosPrompt && activeTab === "home" && !selectedShop && (
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0,
+        backgroundColor: "#fff", color: "#333", padding: "20px",
+        borderRadius: "20px 20px 0 0", zIndex: 10000,
+        boxShadow: "0 -5px 25px rgba(0,0,0,0.4)", textAlign: "center",
+        borderTop: "5px solid #FF6600", animation: "slideUp 0.4s ease-out"
+      }}>
+        <h3 style={{ margin: "0 0 10px 0", color: "#FF6600", fontSize: "18px" }}>ثبت تطبيق "ميني طلبات" 🚀</h3>
+        <p style={{ fontSize: "14px", marginBottom: "15px", color: "#555" }}>للوصول السريع وطلب أسهل، اتبع الآتي:</p>
+        <div style={{ textAlign: "right", display: "inline-block", fontSize: "14px", width: "100%" }}>
+          <p style={{ margin: "8px 0" }}>1️⃣ اضغط على زر المشاركة <b>(Share)</b> بالأسفل <span style={{ fontSize: "18px" }}>⎋</span></p>
+          <p style={{ margin: "8px 0" }}>2️⃣ اختر <b>(إضافة إلى الشاشة الرئيسية)</b> <span style={{ fontSize: "18px" }}>➕</span></p>
+          <p style={{ margin: "8px 0" }}>3️⃣ اضغط على <b>(إضافة)</b> الموجودة بالأعلى <span style={{ fontSize: "18px" }}>Done</span></p>
+        </div>
+        <button 
+          onClick={() => setShowIosPrompt(false)}
+          style={{
+            marginTop: "15px", width: "100%", padding: "12px",
+            backgroundColor: "#FF6600", color: "#fff", border: "none",
+            borderRadius: "12px", fontWeight: "bold", fontSize: "15px", cursor: "pointer"
+          }}
+        >
+          حسناً، فهمت
+        </button>
+      </div>
+    )}
+
+    {/* محتوى الصفحة الحالي (القوائم، السلة، الخ) يوضع هنا */}
+    {/* ... تأكد أن المكونات مثل <Menu />, <Cart /> موجودة هنا ... */}
+
+    {/* نافذة توزيع الطلبات الذكية (تظهر عند الطلب من محلات متعددة) */}
+    {showMultiOrderModal.isOpen && (
+      <div style={{
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.95)", zIndex: 20000, // أعلى من كل شيء
+        display: "flex", alignItems: "center", justifyContent: "center", padding: "15px"
+      }}>
+        <div style={{ 
+          backgroundColor: "#1e1e1e", padding: "20px", borderRadius: "25px", 
+          width: "100%", maxWidth: "400px", textAlign: "center", border: "2px solid #FF6600" 
         }}>
-          <h3 style={{ margin: "0 0 10px 0", color: "#FF6600", fontSize: "18px" }}>ثبت تطبيق "ميني طلبات" 🚀</h3>
-          <p style={{ fontSize: "14px", marginBottom: "15px", color: "#555" }}>للوصول السريع وطلب أسهل، اتبع الآتي:</p>
+          <h3 style={{ color: "#FF6600", marginBottom: "10px" }}>تقسيم الطلبات 📦</h3>
+          <p style={{ color: "#eee", fontSize: "13px", marginBottom: "15px" }}>لقد اخترت أصنافاً من أكثر من مكان. يرجى إرسال كل طلب لمكانه المخصص:</p>
           
-          <div style={{ textAlign: "right", display: "inline-block", fontSize: "14px", width: "100%" }}>
-            <p style={{ margin: "8px 0" }}>1️⃣ اضغط على زر المشاركة <b>(Share)</b> بالأسفل <span style={{ fontSize: "18px" }}>⎋</span></p>
-            <p style={{ margin: "8px 0" }}>2️⃣ اختر <b>(إضافة إلى الشاشة الرئيسية)</b> <span style={{ fontSize: "18px" }}>➕</span></p>
-            <p style={{ margin: "8px 0" }}>3️⃣ اضغط على <b>(إضافة)</b> الموجودة بالأعلى <span style={{ fontSize: "18px" }}>Done</span></p>
+          <div style={{ maxHeight: "250px", overflowY: "auto", marginBottom: "15px" }}>
+            {Object.keys(getGroupedCart()).map((shopName, index) => {
+              const shopData = shops.find(s => s.name === shopName);
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    const msg = showMultiOrderModal.buildMessage(shopName);
+                    window.open(`https://wa.me/${shopData?.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+                  }}
+                  style={{
+                    width: "100%", padding: "12px", backgroundColor: "#fff", color: "#000",
+                    borderRadius: "12px", fontWeight: "bold", marginBottom: "8px", border: "none",
+                    display: "flex", justifyContent: "space-between", alignItems: "center"
+                  }}
+                >
+                  <span>✅ طلب {shopName}</span>
+                  <span style={{ fontSize: "16px" }}>➔</span>
+                </button>
+              );
+            })}
           </div>
 
-          <button 
-            onClick={() => setShowIosPrompt(false)}
-            style={{
-              marginTop: "15px",
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#FF6600",
-              color: "#fff",
-              border: "none",
-              borderRadius: "12px",
-              fontWeight: "bold",
-              fontSize: "15px",
-              cursor: "pointer"
+          <button
+            onClick={() => {
+              const adminMsg = showMultiOrderModal.buildMessage();
+              window.open(`https://wa.me/201122947479?text=${encodeURIComponent(adminMsg)}`, "_blank");
+              setShowMultiOrderModal({ isOpen: false });
+            }}
+            style={{ 
+              width: "100%", padding: "15px", backgroundColor: "#FF6600", color: "#fff", 
+              borderRadius: "15px", fontWeight: "bold", border: "none"
             }}
           >
-            حسناً، فهمت
+            🏁 إتمام وإرسال التقرير للمدير
           </button>
         </div>
-      )}
+      </div>
+    )}
+
+    {/* شريط التنقل السفلي */}
+    <NavBar 
+      activeTab={activeTab} 
+      setActiveTab={(tab) => {
+        setActiveTab(tab);
+        if (tab === "home") setSelectedShop(null);
+      }} 
+      onBack={() => {
+        setSelectedShop(null);
+        setActiveTab("home");
+      }}
+      hasSelectedShop={!!selectedShop}
+      totalPrice={calculateTotal()} // يظهر الإجمالي في السلة دائمًا
+    />
+
+  </div>
+);
 
       {/* الرئيسية فقط */}
 {activeTab === "home" && !selectedShop && (
