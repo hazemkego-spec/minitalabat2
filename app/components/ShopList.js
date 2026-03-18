@@ -6,6 +6,7 @@ const shops = [
   {
     id: 4,
     category: "مطاعم",
+whatsapp: "201092878201",
     name: "جزارة ومشويات محمد صوان",
     isOpen: true,
     logo: "/sawan-logo.png",
@@ -223,6 +224,7 @@ cover: "/sawan-logo.png",
   {
     id: 5, // تأكد من أن الـ ID غير مكرر
     category: "صيدليات",
+whatsapp: "201158683236"
     name: "صيدلية د/ هاني فاروق",
     isOpen: true,
     logo: "/HanyFarPharmlogo.png",
@@ -351,6 +353,7 @@ cover: "/sawan-logo.png",
   {
     id: 6,
     category: "سوبر ماركت",
+whatsapp: "201110884088",
     name: "سوبر ماركت أحمد الإسكندراني",
     isOpen: true,
     logo: "/A-eleskandrany.png",
@@ -613,6 +616,7 @@ cover: "/sawan-logo.png",
   {
     id: 8,
     category: "مطاعم",
+whatsapp: "201117903253",
     name: "كشري حنين",
     isOpen: true,
     logo: "/Haneen.png",
