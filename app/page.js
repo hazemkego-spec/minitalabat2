@@ -120,8 +120,8 @@ export default function HomePage() {
     }
   };
 
-  const sendOrder = () => {
-    // 1. تحديث رقم الفاتورة
+    const sendOrder = async () => { // أضفنا async هنا للتعامل مع السيرفر
+    // 1. تحديث رقم الفاتورة (نفس منطقك القديم)
     const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
     const newRef = parseInt(lastRef) + 1;
     if (typeof window !== 'undefined') localStorage.setItem('invoice_ref', newRef);
@@ -131,7 +131,28 @@ export default function HomePage() {
     const groupedCart = getGroupedCart();
     const shopsInCart = Object.keys(groupedCart);
 
-        // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
+    // --- [بداية الجزء الجديد: الإرسال لـ Firebase] ---
+    try {
+      const orderData = {
+        invoiceRef: newRef,
+        customer: customerInfo,
+        items: groupedCart,
+        total: calculateTotal(),
+        location: locationUrl,
+        status: "pending", // حالة أولية للطلب
+        timestamp: new Date().toISOString()
+      };
+
+      const ordersRef = ref(db, 'orders');
+      const newOrderRef = push(ordersRef);
+      await set(newOrderRef, orderData);
+      console.log("✅ Order saved to Firebase!");
+    } catch (error) {
+      console.error("❌ Firebase Error:", error);
+    }
+    // --- [نهاية الجزء الجديد] ---
+
+    // دالة بناء الرسالة (كما هي بدون تغيير)
     const buildMessage = (targetShopName = null) => {
       let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
       msg += `*━━━━━━━━━━━━━━*\n`;
@@ -142,7 +163,6 @@ export default function HomePage() {
       msg += `*━━━━━━━━━━━━━━*\n\n`;
 
       if (targetShopName) {
-        // --- رسالة مخصصة لمحل معين مع إجمالي خاص به ---
         msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
         let shopTotal = 0;
         groupedCart[targetShopName].forEach((item) => {
@@ -151,9 +171,8 @@ export default function HomePage() {
           msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           if (itemNotes[item.key]) msg += `  📝 ملحوظة: ${itemNotes[item.key]}\n`;
         });
-        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; // الإضافة هنا
+        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`;
       } else {
-        // --- الرسالة الكاملة للإدارة (المدير) مع تفصيل كل محل وإجمالي كلي ---
         Object.keys(groupedCart).forEach((shop) => {
           msg += `*🏪 متجر: ${shop}*\n`;
           let shopSubTotal = 0;
@@ -162,17 +181,16 @@ export default function HomePage() {
             shopSubTotal += itemTotal;
             msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           });
-          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; // إجمالي فرعي لكل محل عندك
+          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`;
           msg += `*──────────────*\n`;
         });
         msg += `\n*🏆 الإجمالي الكلي للمطلوب: ${calculateTotal()} ج.م*`;
       }
-      
       msg += `\n\n*عبر تطبيق Mini Talabat 🚀*`;
       return msg;
     };
 
-    // المنطق الذكي للتوزيع
+    // المنطق الذكي للتوزيع (كما هو بدون تغيير)
     if (shopsInCart.length === 1) {
       const shopName = shopsInCart[0];
       const shopData = shops.find(s => s.name === shopName);
