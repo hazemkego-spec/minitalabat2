@@ -224,7 +224,7 @@ cover: "/sawan-logo.png",
   {
     id: 5, // تأكد من أن الـ ID غير مكرر
     category: "صيدليات",
-    whatsapp: "201158683236",
+    whatsapp: "201092293348",
     name: "صيدلية د_ هاني فاروق",
     isOpen: true,
     logo: "/HanyFarPharmlogo.png",
