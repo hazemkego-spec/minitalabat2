@@ -112,7 +112,8 @@ export default function HomePage() {
     }
   };
 
-        const sendOrder = async () => {
+        
+  const sendOrder = async () => {
     if (isSending) return; 
     
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
@@ -125,23 +126,26 @@ export default function HomePage() {
       return;
     }
 
+    // --- حساب التاريخ والوقت مرة واحدة بجودة عالية ---
+    const now = new Date();
+    const d = String(now.getDate()).padStart(2, '0');
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    const dateStr = `${d}-${m}-${y}`;
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    // -----------------------------------------------
+
     setIsSending(true);
 
     try {
-      // 1. تحديث رقم الفاتورة وتنسيق الوقت
       const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
       const newRef = parseInt(lastRef) + 1;
       if (typeof window !== 'undefined') localStorage.setItem('invoice_ref', newRef);
 
-      // تنسيق التاريخ والوقت يدوياً لضمان الدقة
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-'); // النتيجة: DD-MM-YYYY
-      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
       const groupedCart = getGroupedCart();
       const totalAmount = calculateTotal();
 
-      // --- [خطوة 1: حفظ البيانات في Firebase] ---
+      // حفظ في Firebase باستخدام نفس التاريخ والوقت
       const orderData = {
         invoiceRef: newRef,
         customer: customerInfo,
@@ -158,7 +162,7 @@ export default function HomePage() {
       const newOrderRef = push(ordersRef);
       await set(newOrderRef, orderData);
 
-      // --- [خطوة 2: بناء رسالة الواتساب الاحترافية] ---
+      // بناء رسالة المدير المجمعة
       const buildFullDetailMessage = () => {
         let msg = `*🚀 طلب جديد - فاتورة رقم: #${newRef}*\n`;
         msg += `*📅 التاريخ:* ${dateStr}\n`;
@@ -170,60 +174,53 @@ export default function HomePage() {
         if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
         msg += `*━━━━━━━━━━━━━━*\n\n`;
 
-        // إضافة تفاصيل كل محل مع إجمالي خاص به
         Object.keys(groupedCart).forEach((shopName) => {
           let shopSubtotal = 0;
           msg += `*🏪 متجر: ${shopName}*\n`;
-          
           groupedCart[shopName].forEach((item) => {
             const itemTotal = item.quantity * item.price;
             shopSubtotal += itemTotal;
             const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
             msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
           });
-          
           msg += `*💰 إجمالي المتجر:* ${shopSubtotal} ج.م\n`;
           msg += `*--------------------*\n\n`;
         });
 
         msg += `*━━━━━━━━━━━━━━*\n`;
-        msg += `*💵 الإجمالي الكلي للطلب: ${totalAmount} ج.م*\n`;
+        msg += `*💵 الإجمالي الكلي: ${totalAmount} ج.م*\n`;
         msg += `*━━━━━━━━━━━━━━*\n`;
-        msg += `*شكراً لتعاملك مع ميني طلبات! ✨*`;
         return msg;
       };
 
-      // --- [خطوة 3: التنفيذ النهائي] ---
       const adminWhatsapp = "201122947479"; 
-      
       window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(buildFullDetailMessage())}`, "_blank");
 
-      // تصفير البيانات
+      // تصفير البيانات وإغلاق النافذة
       setCart({});
       setItemNotes({});
       setShowMultiOrderModal({ isOpen: false });
       
-      alert("تم إرسال طلبك بنجاح! سيتم تحويلك للواتساب للتأكيد.");
+      alert("تم إرسال طلبك بنجاح!");
 
     } catch (error) {
-      console.error("❌ فشل الحفظ في Firebase:", error);
-      alert("عذراً، حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.");
+      console.error("❌ Error:", error);
+      alert("حدث خطأ في الاتصال.");
     } finally {
       setIsSending(false);
     }
   };
 
-    const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
+  // --- تحديث الفلاتر ونافذة توزيع الطلبات ---
+  const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
   const filteredShops = shops.filter((shop) => {
     const matchCategory = selectedCategory === "الكل" || shop.category === selectedCategory;
     const lowerSearch = searchTerm.toLowerCase();
     const matchShopName = shop.name.toLowerCase().includes(lowerSearch);
-    
     const matchMenuItem = shop.menuCategories?.some(cat => 
       cat.items.some(item => item.name.toLowerCase().includes(lowerSearch))
     );
-    
     return matchCategory && (matchShopName || matchMenuItem);
   });
 
@@ -241,7 +238,6 @@ export default function HomePage() {
             width: "100%", maxWidth: "400px", textAlign: "center", border: "2px solid #FF6600" 
           }}>
             <h3 style={{ color: "#FF6600", marginBottom: "10px" }}>تقسيم الطلبات 📦</h3>
-            <p style={{ color: "#eee", fontSize: "13px", marginBottom: "15px" }}>يرجى إرسال كل طلب لمكانه المخصص:</p>
             
             <div style={{ maxHeight: "250px", overflowY: "auto", marginBottom: "15px" }}>
               {Object.keys(getGroupedCart()).map((shopName, index) => {
@@ -249,40 +245,34 @@ export default function HomePage() {
                 const itemsInShop = getGroupedCart()[shopName];
 
                 const buildShopSpecificMessage = () => {
-  // تعريف الوقت والتاريخ بطريقة يدوية آمنة تماماً
-  const now = new Date();
-  const d = String(now.getDate()).padStart(2, '0');
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const y = now.getFullYear();
-  const dateStr = `${d}-${m}-${y}`;
-  
-  const timeStr = now.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    hour12: true 
-  });
+                  // استخدام نفس التوقيت المحسوب مسبقاً لضمان التطابق 100%
+                  const now = new Date();
+                  const d = String(now.getDate()).padStart(2, '0');
+                  const m = String(now.getMonth() + 1).padStart(2, '0');
+                  const y = now.getFullYear();
+                  const dateStr = `${d}-${m}-${y}`;
+                  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-  let shopSubtotal = 0;
-  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
-  msg += `*📅 التاريخ:* ${dateStr}\n`;
-  msg += `*⏰ الوقت:* ${timeStr}\n`;
-  msg += `*━━━━━━━━━━━━━━*\n`;
-  msg += `*👤 العميل:* ${customerInfo.name}\n`;
-  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
-  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
-  msg += `*━━━━━━━━━━━━━━*\n\n`;
-  msg += `*الأصناف المطلوبة:*\n`;
-  
-  itemsInShop.forEach(item => {
-    const itemTotal = item.quantity * item.price;
-    shopSubtotal += itemTotal;
-    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
-  });
+                  let shopSubtotal = 0;
+                  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
+                  msg += `*📅 التاريخ:* ${dateStr}\n`;
+                  msg += `*⏰ الوقت:* ${timeStr}\n`;
+                  msg += `*━━━━━━━━━━━━━━*\n`;
+                  msg += `*👤 العميل:* ${customerInfo.name}\n`;
+                  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
+                  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
+                  msg += `*━━━━━━━━━━━━━━*\n\n`;
+                  
+                  itemsInShop.forEach(item => {
+                    const itemTotal = item.quantity * item.price;
+                    shopSubtotal += itemTotal;
+                    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
+                    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
+                  });
 
-  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
-  return msg;
-};
+                  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
+                  return msg;
+                };
 
                 return (
                   <button
@@ -316,6 +306,7 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
 
       {deferredPrompt && activeTab === "home" && !selectedShop && (
         <div style={{
