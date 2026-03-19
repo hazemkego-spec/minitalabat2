@@ -11,7 +11,6 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
-const [hasPrescription, setHasPrescription] = useState(false);
   
   // حالة نافذة توزيع الطلبات المتعددة
   const [showMultiOrderModal, setShowMultiOrderModal] = useState({ isOpen: false });
@@ -130,8 +129,8 @@ const [hasPrescription, setHasPrescription] = useState(false);
     const groupedCart = getGroupedCart();
     const shopsInCart = Object.keys(groupedCart);
 
-            // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
-        const buildMessage = (targetShopName = null) => {
+        // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
+    const buildMessage = (targetShopName = null) => {
       let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
       msg += `*━━━━━━━━━━━━━━*\n`;
       msg += `*📅 ${date} | ⏰ ${time}*\n`;
@@ -141,15 +140,8 @@ const [hasPrescription, setHasPrescription] = useState(false);
       msg += `*━━━━━━━━━━━━━━*\n\n`;
 
       if (targetShopName) {
-        const shopData = shops.find(s => s.name === targetShopName);
+        // --- رسالة مخصصة لمحل معين مع إجمالي خاص به ---
         msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
-
-        // ⬇️ التعديل الذكي هنا: التنبيه يظهر فقط لو تم التصوير فعلاً ⬇️
-        if (shopData?.category === "الصيدليات" && hasPrescription) {
-          msg += `*⚠️ برجاء معاينة الروشتة المرسلة من العميل 📸*\n`;
-          msg += `*──────────────*\n`;
-        }
-
         let shopTotal = 0;
         groupedCart[targetShopName].forEach((item) => {
           const itemTotal = item.price * item.quantity;
@@ -157,24 +149,18 @@ const [hasPrescription, setHasPrescription] = useState(false);
           msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           if (itemNotes[item.key]) msg += `  📝 ملحوظة: ${itemNotes[item.key]}\n`;
         });
-        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; 
+        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; // الإضافة هنا
       } else {
+        // --- الرسالة الكاملة للإدارة (المدير) مع تفصيل كل محل وإجمالي كلي ---
         Object.keys(groupedCart).forEach((shop) => {
-          const shopData = shops.find(s => s.name === shop);
           msg += `*🏪 متجر: ${shop}*\n`;
-          
-          // تنبيه الإدارة الذكي
-          if (shopData?.category === "الصيدليات" && hasPrescription) {
-            msg += `*(تأكيد: تم تصوير روشتة مع هذا الطلب ✅)*\n`;
-          }
-
           let shopSubTotal = 0;
           groupedCart[shop].forEach((item) => {
             const itemTotal = item.price * item.quantity;
             shopSubTotal += itemTotal;
             msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           });
-          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; 
+          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; // إجمالي فرعي لكل محل عندك
           msg += `*──────────────*\n`;
         });
         msg += `\n*🏆 الإجمالي الكلي للمطلوب: ${calculateTotal()} ج.م*`;
@@ -222,17 +208,7 @@ const [hasPrescription, setHasPrescription] = useState(false);
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
       
-      {/* صفحة المتجر منفصلة - تأكد من وجود هذا الجزء */}
-      {activeTab === "home" && selectedShop && (
-        <ShopDetails
-          shop={selectedShop}
-          onBack={() => setSelectedShop(null)}
-          addToCart={addToCart}
-          setHasPrescription={setHasPrescription} // ⬅️ الربط هنا لضمان عمل زر الكاميرا
-        />
-      )}
-
-      {/* نافذة توزيع الطلبات الذكية */}
+      {/* نافذة توزيع الطلبات الذكية (تظهر فقط عند الحاجة) */}
       {showMultiOrderModal.isOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -247,15 +223,14 @@ const [hasPrescription, setHasPrescription] = useState(false);
             <p style={{ color: "#eee", fontSize: "13px", marginBottom: "15px" }}>يرجى إرسال كل طلب لمكانه المخصص:</p>
             
             <div style={{ maxHeight: "250px", overflowY: "auto", marginBottom: "15px" }}>
-              {Object.keys(groupedCart).map((shopName, index) => {
+              {Object.keys(getGroupedCart()).map((shopName, index) => {
                 const shopData = shops.find(s => s.name === shopName);
                 return (
                   <button
                     key={index}
                     onClick={() => {
-                      // استدعاء بناء الرسالة للمحل المحدد
-                      const msg = buildMessage(shopName); 
-                      window.open(`https://wa.me/${shopData?.whatsapp || "201122947479"}?text=${encodeURIComponent(msg)}`, "_blank");
+                      const msg = showMultiOrderModal.buildMessage(shopName);
+                      window.open(`https://wa.me/${shopData?.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
                     }}
                     style={{
                       width: "100%", padding: "12px", backgroundColor: "#fff", color: "#000",
@@ -272,12 +247,8 @@ const [hasPrescription, setHasPrescription] = useState(false);
 
             <button
               onClick={() => {
-                // إرسال التقرير الكلي للمدير
-                const adminMsg = buildMessage(); 
+                const adminMsg = showMultiOrderModal.buildMessage();
                 window.open(`https://wa.me/201122947479?text=${encodeURIComponent(adminMsg)}`, "_blank");
-                
-                // 💡 تصفير حالة الروشتة بعد الانتهاء تماماً من الطلب
-                setHasPrescription(false); 
                 setShowMultiOrderModal({ isOpen: false });
               }}
               style={{ 
@@ -434,14 +405,13 @@ const [hasPrescription, setHasPrescription] = useState(false);
     )}
 
       {/* صفحة المتجر منفصلة */}
-{activeTab === "home" && selectedShop && (
-  <ShopDetails
-    shop={selectedShop}
-    onBack={() => setSelectedShop(null)}
-    addToCart={addToCart}
-    setHasPrescription={setHasPrescription} // ⬅️ السطر ده هو "حلقة الوصل" الذكية
-  />
-)}
+      {activeTab === "home" && selectedShop && (
+        <ShopDetails
+          shop={selectedShop}
+          onBack={() => setSelectedShop(null)}
+          addToCart={addToCart}
+        />
+      )}
 
       {/* صفحة السلة */}
       {activeTab === "cart" && (
