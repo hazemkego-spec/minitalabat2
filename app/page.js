@@ -130,7 +130,7 @@ const [hasPrescription, setHasPrescription] = useState(false);
     const groupedCart = getGroupedCart();
     const shopsInCart = Object.keys(groupedCart);
 
-        // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
+            // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
     const buildMessage = (targetShopName = null) => {
       let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
       msg += `*━━━━━━━━━━━━━━*\n`;
@@ -142,7 +142,15 @@ const [hasPrescription, setHasPrescription] = useState(false);
 
       if (targetShopName) {
         // --- رسالة مخصصة لمحل معين مع إجمالي خاص به ---
+        const shopData = shops.find(s => s.name === targetShopName);
         msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
+
+        // إضافة تنبيه الروشتة إذا كان المتجر من قسم الصيدليات
+        if (shopData?.category === "الصيدليات") {
+          msg += `*⚠️ تنبيه:* يرجى إرفاق صورة الروشتة المصورة الآن من الاستوديو 📸\n`;
+          msg += `*──────────────*\n`;
+        }
+
         let shopTotal = 0;
         groupedCart[targetShopName].forEach((item) => {
           const itemTotal = item.price * item.quantity;
@@ -150,18 +158,25 @@ const [hasPrescription, setHasPrescription] = useState(false);
           msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           if (itemNotes[item.key]) msg += `  📝 ملحوظة: ${itemNotes[item.key]}\n`;
         });
-        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; // الإضافة هنا
+        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; 
       } else {
         // --- الرسالة الكاملة للإدارة (المدير) مع تفصيل كل محل وإجمالي كلي ---
         Object.keys(groupedCart).forEach((shop) => {
+          const shopData = shops.find(s => s.name === shop);
           msg += `*🏪 متجر: ${shop}*\n`;
+          
+          // تنبيه المدير في الرسالة المجمعة بوجود طلب روشتة
+          if (shopData?.category === "الصيدليات") {
+            msg += `*(يوجد طلب روشتة مصورة 📷)*\n`;
+          }
+
           let shopSubTotal = 0;
           groupedCart[shop].forEach((item) => {
             const itemTotal = item.price * item.quantity;
             shopSubTotal += itemTotal;
             msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
           });
-          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; // إجمالي فرعي لكل محل عندك
+          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; 
           msg += `*──────────────*\n`;
         });
         msg += `\n*🏆 الإجمالي الكلي للمطلوب: ${calculateTotal()} ج.م*`;
