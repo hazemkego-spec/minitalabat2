@@ -245,34 +245,52 @@ export default function HomePage() {
                 const itemsInShop = getGroupedCart()[shopName];
 
                 const buildShopSpecificMessage = () => {
-                  // استخدام نفس التوقيت المحسوب مسبقاً لضمان التطابق 100%
-                  const now = new Date();
-                  const d = String(now.getDate()).padStart(2, '0');
-                  const m = String(now.getMonth() + 1).padStart(2, '0');
-                  const y = now.getFullYear();
-                  const dateStr = `${d}-${m}-${y}`;
-                  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const now = new Date();
+  
+  // 1. استخراج الأرقام يدوياً (أضمن طريقة في العالم)
+  const day = now.getDate();
+  const month = now.getMonth() + 1; // الشهور بتبدأ من 0
+  const year = now.getFullYear();
+  
+  let hours = now.getHours();
+  const minutes = now.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  // تحويل الساعة لنظام 12 ساعة
+  hours = hours % 12;
+  hours = hours ? hours : 12; 
+  
+  // إضافة صفر على الشمال لو الرقم أقل من 10 (عشان الشكل يبقى نظيف)
+  const cleanDay = day < 10 ? '0' + day : day;
+  const cleanMonth = month < 10 ? '0' + month : month;
+  const cleanMinutes = minutes < 10 ? '0' + minutes : minutes;
+  const cleanHours = hours < 10 ? '0' + hours : hours;
 
-                  let shopSubtotal = 0;
-                  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
-                  msg += `*📅 التاريخ:* ${dateStr}\n`;
-                  msg += `*⏰ الوقت:* ${timeStr}\n`;
-                  msg += `*━━━━━━━━━━━━━━*\n`;
-                  msg += `*👤 العميل:* ${customerInfo.name}\n`;
-                  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
-                  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
-                  msg += `*━━━━━━━━━━━━━━*\n\n`;
-                  
-                  itemsInShop.forEach(item => {
-                    const itemTotal = item.quantity * item.price;
-                    shopSubtotal += itemTotal;
-                    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-                    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
-                  });
+  // 2. تجميع التاريخ والوقت كنص عادي (String)
+  const finalDate = `${cleanDay}-${cleanMonth}-${year}`;
+  const finalTime = `${cleanHours}:${cleanMinutes} ${ampm}`;
 
-                  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
-                  return msg;
-                };
+  let shopSubtotal = 0;
+  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
+  msg += `*📅 التاريخ:* ${finalDate}\n`;
+  msg += `*⏰ الوقت:* ${finalTime}\n`;
+  msg += `*━━━━━━━━━━━━━━*\n`;
+  msg += `*👤 العميل:* ${customerInfo.name}\n`;
+  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
+  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
+  msg += `*━━━━━━━━━━━━━━*\n\n`;
+  msg += `*الأصناف المطلوبة:*\n`;
+  
+  itemsInShop.forEach(item => {
+    const itemTotal = item.quantity * item.price;
+    shopSubtotal += itemTotal;
+    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
+    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
+  });
+
+  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
+  return msg;
+};
 
                 return (
                   <button
