@@ -1,4 +1,4 @@
-Import React, { useState } from "react";
+import React, { useState } from "react";
 
 export default function ShopDetails({ shop, onBack, addToCart }) {
   const [activeCategory, setActiveCategory] = useState(
