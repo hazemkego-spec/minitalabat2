@@ -39,7 +39,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
         <h3 style={{ color: "#FF6600", marginBottom: "15px" }}>{shop.name}</h3>
 
         {/* --- [بداية إضافة زرار تصوير الروشتة] --- */}
-        {shop.category === "صيدلية" && (
+        {shop.category === "صيدليات" && (
           <div style={{
             margin: "0 10px 20px 10px",
             padding: "15px",
