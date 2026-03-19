@@ -1,4 +1,6 @@
 "use client";
+import { db } from "../lib/firebase"; // استدعاء ملف الربط اللي عملناه
+import { ref, push, set } from "firebase/database"; // دوال التعامل مع السيرفر
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
@@ -118,7 +120,7 @@ export default function HomePage() {
     }
   };
 
-  const sendOrder = () => {
+      const sendOrder = async () => {
     // 1. تحديث رقم الفاتورة
     const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
     const newRef = parseInt(lastRef) + 1;
@@ -127,70 +129,57 @@ export default function HomePage() {
     const date = new Date().toLocaleDateString('ar-EG');
     const time = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
     const groupedCart = getGroupedCart();
-    const shopsInCart = Object.keys(groupedCart);
 
-        // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
-    const buildMessage = (targetShopName = null) => {
-      let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
+    // --- [خطوة 1: حفظ البيانات في Firebase] ---
+    try {
+      const orderData = {
+        invoiceRef: newRef,
+        customer: customerInfo,
+        items: groupedCart,
+        total: calculateTotal(),
+        location: locationUrl,
+        status: "pending", // حالة الطلب قيد الانتظار
+        timestamp: new Date().toISOString()
+      };
+
+      const ordersRef = ref(db, 'orders');
+      const newOrderRef = push(ordersRef);
+      await set(newOrderRef, orderData);
+      console.log("✅ تم الحفظ في Firebase بنجاح");
+    } catch (error) {
+      console.error("❌ فشل الحفظ في Firebase:", error);
+      alert("عذراً، حدث خطأ في الاتصال بالسيرفر، برجاء المحاولة مرة أخرى.");
+      return; // توقف لو فيه مشكلة في السيرفر
+    }
+
+    // --- [خطوة 2: بناء رسالة تأكيد واحدة للعميل] ---
+    const buildConfirmationMessage = () => {
+      let msg = `*✅ تم استلام طلبك بنجاح!*\n`;
+      msg += `*🧾 فاتورة رقم: #${newRef}*\n`;
       msg += `*━━━━━━━━━━━━━━*\n`;
-      msg += `*📅 ${date} | ⏰ ${time}*\n`;
       msg += `*👤 العميل:* ${customerInfo.name}\n`;
-      msg += `*📞 الهاتف:* ${customerInfo.phone}\n`;
-      if (locationUrl) msg += `📍 الموقع: ${locationUrl}\n`;
+      msg += `*💰 الإجمالي المطلوب:* ${calculateTotal()} ج.م\n`;
       msg += `*━━━━━━━━━━━━━━*\n\n`;
-
-      if (targetShopName) {
-        // --- رسالة مخصصة لمحل معين مع إجمالي خاص به ---
-        msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
-        let shopTotal = 0;
-        groupedCart[targetShopName].forEach((item) => {
-          const itemTotal = item.price * item.quantity;
-          shopTotal += itemTotal;
-          msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
-          if (itemNotes[item.key]) msg += `  📝 ملحوظة: ${itemNotes[item.key]}\n`;
-        });
-        msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; // الإضافة هنا
-      } else {
-        // --- الرسالة الكاملة للإدارة (المدير) مع تفصيل كل محل وإجمالي كلي ---
-        Object.keys(groupedCart).forEach((shop) => {
-          msg += `*🏪 متجر: ${shop}*\n`;
-          let shopSubTotal = 0;
-          groupedCart[shop].forEach((item) => {
-            const itemTotal = item.price * item.quantity;
-            shopSubTotal += itemTotal;
-            msg += `• *${item.name}* (${item.quantity}) ← *${itemTotal} ج*\n`;
-          });
-          msg += `*Subtotal: ${shopSubTotal} ج.م*\n`; // إجمالي فرعي لكل محل عندك
-          msg += `*──────────────*\n`;
-        });
-        msg += `\n*🏆 الإجمالي الكلي للمطلوب: ${calculateTotal()} ج.م*`;
-      }
-      
-      msg += `\n\n*عبر تطبيق Mini Talabat 🚀*`;
+      msg += `*جاري الآن توزيع طلبك على المتاجر وتجهيزه فوراً. سيتم التواصل معك قريباً 🚀*`;
       return msg;
     };
 
-    // المنطق الذكي للتوزيع
-    if (shopsInCart.length === 1) {
-      const shopName = shopsInCart[0];
-      const shopData = shops.find(s => s.name === shopName);
-      const shopWhatsapp = shopData?.whatsapp || "201122947479"; 
-      
-      window.open(`https://wa.me/${shopWhatsapp}?text=${encodeURIComponent(buildMessage(shopName))}`, "_blank");
-      
-      setTimeout(() => {
-        window.open(`https://wa.me/201122947479?text=${encodeURIComponent(buildMessage())}`, "_blank");
-      }, 1500);
+    // --- [خطوة 3: التنفيذ النهائي] ---
+    const adminWhatsapp = "201122947479"; // رقمك لاستقبال إشعار الأوردر
+    
+    // فتح الواتساب برسالة التأكيد
+    window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(buildConfirmationMessage())}`, "_blank");
 
-    } else {
-      setShowMultiOrderModal({
-        isOpen: true,
-        ref: newRef,
-        date,
-        time,
-        buildMessage 
-      });
+    // تصفير البيانات وإعادة الأبلكيشن لحالته الأولى
+    setCart([]); // تفريغ السلة
+    if (typeof window !== 'undefined') {
+        // لو فاتح أي مودال (نوافذ منبثقة) اقفلها
+        setShowMultiOrderModal({ isOpen: false }); 
+        setShowModal(false); 
     }
+
+    // رسالة نجاح للمستخدم على الشاشة
+    alert("تم إرسال طلبك بنجاح! سيتم تحويلك للواتساب للتأكيد.");
   };
 
    const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
