@@ -131,7 +131,7 @@ const [hasPrescription, setHasPrescription] = useState(false);
     const shopsInCart = Object.keys(groupedCart);
 
             // دالة داخلية مطورة لبناء نص الرسالة مع حساب الإجماليات الفرعية
-    const buildMessage = (targetShopName = null) => {
+        const buildMessage = (targetShopName = null) => {
       let msg = `*🧾 فاتورة رقم: #${newRef}*\n`;
       msg += `*━━━━━━━━━━━━━━*\n`;
       msg += `*📅 ${date} | ⏰ ${time}*\n`;
@@ -141,13 +141,12 @@ const [hasPrescription, setHasPrescription] = useState(false);
       msg += `*━━━━━━━━━━━━━━*\n\n`;
 
       if (targetShopName) {
-        // --- رسالة مخصصة لمحل معين مع إجمالي خاص به ---
         const shopData = shops.find(s => s.name === targetShopName);
         msg += `*🛒 طلبات متجر: ${targetShopName}*\n`;
 
-        // إضافة تنبيه الروشتة إذا كان المتجر من قسم الصيدليات
-        if (shopData?.category === "الصيدليات") {
-          msg += `*⚠️ تنبيه:* يرجى إرفاق صورة الروشتة المصورة الآن من الاستوديو 📸\n`;
+        // ⬇️ التعديل الذكي هنا: التنبيه يظهر فقط لو تم التصوير فعلاً ⬇️
+        if (shopData?.category === "الصيدليات" && hasPrescription) {
+          msg += `*⚠️ برجاء معاينة الروشتة المرسلة من العميل 📸*\n`;
           msg += `*──────────────*\n`;
         }
 
@@ -160,14 +159,13 @@ const [hasPrescription, setHasPrescription] = useState(false);
         });
         msg += `\n*💰 إجمالي المتجر: ${shopTotal} ج.م*`; 
       } else {
-        // --- الرسالة الكاملة للإدارة (المدير) مع تفصيل كل محل وإجمالي كلي ---
         Object.keys(groupedCart).forEach((shop) => {
           const shopData = shops.find(s => s.name === shop);
           msg += `*🏪 متجر: ${shop}*\n`;
           
-          // تنبيه المدير في الرسالة المجمعة بوجود طلب روشتة
-          if (shopData?.category === "الصيدليات") {
-            msg += `*(يوجد طلب روشتة مصورة 📷)*\n`;
+          // تنبيه الإدارة الذكي
+          if (shopData?.category === "الصيدليات" && hasPrescription) {
+            msg += `*(تأكيد: تم تصوير روشتة مع هذا الطلب ✅)*\n`;
           }
 
           let shopSubTotal = 0;
