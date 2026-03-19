@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-export default function ShopDetails({ shop, onBack, addToCart }) {
+// ضفنا setHasPrescription هنا عشان نقدر نغير حالتها من جوه المكون ده
+export default function ShopDetails({ shop, onBack, addToCart, setHasPrescription }) {
   const [activeCategory, setActiveCategory] = useState(
     shop.menuCategories[0]?.title || ""
   );
@@ -38,8 +39,8 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
         />
         <h3 style={{ color: "#FF6600", marginBottom: "15px" }}>{shop.name}</h3>
 
-        {/* --- [بداية إضافة زرار تصوير الروشتة] --- */}
-        {shop.category === "صيدليات" && (
+        {/* --- [تعديل زرار تصوير الروشتة ليعمل بذكاء مع الرسالة] --- */}
+        {shop.category === "الصيدليات" && (
           <div style={{
             margin: "0 10px 20px 10px",
             padding: "15px",
@@ -70,14 +71,17 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
                 style={{ display: "none" }}
                 onChange={(e) => {
                   if(e.target.files[0]) {
-                    alert("✅ ممتاز! تم التقاط الصورة بنجاح. عند فتح واتساب الصيدلية، لا تنسَ إرفاق هذه الصورة من الاستوديو.");
+                    // 💡 هنا الذكاء: بنبلغ الصفحة الرئيسية إن فيه روشتة اتصورت
+                    if (setHasPrescription) setHasPrescription(true);
+                    
+                    alert("✅ ممتاز! تم التقاط الصورة بنجاح. ستظهر ملاحظة (برجاء معاينة الروشتة) في رسالة الطلب لتنبيه الصيدلي.");
                   }
                 }}
               />
             </label>
           </div>
         )}
-        {/* --- [نهاية إضافة زرار تصوير الروشتة] --- */}
+        {/* --- [نهاية الإضافة] --- */}
       </div>
 
       {/* Categories Tabs */}
