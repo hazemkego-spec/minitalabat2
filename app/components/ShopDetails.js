@@ -40,7 +40,7 @@ export default function ShopDetails({ shop, onBack, addToCart, setHasPrescriptio
         <h3 style={{ color: "#FF6600", marginBottom: "15px" }}>{shop.name}</h3>
 
         {/* --- [تعديل زرار تصوير الروشتة ليعمل بذكاء مع الرسالة] --- */}
-        {shop.category === "الصيدليات" && (
+        {shop.category === "صيدليات" && (
           <div style={{
             margin: "0 10px 20px 10px",
             padding: "15px",
