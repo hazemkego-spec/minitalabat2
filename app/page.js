@@ -249,31 +249,40 @@ export default function HomePage() {
                 const itemsInShop = getGroupedCart()[shopName];
 
                 const buildShopSpecificMessage = () => {
-                  const now = new Date();
-                  const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
-                  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  // تعريف الوقت والتاريخ بطريقة يدوية آمنة تماماً
+  const now = new Date();
+  const d = String(now.getDate()).padStart(2, '0');
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const y = now.getFullYear();
+  const dateStr = `${d}-${m}-${y}`;
+  
+  const timeStr = now.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    hour12: true 
+  });
 
-                  let shopSubtotal = 0;
-                  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
-                  msg += `*📅 التاريخ:* ${dateStr}\n`;
-                  msg += `*⏰ الوقت:* ${timeStr}\n`;
-                  msg += `*━━━━━━━━━━━━━━*\n`;
-                  msg += `*👤 العميل:* ${customerInfo.name}\n`;
-                  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
-                  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
-                  msg += `*━━━━━━━━━━━━━━*\n\n`;
-                  msg += `*الأصناف المطلوبة:*\n`;
-                  
-                  itemsInShop.forEach(item => {
-                    const itemTotal = item.quantity * item.price;
-                    shopSubtotal += itemTotal;
-                    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-                    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
-                  });
+  let shopSubtotal = 0;
+  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
+  msg += `*📅 التاريخ:* ${dateStr}\n`;
+  msg += `*⏰ الوقت:* ${timeStr}\n`;
+  msg += `*━━━━━━━━━━━━━━*\n`;
+  msg += `*👤 العميل:* ${customerInfo.name}\n`;
+  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
+  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
+  msg += `*━━━━━━━━━━━━━━*\n\n`;
+  msg += `*الأصناف المطلوبة:*\n`;
+  
+  itemsInShop.forEach(item => {
+    const itemTotal = item.quantity * item.price;
+    shopSubtotal += itemTotal;
+    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
+    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
+  });
 
-                  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
-                  return msg;
-                };
+  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
+  return msg;
+};
 
                 return (
                   <button
