@@ -419,13 +419,14 @@ const [hasPrescription, setHasPrescription] = useState(false);
     )}
 
       {/* صفحة المتجر منفصلة */}
-      {activeTab === "home" && selectedShop && (
-        <ShopDetails
-          shop={selectedShop}
-          onBack={() => setSelectedShop(null)}
-          addToCart={addToCart}
-        />
-      )}
+{activeTab === "home" && selectedShop && (
+  <ShopDetails
+    shop={selectedShop}
+    onBack={() => setSelectedShop(null)}
+    addToCart={addToCart}
+    setHasPrescription={setHasPrescription} // ⬅️ السطر ده هو "حلقة الوصل" الذكية
+  />
+)}
 
       {/* صفحة السلة */}
       {activeTab === "cart" && (
