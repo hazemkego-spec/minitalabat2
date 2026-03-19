@@ -222,7 +222,17 @@ const [hasPrescription, setHasPrescription] = useState(false);
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
       
-      {/* نافذة توزيع الطلبات الذكية (تظهر فقط عند الحاجة) */}
+      {/* صفحة المتجر منفصلة - تأكد من وجود هذا الجزء */}
+      {activeTab === "home" && selectedShop && (
+        <ShopDetails
+          shop={selectedShop}
+          onBack={() => setSelectedShop(null)}
+          addToCart={addToCart}
+          setHasPrescription={setHasPrescription} // ⬅️ الربط هنا لضمان عمل زر الكاميرا
+        />
+      )}
+
+      {/* نافذة توزيع الطلبات الذكية */}
       {showMultiOrderModal.isOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -237,14 +247,15 @@ const [hasPrescription, setHasPrescription] = useState(false);
             <p style={{ color: "#eee", fontSize: "13px", marginBottom: "15px" }}>يرجى إرسال كل طلب لمكانه المخصص:</p>
             
             <div style={{ maxHeight: "250px", overflowY: "auto", marginBottom: "15px" }}>
-              {Object.keys(getGroupedCart()).map((shopName, index) => {
+              {Object.keys(groupedCart).map((shopName, index) => {
                 const shopData = shops.find(s => s.name === shopName);
                 return (
                   <button
                     key={index}
                     onClick={() => {
-                      const msg = showMultiOrderModal.buildMessage(shopName);
-                      window.open(`https://wa.me/${shopData?.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+                      // استدعاء بناء الرسالة للمحل المحدد
+                      const msg = buildMessage(shopName); 
+                      window.open(`https://wa.me/${shopData?.whatsapp || "201122947479"}?text=${encodeURIComponent(msg)}`, "_blank");
                     }}
                     style={{
                       width: "100%", padding: "12px", backgroundColor: "#fff", color: "#000",
@@ -261,8 +272,12 @@ const [hasPrescription, setHasPrescription] = useState(false);
 
             <button
               onClick={() => {
-                const adminMsg = showMultiOrderModal.buildMessage();
+                // إرسال التقرير الكلي للمدير
+                const adminMsg = buildMessage(); 
                 window.open(`https://wa.me/201122947479?text=${encodeURIComponent(adminMsg)}`, "_blank");
+                
+                // 💡 تصفير حالة الروشتة بعد الانتهاء تماماً من الطلب
+                setHasPrescription(false); 
                 setShowMultiOrderModal({ isOpen: false });
               }}
               style={{ 
