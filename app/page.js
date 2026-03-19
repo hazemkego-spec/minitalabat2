@@ -11,7 +11,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
-const [prescriptionImage, setPrescriptionImage] = useState(null);
+const [hasPrescription, setHasPrescription] = useState(false);
   
   // حالة نافذة توزيع الطلبات المتعددة
   const [showMultiOrderModal, setShowMultiOrderModal] = useState({ isOpen: false });
