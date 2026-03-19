@@ -110,9 +110,8 @@ export default function HomePage() {
         setLocationUrl(`https://www.google.com/maps?q=${latitude},${longitude}`);
       });
     }
-  };
-
-        
+  };     
+  
   const sendOrder = async () => {
     if (isSending) return; 
     
@@ -126,14 +125,19 @@ export default function HomePage() {
       return;
     }
 
-    // --- حساب التاريخ والوقت مرة واحدة بجودة عالية ---
+    // --- حساب التاريخ والوقت يدوياً لضمان الدقة المطلقة ---
     const now = new Date();
     const d = String(now.getDate()).padStart(2, '0');
     const m = String(now.getMonth() + 1).padStart(2, '0');
     const y = now.getFullYear();
     const dateStr = `${d}-${m}-${y}`;
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    // -----------------------------------------------
+    
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const timeStr = `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+    // --------------------------------------------------
 
     setIsSending(true);
 
@@ -145,7 +149,7 @@ export default function HomePage() {
       const groupedCart = getGroupedCart();
       const totalAmount = calculateTotal();
 
-      // حفظ في Firebase باستخدام نفس التاريخ والوقت
+      // حفظ في Firebase
       const orderData = {
         invoiceRef: newRef,
         customer: customerInfo,
@@ -159,8 +163,15 @@ export default function HomePage() {
       };
 
       const ordersRef = ref(db, 'orders');
-      const newOrderRef = push(ordersRef);
-      await set(newOrderRef, orderData);
+      await set(push(ordersRef), orderData);
+
+      // --- الضربة القاضية: تمرير البيانات المحسوبة للـ Modal ---
+      setShowMultiOrderModal({ 
+        isOpen: true, 
+        fixedDate: dateStr, 
+        fixedTime: timeStr,
+        fixedRef: newRef 
+      });
 
       // بناء رسالة المدير المجمعة
       const buildFullDetailMessage = () => {
@@ -196,13 +207,10 @@ export default function HomePage() {
       const adminWhatsapp = "201122947479"; 
       window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(buildFullDetailMessage())}`, "_blank");
 
-      // تصفير البيانات وإغلاق النافذة
+      // تصفير بيانات السلة فقط (النافذة ستظل مفتوحة ببياناتها الثابتة)
       setCart({});
       setItemNotes({});
-      setShowMultiOrderModal({ isOpen: false });
       
-      alert("تم إرسال طلبك بنجاح!");
-
     } catch (error) {
       console.error("❌ Error:", error);
       alert("حدث خطأ في الاتصال.");
@@ -227,7 +235,7 @@ export default function HomePage() {
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
       
-      {showMultiOrderModal.isOpen && (
+            {showMultiOrderModal.isOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: "rgba(0,0,0,0.95)", zIndex: 20000,
@@ -238,6 +246,7 @@ export default function HomePage() {
             width: "100%", maxWidth: "400px", textAlign: "center", border: "2px solid #FF6600" 
           }}>
             <h3 style={{ color: "#FF6600", marginBottom: "10px" }}>تقسيم الطلبات 📦</h3>
+            <p style={{ color: "#eee", fontSize: "13px", marginBottom: "15px" }}>يرجى إرسال كل طلب لمكانه المخصص:</p>
             
             <div style={{ maxHeight: "250px", overflowY: "auto", marginBottom: "15px" }}>
               {Object.keys(getGroupedCart()).map((shopName, index) => {
@@ -245,52 +254,31 @@ export default function HomePage() {
                 const itemsInShop = getGroupedCart()[shopName];
 
                 const buildShopSpecificMessage = () => {
-  const now = new Date();
-  
-  // 1. استخراج الأرقام يدوياً (أضمن طريقة في العالم)
-  const day = now.getDate();
-  const month = now.getMonth() + 1; // الشهور بتبدأ من 0
-  const year = now.getFullYear();
-  
-  let hours = now.getHours();
-  const minutes = now.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  
-  // تحويل الساعة لنظام 12 ساعة
-  hours = hours % 12;
-  hours = hours ? hours : 12; 
-  
-  // إضافة صفر على الشمال لو الرقم أقل من 10 (عشان الشكل يبقى نظيف)
-  const cleanDay = day < 10 ? '0' + day : day;
-  const cleanMonth = month < 10 ? '0' + month : month;
-  const cleanMinutes = minutes < 10 ? '0' + minutes : minutes;
-  const cleanHours = hours < 10 ? '0' + hours : hours;
+                  // الضربة القاضية: سحب التاريخ والوقت الثابتين من الـ State
+                  // دي البيانات اللي حسبناها في دالة sendOrder وبعتناها هنا
+                  const { fixedDate, fixedTime, fixedRef } = showMultiOrderModal;
 
-  // 2. تجميع التاريخ والوقت كنص عادي (String)
-  const finalDate = `${cleanDay}-${cleanMonth}-${year}`;
-  const finalTime = `${cleanHours}:${cleanMinutes} ${ampm}`;
+                  let shopSubtotal = 0;
+                  let msg = `*📦 طلب جديد - فاتورة #${fixedRef || '---'}*\n`;
+                  msg += `*📅 التاريخ:* ${fixedDate || '---'}\n`; 
+                  msg += `*⏰ الوقت:* ${fixedTime || '---'}\n`;   
+                  msg += `*━━━━━━━━━━━━━━*\n`;
+                  msg += `*👤 العميل:* ${customerInfo.name}\n`;
+                  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
+                  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
+                  msg += `*━━━━━━━━━━━━━━*\n\n`;
+                  msg += `*الأصناف المطلوبة:*\n`;
+                  
+                  itemsInShop.forEach(item => {
+                    const itemTotal = item.quantity * item.price;
+                    shopSubtotal += itemTotal;
+                    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
+                    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
+                  });
 
-  let shopSubtotal = 0;
-  let msg = `*📦 طلب جديد من ميني طلبات*\n`;
-  msg += `*📅 التاريخ:* ${finalDate}\n`;
-  msg += `*⏰ الوقت:* ${finalTime}\n`;
-  msg += `*━━━━━━━━━━━━━━*\n`;
-  msg += `*👤 العميل:* ${customerInfo.name}\n`;
-  msg += `*📍 العنوان:* ${customerInfo.address}\n`;
-  if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
-  msg += `*━━━━━━━━━━━━━━*\n\n`;
-  msg += `*الأصناف المطلوبة:*\n`;
-  
-  itemsInShop.forEach(item => {
-    const itemTotal = item.quantity * item.price;
-    shopSubtotal += itemTotal;
-    const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
-  });
-
-  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
-  return msg;
-};
+                  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
+                  return msg;
+                };
 
                 return (
                   <button
@@ -313,13 +301,18 @@ export default function HomePage() {
             </div>
 
             <button
-              onClick={() => sendOrder()}
+              onClick={() => {
+                // إغلاق النافذة وتصفير السلة نهائياً
+                setShowMultiOrderModal({ isOpen: false });
+                setCart({});
+                setItemNotes({});
+              }}
               style={{ 
                 width: "100%", padding: "15px", backgroundColor: "#FF6600", color: "#fff", 
                 borderRadius: "15px", fontWeight: "bold", border: "none"
               }}
             >
-              🏁 إتمام الأوردر وحفظ البيانات
+              🏁 إنهاء وإغلاق القائمة
             </button>
           </div>
         </div>
