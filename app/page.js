@@ -1,7 +1,6 @@
-// --- بداية الجزء الأول المعدل (app/page.js) ---
 "use client";
-import { db } from "../lib/firebase"; // تم التعديل للاسم الصحيح firebase.js
-import { ref, push, set, serverTimestamp } from "firebase/database"; // دوال التعامل مع السيرفر
+import { db } from "../lib/firebase"; 
+import { ref, push, set, serverTimestamp } from "firebase/database"; 
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
@@ -14,23 +13,19 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [activeTab, setActiveTab] = useState("home");
   const [selectedShop, setSelectedShop] = useState(null);
-  const [isSending, setIsSending] = useState(false); // حالة لمنع تكرار الإرسال
+  const [isSending, setIsSending] = useState(false); 
   
-  // حالة نافذة توزيع الطلبات المتعددة
   const [showMultiOrderModal, setShowMultiOrderModal] = useState({ isOpen: false });
    
-  // 1. تعريف حالة رسالة التثبيت الأصلية
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-  // 2. مراقبة حدث التثبيت من المتصفح
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
       setDeferredPrompt(e); 
     };
 
-    // --- الجزء الخاص بالآيفون ---
     const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
                          || window.navigator.standalone === true;
@@ -38,16 +33,13 @@ export default function HomePage() {
     if (isIos && !isStandalone) {
       setShowIosPrompt(true);
     }
-    // ----------------------------
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
 
-  // 3. دالة تنفيذ التثبيت عند ضغط الزر
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt(); 
@@ -58,11 +50,9 @@ export default function HomePage() {
     setDeferredPrompt(null); 
   };
 
-  // بيانات السلة
   const [cart, setCart] = useState({});
   const [itemNotes, setItemNotes] = useState({});
   
-  // بيانات العميل المحفوظة
   const [customerInfo, setCustomerInfo] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('customer_data');
@@ -100,7 +90,7 @@ export default function HomePage() {
     setItemNotes((prev) => ({ ...prev, [key]: note }));
   };
 
-    const calculateTotal = () =>
+  const calculateTotal = () =>
     Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const getGroupedCart = () => {
@@ -113,7 +103,6 @@ export default function HomePage() {
     return grouped;
   };
 
-  // تم الحفاظ على كود اللوكيشن الأصلي الخاص بك كما هو
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
@@ -122,11 +111,9 @@ export default function HomePage() {
       });
     }
   };
-// --- نهاية الجزء الأول المعدل ---
 
-      // --- بداية الجزء الثاني المعدل (app/page.js) ---
-  const sendOrder = async () => {
-    if (isSending) return; // منع الإرسال المتكرر
+        const sendOrder = async () => {
+    if (isSending) return; 
     
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
       alert("يرجى إكمال بيانات العميل (الاسم، الهاتف، العنوان) أولاً");
@@ -141,10 +128,15 @@ export default function HomePage() {
     setIsSending(true);
 
     try {
-      // 1. تحديث رقم الفاتورة
+      // 1. تحديث رقم الفاتورة وتنسيق الوقت
       const lastRef = typeof window !== 'undefined' ? (localStorage.getItem('invoice_ref') || 1000) : 1000;
       const newRef = parseInt(lastRef) + 1;
       if (typeof window !== 'undefined') localStorage.setItem('invoice_ref', newRef);
+
+      // تنسيق التاريخ والوقت يدوياً لضمان الدقة
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-'); // النتيجة: DD-MM-YYYY
+      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
       const groupedCart = getGroupedCart();
       const totalAmount = calculateTotal();
@@ -156,18 +148,21 @@ export default function HomePage() {
         items: groupedCart,
         total: totalAmount,
         location: locationUrl,
-        status: "pending", // حالة الطلب قيد الانتظار
-        createdAt: serverTimestamp() // وقت السيرفر الدقيق
+        status: "pending",
+        orderDate: dateStr,
+        orderTime: timeStr,
+        createdAt: serverTimestamp() 
       };
 
       const ordersRef = ref(db, 'orders');
       const newOrderRef = push(ordersRef);
       await set(newOrderRef, orderData);
-      console.log("✅ تم الحفظ في Firebase بنجاح");
 
-      // --- [خطوة 2: بناء رسالة الواتساب بالتفاصيل الكاملة] ---
+      // --- [خطوة 2: بناء رسالة الواتساب الاحترافية] ---
       const buildFullDetailMessage = () => {
         let msg = `*🚀 طلب جديد - فاتورة رقم: #${newRef}*\n`;
+        msg += `*📅 التاريخ:* ${dateStr}\n`;
+        msg += `*⏰ الوقت:* ${timeStr}\n`;
         msg += `*━━━━━━━━━━━━━━*\n`;
         msg += `*👤 العميل:* ${customerInfo.name}\n`;
         msg += `*📞 الهاتف:* ${customerInfo.phone}\n`;
@@ -175,27 +170,32 @@ export default function HomePage() {
         if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
         msg += `*━━━━━━━━━━━━━━*\n\n`;
 
-        // إضافة تفاصيل كل محل وأصنافه
+        // إضافة تفاصيل كل محل مع إجمالي خاص به
         Object.keys(groupedCart).forEach((shopName) => {
+          let shopSubtotal = 0;
           msg += `*🏪 متجر: ${shopName}*\n`;
+          
           groupedCart[shopName].forEach((item) => {
+            const itemTotal = item.quantity * item.price;
+            shopSubtotal += itemTotal;
             const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-            msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م)${note}\n`;
+            msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
           });
-          msg += `\n`;
+          
+          msg += `*💰 إجمالي المتجر:* ${shopSubtotal} ج.م\n`;
+          msg += `*--------------------*\n\n`;
         });
 
         msg += `*━━━━━━━━━━━━━━*\n`;
-        msg += `*💰 الإجمالي المطلوب: ${totalAmount} ج.م*\n`;
+        msg += `*💵 الإجمالي الكلي للطلب: ${totalAmount} ج.م*\n`;
         msg += `*━━━━━━━━━━━━━━*\n`;
         msg += `*شكراً لتعاملك مع ميني طلبات! ✨*`;
         return msg;
       };
 
       // --- [خطوة 3: التنفيذ النهائي] ---
-      const adminWhatsapp = "201122947479"; // رقمك لاستقبال الإشعار
+      const adminWhatsapp = "201122947479"; 
       
-      // فتح الواتساب بالرسالة المفصلة
       window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(buildFullDetailMessage())}`, "_blank");
 
       // تصفير البيانات
@@ -212,17 +212,14 @@ export default function HomePage() {
       setIsSending(false);
     }
   };
-// --- نهاية الجزء الثاني المعدل ---
 
-   // --- بداية الجزء الثالث المعدل (app/page.js) ---
-  const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
+    const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
   const filteredShops = shops.filter((shop) => {
     const matchCategory = selectedCategory === "الكل" || shop.category === selectedCategory;
     const lowerSearch = searchTerm.toLowerCase();
     const matchShopName = shop.name.toLowerCase().includes(lowerSearch);
     
-    // تحسين البحث ليشمل الأصناف داخل المنيو
     const matchMenuItem = shop.menuCategories?.some(cat => 
       cat.items.some(item => item.name.toLowerCase().includes(lowerSearch))
     );
@@ -233,7 +230,6 @@ export default function HomePage() {
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
       
-      {/* نافذة توزيع الطلبات الذكية (تظهر فقط عند الحاجة) */}
       {showMultiOrderModal.isOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
@@ -252,19 +248,30 @@ export default function HomePage() {
                 const shopData = shops.find(s => s.name === shopName);
                 const itemsInShop = getGroupedCart()[shopName];
 
-                // بناء رسالة تفصيلية خاصة بكل محل
                 const buildShopSpecificMessage = () => {
+                  const now = new Date();
+                  const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+                  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+                  let shopSubtotal = 0;
                   let msg = `*📦 طلب جديد من ميني طلبات*\n`;
+                  msg += `*📅 التاريخ:* ${dateStr}\n`;
+                  msg += `*⏰ الوقت:* ${timeStr}\n`;
                   msg += `*━━━━━━━━━━━━━━*\n`;
                   msg += `*👤 العميل:* ${customerInfo.name}\n`;
                   msg += `*📍 العنوان:* ${customerInfo.address}\n`;
                   if (locationUrl) msg += `*🗺️ الموقع:* ${locationUrl}\n`;
                   msg += `*━━━━━━━━━━━━━━*\n\n`;
                   msg += `*الأصناف المطلوبة:*\n`;
+                  
                   itemsInShop.forEach(item => {
+                    const itemTotal = item.quantity * item.price;
+                    shopSubtotal += itemTotal;
                     const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-                    msg += `• ${item.name} (عدد ${item.quantity})${note}\n`;
+                    msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
                   });
+
+                  msg += `\n*💰 إجمالي الحساب:* ${shopSubtotal} ج.م\n`;
                   return msg;
                 };
 
@@ -289,10 +296,7 @@ export default function HomePage() {
             </div>
 
             <button
-              onClick={() => {
-                // استدعاء دالة الإرسال النهائية التي عدلناها في الجزء الثاني (لحفظ البيانات وإبلاغ المدير)
-                sendOrder();
-              }}
+              onClick={() => sendOrder()}
               style={{ 
                 width: "100%", padding: "15px", backgroundColor: "#FF6600", color: "#fff", 
                 borderRadius: "15px", fontWeight: "bold", border: "none"
@@ -303,11 +307,7 @@ export default function HomePage() {
           </div>
         </div>
       )}
-// --- نهاية الجزء الثالث المعدل ---
 
-      // --- بداية الجزء الرابع المعدل (app/page.js) ---
-
-      {/* عرض بانر التثبيت للأندرويد */}
       {deferredPrompt && activeTab === "home" && !selectedShop && (
         <div style={{
           backgroundColor: "#FF6600", padding: "12px 20px", display: "flex",
@@ -331,7 +331,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* رسالة مخصصة لمستخدمي الآيفون */}
       {showIosPrompt && activeTab === "home" && !selectedShop && (
         <div style={{
           position: "fixed", bottom: 0, left: 0, right: 0,
@@ -355,7 +354,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* المحتوى الرئيسي */}
       {activeTab === "home" && !selectedShop && (
         <>
           <img
@@ -374,7 +372,6 @@ export default function HomePage() {
             />
           </div>
 
-        {/* شريط البحث */}
         <div style={{ padding: "15px" }}>
           <input
             type="text"
@@ -389,7 +386,6 @@ export default function HomePage() {
           />
         </div>
 
-        {/* شريط التصنيفات السريع */}
         <div style={{ display: "flex", overflowX: "auto", padding: "10px", gap: "10px", scrollbarWidth: "none" }}>
           {categories.map((cat) => (
             <button
@@ -406,11 +402,8 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-// --- نهاية الجزء الرابع المعدل ---
 
-       // --- بداية الجزء الخامس المعدل (app/page.js) ---
-
-      {/* عرض المتاجر المفلترة */}
+             {/* عرض المتاجر المفلترة */}
         <div style={{ 
           padding: "15px", display: "grid", 
           gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "15px" 
@@ -431,8 +424,6 @@ export default function HomePage() {
                   border: "1px solid #252525", transition: "transform 0.2s",
                   boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
                 }}
-                onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.95)"}
-                onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
               >
                 <div style={{ position: "relative", display: "inline-block" }}>
                   <img
@@ -463,7 +454,6 @@ export default function HomePage() {
       </>
     )}
 
-      {/* صفحة المتجر - مع تمرير دالة إضافة للسلة */}
       {activeTab === "home" && selectedShop && (
         <ShopDetails
           shop={selectedShop}
@@ -472,7 +462,6 @@ export default function HomePage() {
         />
       )}
 
-      {/* صفحة السلة - الربط الكامل مع Firebase والواتساب */}
       {activeTab === "cart" && (
         <Cart
           cart={cart}
@@ -485,11 +474,10 @@ export default function HomePage() {
           setCustomerInfo={updateCustomerInfo}
           locationUrl={locationUrl}
           handleGetLocation={handleGetLocation}
-          sendOrder={sendOrder} // الدالة الجديدة التي تربط Firebase + WhatsApp
+          sendOrder={sendOrder} 
         />
       )}
 
-      {/* صفحة إضافة متجر ودليل التثبيت */}
       {activeTab === "addShop" && (
         <div style={{ paddingBottom: "20px" }}>
           <InstallGuide onClose={() => setActiveTab("home")} />
@@ -502,11 +490,6 @@ export default function HomePage() {
               placeholder="اسم المتجر"
               style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "10px", border: "1px solid #333", backgroundColor: "#121212", color: "#fff", outline: "none" }}
             />
-            <input
-              type="text"
-              placeholder="نوع النشاط (مثال: مطعم سورى)"
-              style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "10px", border: "1px solid #333", backgroundColor: "#121212", color: "#fff", outline: "none" }}
-            />
             <button 
               onClick={() => window.open(`https://wa.me/201122947479?text=${encodeURIComponent("أريد تسجيل متجر جديد في نظام ميني طلبات")}`)}
               style={{ width: "100%", padding: "15px", borderRadius: "10px", border: "none", backgroundColor: "#FF6600", color: "#fff", fontWeight: "bold", cursor: "pointer", fontSize: "15px" }}
@@ -514,7 +497,6 @@ export default function HomePage() {
               إرسال طلب الانضمام
             </button>
           </div>
-          
           <div style={{ padding: "15px", textAlign: "center" }}>
             <p style={{ color: "#888", fontSize: "13px" }}>للدعم الفني المباشر:</p>
             <a href="tel:201122947479" style={{ color: "#FF6600", fontSize: "20px", fontWeight: "bold", textDecoration: "none" }}>01122947479</a>
@@ -522,7 +504,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي الذكي */}
       <NavBar 
         activeTab={activeTab} 
         setActiveTab={(tab) => {
@@ -539,5 +520,3 @@ export default function HomePage() {
     </div>
   );
 }
-// --- نهاية ملف app/page.js بالكامل ---
- 
