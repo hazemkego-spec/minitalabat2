@@ -81,55 +81,106 @@ export default function AdminPage() {
 
   if (!isClient) return null;
 
-  return (
-    <div dir="rtl" className="min-h-screen bg-[#121212] text-white p-4 font-sans">
-      {/* عنصر الصوت المخفي */}
+    return (
+    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif" }}>
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
-      <header className="mb-6 border-b border-[#333] pb-4 text-center">
-        <h1 className="text-2xl font-bold text-[#FF6600]">🛡️ لوحة تحكم ميني طلبات</h1>
-        <p className="text-gray-400 text-sm mt-1">إجمالي العمليات: {orders.length}</p>
+      {/* Header ثابت ومحترم */}
+      <header style={{ 
+        position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", 
+        zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "20px" 
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h1 style={{ color: "#FF6600", margin: 0, fontSize: "22px", fontWeight: "900" }}>لوحة التحكم 🛡️</h1>
+            <p style={{ color: "#666", fontSize: "12px", margin: "5px 0 0 0" }}>إجمالي العمليات: {orders.length}</p>
+          </div>
+          <div style={{ backgroundColor: "#1a1c1e", padding: "5px 12px", borderRadius: "20px", fontSize: "10px", color: "#4caf50", border: "1px solid #2d3035" }}>
+            متصل مباشر ●
+          </div>
+        </div>
       </header>
       
-      <div className="space-y-4">
+      <div style={{ display: "grid", gap: "20px" }}>
         {orders.map((order) => (
-          <div key={order.id} className="bg-[#1e1e1e] p-5 rounded-2xl border border-[#252525] shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <span className="bg-[#FF6600] text-black font-bold px-3 py-1 rounded-lg text-sm">
-                #{order.invoiceRef}
-              </span>
-              <span className="text-xs text-gray-500 font-mono">
-                {order.orderDate} | {order.orderTime}
-              </span>
-            </div>
+          <div key={order.id} style={{ 
+            backgroundColor: "#16181a", borderRadius: "25px", border: "1px solid #25282b", 
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)", overflow: "hidden" 
+          }}>
             
-            <div className="space-y-1 mb-4 text-sm">
-              <p className="text-gray-300"><span className="text-gray-500">العميل:</span> {order.customer?.name}</p>
-              <p className="text-gray-300"><span className="text-gray-500">الهاتف:</span> {order.customer?.phone}</p>
-              <p className="text-gray-300"><span className="text-gray-500">العنوان:</span> {order.customer?.address}</p>
-              <p className="text-[#FF6600] font-bold text-lg mt-2 pt-2 border-t border-[#252525]">
-                💰 الإجمالي: {order.total} ج.م
-              </p>
+            {/* بار الحالة العلوي */}
+            <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ color: "#FF6600", fontWeight: "bold", fontSize: "14px" }}>#{order.invoiceRef}</span>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <span style={{ fontSize: "11px", color: "#888" }}>{order.orderTime}</span>
+                <span style={{ 
+                  backgroundColor: order.status === 'completed' ? "rgba(76, 175, 80, 0.1)" : "rgba(255, 152, 0, 0.1)", 
+                  color: order.status === 'completed' ? "#4caf50" : "#ff9800", 
+                  padding: "4px 12px", borderRadius: "10px", fontSize: "10px", fontWeight: "bold" 
+                }}>
+                  {order.status === 'completed' ? 'تم التوصيل ✅' : 'قيد المعالجة ⏳'}
+                </span>
+              </div>
             </div>
 
-            <div className="space-y-2 mt-4">
-              <p className="text-xs text-gray-400 mb-2">توزيع الطلبات على المتاجر:</p>
-              {Object.keys(order.items || {}).map((shopName) => (
-                <button
-                  key={shopName}
-                  onClick={() => distributeOrder(order, shopName)}
-                  className="w-full bg-white hover:bg-gray-200 text-black py-3 px-4 rounded-xl flex justify-between items-center transition-all active:scale-95 font-bold"
-                >
-                  <span className="flex items-center gap-2">
-                    🏪 {shopName}
-                  </span>
-                  <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-md">WhatsApp</span>
-                </button>
-              ))}
+            <div style={{ padding: "20px" }}>
+              {/* بيانات العميل وأزرار الاتصال */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+                <div>
+                  <h2 style={{ margin: "0 0 5px 0", fontSize: "18px", color: "#fff" }}>{order.customer?.name}</h2>
+                  <p style={{ margin: 0, fontSize: "13px", color: "#aaa" }}>📍 {order.customer?.address}</p>
+                  <p style={{ margin: "5px 0 0 0", fontSize: "13px", color: "#FF6600", fontWeight: "bold" }}>📞 {order.customer?.phone}</p>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#007bff20", padding: "12px", borderRadius: "15px", border: "1px solid #007bff40" }}>📞</a>
+                  {order.location && (
+                    <a href={order.location} target="_blank" style={{ textDecoration: "none", backgroundColor: "#dc354520", padding: "12px", borderRadius: "15px", border: "1px solid #dc354540" }}>📍</a>
+                  )}
+                </div>
+              </div>
+
+              {/* تفاصيل المتاجر - تقسيم واضح */}
+              <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
+                <p style={{ margin: "0 0 15px 0", fontSize: "11px", color: "#555", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>الأصناف المطلوبة:</p>
+                
+                {Object.keys(order.items || {}).map((shopName) => (
+                  <div key={shopName} style={{ marginBottom: "20px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                      <span style={{ fontSize: "14px", fontWeight: "bold", color: "#eee" }}>🏪 {shopName}</span>
+                      <button 
+                        onClick={() => distributeOrder(order, shopName)}
+                        style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "6px 15px", borderRadius: "10px", fontSize: "10px", fontWeight: "bold", cursor: "pointer" }}
+                      >
+                        إرسال WhatsApp
+                      </button>
+                    </div>
+                    {order.items[shopName].map((item, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 10px", backgroundColor: "#16181a", borderRadius: "8px", marginBottom: "5px", fontSize: "12px" }}>
+                        <span style={{ color: "#ccc" }}>{item.name} <b style={{ color: "#FF6600" }}>×{item.quantity}</b></span>
+                        <span style={{ color: "#888" }}>{item.price * item.quantity} ج</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {/* الإجمالي الكبير */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", padding: "15px 5px 0 5px", borderTop: "1px dashed #25282b" }}>
+                <span style={{ fontSize: "14px", color: "#888" }}>إجمالي الحساب:</span>
+                <span style={{ fontSize: "24px", fontWeight: "900", color: "#FF6600" }}>{order.total} <small style={{ fontSize: "12px" }}>ج.م</small></span>
+              </div>
             </div>
+
+            {/* أزرار الأكشن السفلية */}
+            <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b", borderTop: "1px solid #25282b" }}>
+              <button style={{ flex: 1, padding: "15px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontSize: "12px", fontWeight: "bold", opacity: 0.5 }}>حذف الطلب</button>
+              <button style={{ flex: 1, padding: "15px", backgroundColor: "#FF6600", color: "#000", border: "none", fontSize: "12px", fontWeight: "bold" }}>تحديد كمكتمل ✅</button>
+            </div>
+
           </div>
         ))}
       </div>
     </div>
   );
+
 }
