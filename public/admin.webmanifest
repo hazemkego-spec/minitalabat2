@@ -1,11 +1,12 @@
 {
-  "name": "إدارة ميني طلبات",
+  "name": "إدارة ميني طلبات 🛡️",
   "short_name": "لوحة الإدارة",
-  "description": "لوحة تحكم طلبات ميني طلبات",
-  "id": "/admin-app",
+  "description": "لوحة تحكم وإدارة أوردرات ميني طلبات اللحظية",
+  "id": "/minitalabat-admin-v1",
   "start_url": "/admin",
   "scope": "/admin",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0b0c0d",
   "theme_color": "#FF6600",
@@ -20,7 +21,21 @@
       "src": "/mall-logo.png",
       "sizes": "512x512",
       "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/mall-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "الطلبات الجديدة",
+      "url": "/admin",
+      "icons": [{ "src": "/mall-logo.png", "sizes": "192x192" }]
     }
   ]
 }
