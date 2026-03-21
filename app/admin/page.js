@@ -11,15 +11,28 @@ export default function AdminPage() {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
+  // 1. منطق التشغيل الأول والمانيفست الآمن
   useEffect(() => {
     setIsClient(true);
     
-    // 1. طلب إذن الإشعارات فوراً
+    // ربط المانيفست المخصص للإدارة بطريقة آمنة
+    if (typeof window !== "undefined") {
+      const existingLink = document.querySelector('link[rel="manifest"]');
+      if (existingLink) {
+        existingLink.setAttribute('href', '/admin.webmanifest');
+      } else {
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = '/admin.webmanifest';
+        document.head.appendChild(link);
+      }
+    }
+
+    // طلب إذن الإشعارات
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
 
-    // 2. منطق الـ PWA - التقاط رسالة التثبيت
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -29,7 +42,7 @@ export default function AdminPage() {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 3. الربط اللحظي المحسن مع نظام "إعادة المحاولة"
+  // 2. الربط اللحظي بـ Firebase
   useEffect(() => {
     let unsubscribe;
     const connectToFirebase = () => {
@@ -43,7 +56,6 @@ export default function AdminPage() {
             ...data[id]
           })).reverse();
 
-          // كشف الأوردر الجديد بدقة
           if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
             handleNewOrderNotification(orderList[0]);
           }
@@ -56,7 +68,7 @@ export default function AdminPage() {
         }
       }, (error) => {
         console.error("Firebase Sync Error. Retrying in 5s...", error);
-        setTimeout(connectToFirebase, 5000); // إعادة محاولة الاتصال تلقائياً
+        setTimeout(connectToFirebase, 5000);
       });
     };
 
@@ -72,29 +84,25 @@ export default function AdminPage() {
     }
   };
 
-  // دالة التنبيه المحسنة - حل مشكلة الصوت
   const handleNewOrderNotification = (order) => {
     if (audioRef.current && audioEnabled) {
-      // إجبار المتصفح على إعادة تحميل الملف وتشغيله
       audioRef.current.pause();
-      audioRef.current.load(); // مهم جداً لإعادة "تنشيط" الملف
+      audioRef.current.load();
       audioRef.current.currentTime = 0;
       
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(err => {
-          console.log("Audio play blocked. Browser needs interaction.");
-        });
+        playPromise.catch(err => console.log("Audio block context"));
       }
     }
 
     if ("Notification" in window && Notification.permission === "granted") {
       const n = new Notification("🔔 أوردر جديد وصل!", {
-        body: `العميل: ${order.customer?.name}\nالمبلغ: ${order.total} ج.م`,
-        icon: "/favicon.ico",
-        tag: "admin-order-alert", // يمنع تكرار نفس الإشعار
+        body: `العميل: ${order.customer?.name} | ج.م ${order.total}`,
+        icon: "/mall-logo.png",
+        tag: "admin-alert",
         requireInteraction: true,
-        vibrate: [200, 100, 200, 100, 400]
+        vibrate: [200, 100, 200]
       });
       n.onclick = () => { window.focus(); n.close(); };
     }
@@ -113,14 +121,7 @@ export default function AdminPage() {
 
   const distributeOrder = (order, shopName) => {
     const items = order.items[shopName];
-    const date = order.orderDate || "---";
-    const time = order.orderTime || "---";
-
-    let msg = `*📦 طلب جديد - ميني طلبات*\n`;
-    msg += `*🧾 #${order.invoiceRef}*\n`;
-    msg += `*👤 العميل:* ${order.customer?.name}\n`;
-    msg += `*📞 الهاتف:* ${order.customer?.phone}\n`;
-    msg += `*🛒 متجر: ${shopName}*\n\n`;
+    let msg = `*📦 طلب جديد - ميني طلبات*\n*🧾 #${order.invoiceRef}*\n*👤 العميل:* ${order.customer?.name}\n*📞 الهاتف:* ${order.customer?.phone}\n*🛒 متجر: ${shopName}*\n\n`;
     
     let shopTotal = 0;
     items.forEach(item => {
@@ -134,23 +135,11 @@ export default function AdminPage() {
   };
 
   if (!isClient) return null;
-  // أضف هذا الجزء داخل دالة AdminPage قبل الـ return
-useEffect(() => {
-  // كود برمجي لتغيير المانيفست ديناميكياً لهذه الصفحة فقط
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = '/admin.webmanifest'; // الملف الجديد اللي عملناه
-  document.head.appendChild(link);
-  
-  return () => {
-    // تنظيف عند الخروج من الصفحة حتى لا يؤثر على باقي الموقع
-    document.head.removeChild(link);
-  };
-}, []);
 
-            return (
+              return (
     <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", paddingBottom: "80px" }}>
-      {/* تأكد أن ملف الصوت في فولدر public باسم notification.mp3 */}
+      
+      {/* سطر الصوت - تم إضافة preload لضمان الجاهزية */}
       <audio ref={audioRef} src="/notification.mp3" preload="auto" loop={false} />
 
       {/* 1. أزرار الأكشن العلوية (تفعيل الصوت + تثبيت التطبيق) */}
@@ -160,13 +149,16 @@ useEffect(() => {
             style={{ backgroundColor: "#FF6600", color: "#000", padding: "15px", borderRadius: "18px", textAlign: "center", fontWeight: "900", cursor: "pointer", boxShadow: "0 8px 20px rgba(255,102,0,0.4)", border: "2px solid #fff" }} 
             onClick={() => { 
               if(audioRef.current) {
-                // تفعيل الصوت من خلال تشغيل صامت وسريع لفك حظر المتصفح
+                // تفعيل الصوت: نقوم بتشغيل صامت سريع لكسر حظر المتصفح
                 audioRef.current.play().then(() => {
                   audioRef.current.pause();
                   audioRef.current.currentTime = 0;
                   setAudioEnabled(true);
-                  alert("✅ تم تفعيل التنبيهات الصوتية");
-                }).catch(err => alert("يرجى المحاولة مرة أخرى لتفعيل الصوت"));
+                  alert("✅ تم تفعيل التنبيهات الصوتية بنجاح");
+                }).catch(err => {
+                  console.error("Audio Activation Error:", err);
+                  alert("يرجى المحاولة مرة أخرى أو استخدام متصفح Chrome");
+                });
               }
             }}
           >
@@ -179,19 +171,18 @@ useEffect(() => {
             style={{ backgroundColor: "#007bff", color: "#fff", padding: "12px", borderRadius: "15px", textAlign: "center", fontWeight: "bold", cursor: "pointer", boxShadow: "0 5px 15px rgba(0,123,255,0.3)" }} 
             onClick={handleInstallApp}
           >
-            📲 تثبيت لوحة الإدارة (تطبيق)
+            📲 تثبيت لوحة الإدارة (تطبيق مستقل)
           </div>
         )}
       </div>
 
-      {/* 2. الهيدر المطور مع العداد اللحظي */}
+      {/* 2. الهيدر مع العداد اللحظي */}
       <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ color: "#FF6600", margin: 0, fontSize: "24px", fontWeight: "900", letterSpacing: "-1px" }}>لوحة التحكم 🛡️</h1>
-            <p style={{ color: "#555", fontSize: "12px", margin: 0 }}>متابعة الطلبات لحظياً</p>
+            <p style={{ color: "#555", fontSize: "12px", margin: 0 }}>تحديث لحظي للطلبات</p>
           </div>
-          {/* عداد الأوردرات اللحظي */}
           <div style={{ textAlign: "center", backgroundColor: "#1a1c1e", padding: "10px 20px", borderRadius: "15px", border: "1px solid #2d3035" }}>
             <div style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50", lineHeight: "1" }}>{orders.length}</div>
             <div style={{ fontSize: "10px", color: "#888", marginTop: "5px" }}>طلب نشط</div>
@@ -199,10 +190,10 @@ useEffect(() => {
         </div>
       </header>
 
-      {/* 3. قائمة الطلبات */}
+      {/* 3. قائمة الطلبات المحدثة */}
       <div style={{ display: "grid", gap: "25px" }}>
         {orders.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "50px", color: "#444" }}>لا توجد طلبات حالياً..</div>
+          <div style={{ textAlign: "center", padding: "50px", color: "#444" }}>لا توجد طلبات حالياً في الانتظار..</div>
         ) : (
           orders.map((order) => (
             <div key={order.id} style={{ 
@@ -210,36 +201,31 @@ useEffect(() => {
               boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
             }}>
               
-              {/* شريط معلومات الفاتورة */}
+                          {/* إكمال قائمة الطلبات من حيث توقفنا */}
               <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px", borderBottom: "1px solid #25282b" }}>
                 <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef}</span>
                 <span style={{ color: "#aaa" }}>{order.orderTime} | {order.orderDate}</span>
               </div>
 
               <div style={{ padding: "20px" }}>
-                {/* بيانات العميل وأزرار التواصل الضخمة */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                   <div style={{ flex: 1 }}>
                     <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff", fontWeight: "bold" }}>{order.customer?.name}</h3>
                     <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>📍 {order.customer?.address}</p>
                   </div>
                   <div style={{ display: "flex", gap: "12px" }}>
-                    {/* زر اتصال العميل */}
                     <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "15px", fontSize: "20px", boxShadow: "0 4px 10px rgba(40,167,69,0.3)" }}>📞</a>
-                    {/* زر لوكيشن العميل */}
                     {order.location && (
                       <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "15px", fontSize: "20px", boxShadow: "0 4px 10px rgba(0,123,255,0.3)" }}>📍</a>
                     )}
                   </div>
                 </div>
 
-                {/* تفاصيل المتاجر داخل الأوردر */}
                 <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
                   {Object.keys(order.items || {}).map((shopName) => (
                     <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "15px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                         <span style={{ fontSize: "15px", fontWeight: "bold", color: "#FF6600" }}>🏪 {shopName}</span>
-                        {/* زر واتساب المتجر */}
                         <button 
                           onClick={() => distributeOrder(order, shopName)} 
                           style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "12px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}
@@ -257,14 +243,12 @@ useEffect(() => {
                   ))}
                 </div>
 
-                {/* الإجمالي */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", padding: "0 5px" }}>
                   <span style={{ fontSize: "16px", color: "#888" }}>إجمالي الحساب:</span>
                   <span style={{ fontSize: "26px", fontWeight: "900", color: "#FF6600" }}>{order.total} <small style={{ fontSize: "14px" }}>ج.م</small></span>
                 </div>
               </div>
 
-              {/* أزرار الحالة والحذف */}
               <div style={{ display: "flex", gap: "2px", backgroundColor: "#25282b", borderTop: "1px solid #25282b" }}>
                 <button 
                   onClick={() => deleteOrder(order.id)} 
