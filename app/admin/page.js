@@ -7,31 +7,34 @@ export default function AdminPage() {
   const [orders, setOrders] = useState([]);
   const [isClient, setIsClient] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState(null); // للتحكم في رسالة التثبيت
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
   const audioRef = useRef(null);
-  const lastOrderCount = useRef(0);
+  const ordersCountRef = useRef(0); // مرجع لعدد الأوردرات لمنع توقف التحديث
 
   useEffect(() => {
     setIsClient(true);
     
-    // 1. طلب إذن الإشعارات
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.permission !== "denied" && Notification.requestPermission();
+    // 1. طلب إذن الإشعارات فوراً
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
     }
 
-    // 2. منطق تثبيت التطبيق (Install Prompt)
+    // 2. منطق الـ PWA - التقاط رسالة التثبيت
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      console.log("PWA Install Prompt Ready");
     };
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
+  // 3. الربط اللحظي القوي بـ Firebase
   useEffect(() => {
     const ordersRef = query(ref(db, 'orders'));
     
+    // استخدام onValue بدون تبعيات (dependencies) خارجية لضمان البقاء حياً
     const unsubscribe = onValue(ordersRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -40,46 +43,51 @@ export default function AdminPage() {
           ...data[id]
         })).reverse();
 
-        // اكتشاف الأوردر الجديد وتشغيل التنبيه
-        if (lastOrderCount.current !== 0 && orderList.length > lastOrderCount.current) {
-          handleNewOrderNotification(orderList[0]);
+        // فحص وجود أوردر جديد (مقارنة بالمرجع وليس بالـ state)
+        if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
+          const newestOrder = orderList[0];
+          handleNewOrderNotification(newestOrder);
         }
         
         setOrders(orderList);
-        lastOrderCount.current = orderList.length;
+        ordersCountRef.current = orderList.length;
       } else {
         setOrders([]);
-        lastOrderCount.current = 0;
+        ordersCountRef.current = 0;
       }
+    }, (error) => {
+      console.error("Firebase Sync Error:", error);
     });
 
     return () => unsubscribe();
-  }, [orders.length]);
+  }, []); // مصفوفة فارغة لضمان عمل الـ Listener مرة واحدة وبقائه حياً
 
-  // دالة تثبيت التطبيق
   const handleInstallApp = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") setDeferredPrompt(null);
+    } else {
+      alert("التطبيق مثبت بالفعل أو المتصفح لا يدعم التثبيت حالياً");
     }
   };
 
   const handleNewOrderNotification = (order) => {
-    // تشغيل الصوت (يجب أن يكون قد تم تفعيله بالضغط أولاً)
+    // تشغيل الصوت - تأكد من الضغط على زر التفعيل أولاً
     if (audioRef.current && audioEnabled) {
+      audioRef.current.muted = false;
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(err => console.log("الصوت محجوب"));
+      audioRef.current.play().catch(err => console.log("Audio play blocked by browser policies"));
     }
 
-    // إشعار النظام المتقدم
+    // إشعار النظام الملحوظ
     if ("Notification" in window && Notification.permission === "granted") {
-      const n = new Notification("🚀 طلب جديد في ميني طلبات", {
-        body: `العميل: ${order.customer?.name} \nالإجمالي: ${order.total} ج.م`,
+      const n = new Notification("🔔 أوردر جديد: ميني طلبات", {
+        body: `العميل: ${order.customer?.name}\nالقيمة: ${order.total} ج.م`,
         icon: "/favicon.ico",
-        tag: "admin-notify",
-        requireInteraction: true, // يظل الإشعار ثابتاً حتى تفتحه
-        vibrate: [200, 100, 200]
+        tag: "new-order-alert",
+        requireInteraction: true, // الإشعار لا يختفي إلا بالضغط عليه
+        vibrate: [300, 100, 300]
       });
       n.onclick = () => { window.focus(); n.close(); };
     }
@@ -120,24 +128,32 @@ export default function AdminPage() {
       msg += `• ${item.name} (${item.quantity}) = ${total} ج\n`;
     });
     
-    msg += `\n*💰 المطلوب: ${shopTotal} ج.م*`;
+    msg += `\n*💰 المطلوب تحصيله: ${shopTotal} ج.م*`;
+    msg += `\n*━━━━━━━━━━━━━━*`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   if (!isClient) return null;
 
-        return (
-    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", pb: "50px" }}>
+          return (
+    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", paddingBottom: "80px" }}>
       <audio ref={audioRef} src="/notification.mp3" preload="auto" loop={false} />
 
-      {/* 1. تنبيه تفعيل الصوت + رسالة التثبيت كتطبيق */}
-      <div style={{ position: "sticky", top: "10px", zIndex: 110, display: "flex", flexDirection: "column", gap: "10px" }}>
+      {/* 1. أزرار الأكشن العلوية (تفعيل الصوت + تثبيت التطبيق) */}
+      <div style={{ position: "sticky", top: "10px", zIndex: 110, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "15px" }}>
         {!audioEnabled && (
           <div 
-            style={{ backgroundColor: "#FF6600", color: "#000", padding: "12px", borderRadius: "15px", textAlign: "center", fontWeight: "bold", cursor: "pointer", boxShadow: "0 5px 15px rgba(255,102,0,0.3)" }} 
-            onClick={() => { audioRef.current.play(); audioRef.current.pause(); setAudioEnabled(true); }}
+            style={{ backgroundColor: "#FF6600", color: "#000", padding: "15px", borderRadius: "18px", textAlign: "center", fontWeight: "900", cursor: "pointer", boxShadow: "0 8px 20px rgba(255,102,0,0.4)", border: "2px solid #fff" }} 
+            onClick={() => { 
+              if(audioRef.current) {
+                audioRef.current.play().then(() => {
+                  audioRef.current.pause();
+                  setAudioEnabled(true);
+                });
+              }
+            }}
           >
-            🔔 اضغط لتفعيل صوت التنبيهات
+            🔔 اضغط هنا لتفعيل صوت التنبيهات
           </div>
         )}
 
@@ -146,108 +162,110 @@ export default function AdminPage() {
             style={{ backgroundColor: "#007bff", color: "#fff", padding: "12px", borderRadius: "15px", textAlign: "center", fontWeight: "bold", cursor: "pointer", boxShadow: "0 5px 15px rgba(0,123,255,0.3)" }} 
             onClick={handleInstallApp}
           >
-            📲 تثبيت لوحة الإدارة كتطبيق
+            📲 تثبيت لوحة الإدارة (تطبيق)
           </div>
         )}
       </div>
 
-      {/* 2. الهيدر مع العداد الذكي */}
-      <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "20px", marginTop: "10px" }}>
+      {/* 2. الهيدر المطور مع العداد اللحظي */}
+      <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h1 style={{ color: "#FF6600", margin: 0, fontSize: "20px", fontWeight: "900" }}>لوحة التحكم 🛡️</h1>
-            <p style={{ color: "#555", fontSize: "11px", margin: 0 }}>ميني طلبات - الإدارة</p>
+            <h1 style={{ color: "#FF6600", margin: 0, fontSize: "24px", fontWeight: "900", letterSpacing: "-1px" }}>لوحة التحكم 🛡️</h1>
+            <p style={{ color: "#555", fontSize: "12px", margin: 0 }}>متابعة الطلبات لحظياً</p>
           </div>
-          <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: "18px", fontWeight: "bold", color: "#fff" }}>{orders.length}</div>
-            <div style={{ fontSize: "9px", color: "#4caf50", fontWeight: "bold" }}>أوردر نشط ●</div>
+          <div style={{ textAlign: "center", backgroundColor: "#1a1c1e", padding: "10px 20px", borderRadius: "15px", border: "1px solid #2d3035" }}>
+            <div style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50", lineHeight: "1" }}>{orders.length}</div>
+            <div style={{ fontSize: "10px", color: "#888", marginTop: "5px" }}>طلب نشط</div>
           </div>
         </div>
       </header>
 
-      {/* 3. عرض الطلبات */}
-      <div style={{ display: "grid", gap: "20px" }}>
-        {orders.map((order) => (
-          <div key={order.id} style={{ 
-            backgroundColor: "#16181a", borderRadius: "25px", border: `1px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, 
-            boxShadow: "0 10px 30px rgba(0,0,0,0.5)", overflow: "hidden", transition: "all 0.3s" 
-          }}>
-            
-            {/* بار الحالة والوقت */}
-            <div style={{ backgroundColor: "#1e2124", padding: "10px 20px", display: "flex", justifyContent: "space-between", fontSize: "11px", borderBottom: "1px solid #25282b" }}>
-              <span style={{ color: "#FF6600", fontWeight: "bold" }}>#{order.invoiceRef}</span>
-              <span style={{ color: "#888" }}>{order.orderTime} | {order.orderDate}</span>
-            </div>
-
-            <div style={{ padding: "20px" }}>
-              {/* بيانات العميل وأزرار التواصل السريع */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: "0 0 5px 0", fontSize: "18px", color: "#fff" }}>{order.customer?.name}</h3>
-                  <p style={{ margin: 0, fontSize: "13px", color: "#aaa" }}>🏠 {order.customer?.address}</p>
-                </div>
-                {/* أزرار الاتصال واللوكيشن - واضحة جداً */}
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#007bff20", padding: "12px", borderRadius: "18px", border: "1px solid #007bff40", fontSize: "18px" }}>📞</a>
-                  {order.location && (
-                    <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#dc354520", padding: "12px", borderRadius: "18px", border: "1px solid #dc354540", fontSize: "18px" }}>📍</a>
-                  )}
-                </div>
+      {/* 3. قائمة الطلبات */}
+      <div style={{ display: "grid", gap: "25px" }}>
+        {orders.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "50px", color: "#444" }}>لا توجد طلبات حالياً..</div>
+        ) : (
+          orders.map((order) => (
+            <div key={order.id} style={{ 
+              backgroundColor: "#16181a", borderRadius: "30px", border: `2px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, 
+              boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
+            }}>
+              
+              {/* شريط معلومات الفاتورة */}
+              <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px", borderBottom: "1px solid #25282b" }}>
+                <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef}</span>
+                <span style={{ color: "#aaa" }}>{order.orderTime} | {order.orderDate}</span>
               </div>
 
-              {/* تفاصيل المتاجر والأصناف */}
-              <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
-                {Object.keys(order.items || {}).map((shopName) => (
-                  <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "15px", lastChild: { borderBottom: "none" } }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                      <span style={{ fontSize: "14px", fontWeight: "bold", color: "#eee" }}>🏪 {shopName}</span>
-                      {/* زرار واتساب المتجر */}
-                      <button 
-                        onClick={() => distributeOrder(order, shopName)} 
-                        style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "6px 15px", borderRadius: "10px", fontSize: "10px", fontWeight: "bold", boxShadow: "0 3px 10px rgba(37,211,102,0.2)" }}
-                      >
-                        ارسال واتساب
-                      </button>
-                    </div>
-                    {order.items[shopName].map((item, i) => (
-                      <div key={i} style={{ fontSize: "12px", color: "#ccc", display: "flex", justifyContent: "space-between", backgroundColor: "#16181a", padding: "6px 10px", borderRadius: "8px", marginBottom: "4px" }}>
-                        <span>{item.name} <b style={{ color: "#FF6600" }}>×{item.quantity}</b></span>
-                        <span style={{ color: "#888" }}>{item.price * item.quantity} ج</span>
-                      </div>
-                    ))}
+              <div style={{ padding: "20px" }}>
+                {/* بيانات العميل وأزرار الاتصال الضخمة */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff", fontWeight: "bold" }}>{order.customer?.name}</h3>
+                    <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>📍 {order.customer?.address}</p>
                   </div>
-                ))}
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "15px", fontSize: "20px", boxShadow: "0 4px 10px rgba(40,167,69,0.3)" }}>📞</a>
+                    {order.location && (
+                      <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "15px", fontSize: "20px", boxShadow: "0 4px 10px rgba(0,123,255,0.3)" }}>📍</a>
+                    )}
+                  </div>
+                </div>
+
+                {/* المتاجر والطلبات */}
+                <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
+                  {Object.keys(order.items || {}).map((shopName) => (
+                    <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "15px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                        <span style={{ fontSize: "15px", fontWeight: "bold", color: "#FF6600" }}>🏪 {shopName}</span>
+                        <button 
+                          onClick={() => distributeOrder(order, shopName)} 
+                          style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "12px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}
+                        >
+                          إرسال للمتجر ✅
+                        </button>
+                      </div>
+                      {order.items[shopName].map((item, i) => (
+                        <div key={i} style={{ fontSize: "13px", color: "#ddd", display: "flex", justifyContent: "space-between", backgroundColor: "#16181a", padding: "8px 12px", borderRadius: "10px", marginBottom: "5px" }}>
+                          <span>{item.name} <b style={{ color: "#FF6600" }}>×{item.quantity}</b></span>
+                          <span style={{ color: "#aaa" }}>{item.price * item.quantity} ج</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                {/* الإجمالي الكبير */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", padding: "0 5px" }}>
+                  <span style={{ fontSize: "16px", color: "#888" }}>المطلوب تحصيله:</span>
+                  <span style={{ fontSize: "26px", fontWeight: "900", color: "#FF6600" }}>{order.total} <small style={{ fontSize: "14px" }}>ج.م</small></span>
+                </div>
               </div>
 
-              {/* الإجمالي */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", padding: "0 5px" }}>
-                <span style={{ fontSize: "14px", color: "#888" }}>إجمالي الفاتورة:</span>
-                <span style={{ fontSize: "22px", fontWeight: "900", color: "#FF6600" }}>{order.total} <small style={{ fontSize: "12px" }}>ج.م</small></span>
+              {/* أزرار الإدارة السفلية */}
+              <div style={{ display: "flex", gap: "2px", backgroundColor: "#25282b" }}>
+                <button 
+                  onClick={() => deleteOrder(order.id)} 
+                  style={{ flex: 1, padding: "20px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontSize: "13px", fontWeight: "bold" }}
+                >
+                  حذف 🗑️
+                </button>
+                <button 
+                  onClick={() => toggleStatus(order.id, order.status)} 
+                  style={{ 
+                    flex: 2, padding: "20px", 
+                    backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", 
+                    color: order.status === 'completed' ? "#4caf50" : "#000", 
+                    border: "none", fontSize: "14px", fontWeight: "900" 
+                  }}
+                >
+                  {order.status === 'completed' ? 'تم التوصيل ✅ (تراجع؟)' : 'تحديد كمكتمل ✅'}
+                </button>
               </div>
             </div>
-
-            {/* أزرار الأكشن السفلية */}
-            <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b", borderTop: "1px solid #25282b" }}>
-              <button 
-                onClick={() => deleteOrder(order.id)} 
-                style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontSize: "12px", fontWeight: "bold" }}
-              >
-                حذف 🗑️
-              </button>
-              <button 
-                onClick={() => toggleStatus(order.id, order.status)} 
-                style={{ 
-                  flex: 2, padding: "18px", 
-                  backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", 
-                  color: order.status === 'completed' ? "#4caf50" : "#000", 
-                  border: "none", fontSize: "13px", fontWeight: "bold" 
-                }}
-              >
-                {order.status === 'completed' ? 'مكتمل ✅ (تراجع؟)' : 'تحديد كمكتمل ✅'}
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
