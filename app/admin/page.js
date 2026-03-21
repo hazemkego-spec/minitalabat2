@@ -134,6 +134,19 @@ export default function AdminPage() {
   };
 
   if (!isClient) return null;
+  // أضف هذا الجزء داخل دالة AdminPage قبل الـ return
+useEffect(() => {
+  // كود برمجي لتغيير المانيفست ديناميكياً لهذه الصفحة فقط
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = '/admin.webmanifest'; // الملف الجديد اللي عملناه
+  document.head.appendChild(link);
+  
+  return () => {
+    // تنظيف عند الخروج من الصفحة حتى لا يؤثر على باقي الموقع
+    document.head.removeChild(link);
+  };
+}, []);
 
             return (
     <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", paddingBottom: "80px" }}>
