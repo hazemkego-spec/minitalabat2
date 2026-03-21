@@ -1,26 +1,26 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { db } from "../../lib/firebase"; 
-import { ref, onValue, update, remove, offset, limitToLast, query } from "firebase/database";
+import { ref, onValue, update, remove, query, limitToLast } from "firebase/database";
 
 export default function AdminPage() {
   const [orders, setOrders] = useState([]);
   const [isClient, setIsClient] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const audioRef = useRef(null);
-  const lastOrderCount = useRef(0);
+  const isFirstRun = useRef(true);
 
   useEffect(() => {
     setIsClient(true);
-    // طلب إذن الإشعارات
-    if ("Notification" in window && Notification.permission !== "granted") {
+    // طلب إذن الإشعارات بشكل صريح
+    if ("Notification" in window) {
       Notification.requestPermission();
     }
   }, []);
 
   useEffect(() => {
-    // استعلام لجلب الأوردرات مع التأكد من التحديث اللحظي
-    const ordersRef = query(ref(db, 'orders'));
+    // اتصال "قوي" بـ Firebase يضمن التحديث بدون ريفريش
+    const ordersRef = ref(db, 'orders');
     
     const unsubscribe = onValue(ordersRef, (snapshot) => {
       const data = snapshot.val();
@@ -30,139 +30,86 @@ export default function AdminPage() {
           ...data[id]
         })).reverse();
 
-        // اكتشاف الأوردر الجديد حتى والصفحة في الخلفية
-        if (lastOrderCount.current !== 0 && orderList.length > lastOrderCount.current) {
-          handleNewOrderNotification(orderList[0]);
+        // التنبيه فقط عند دخول أوردر جديد فعلاً
+        if (!isFirstRun.current && orderList.length > orders.length) {
+          triggerAlarm(orderList[0]);
         }
         
         setOrders(orderList);
-        lastOrderCount.current = orderList.length;
-      } else {
-        setOrders([]);
-        lastOrderCount.current = 0;
+        isFirstRun.current = false;
       }
-    }, (error) => {
-      console.error("Firebase Connection Error:", error);
-      // محاولة إعادة الاتصال بعد 5 ثواني لو حصل فصل
-      setTimeout(() => window.location.reload(), 5000);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [orders.length]);
 
-  const handleNewOrderNotification = (order) => {
-    // 1. تشغيل الصوت (يعمل فقط لو المستخدم ضغط على أي زرار في الصفحة أول ما فتح)
+  const triggerAlarm = (order) => {
+    // تشغيل الصوت
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(err => console.log("Audio play blocked by browser"));
+      audioRef.current.play().catch(() => console.log("بانتظار تفاعل المستخدم لتشغيل الصوت"));
     }
 
-    // 2. إشعار النظام (يعمل في الخلفية)
+    // إشعار النظام (يظهر في الخلفية)
     if ("Notification" in window && Notification.permission === "granted") {
-      const n = new Notification("🚨 طلب جديد مستعجل!", {
-        body: `العميل: ${order.customer?.name}\nالحساب: ${order.total} ج.م`,
-        tag: "new-order", // لمنع تكرار الإشعارات
-        requireInteraction: true // يخلي الإشعار ميفضلش موجود لحد ما تقفله
+      new Notification("🔔 أوردر جديد وصل!", {
+        body: `العميل: ${order.customer?.name}\nالمبلغ: ${order.total} ج.م`,
+        tag: "new-order",
+        requireInteraction: true,
+        vibrate: [200, 100, 200]
       });
-      n.onclick = () => {
-        window.focus();
-        n.close();
-      };
     }
   };
 
-  const toggleStatus = async (orderId, currentStatus) => {
-    const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
-    await update(ref(db, `orders/${orderId}`), { status: newStatus });
-  };
-
-  const deleteOrder = async (orderId) => {
-    if (window.confirm("حذف الأوردر ده نهائياً؟")) {
-      await remove(ref(db, `orders/${orderId}`));
-    }
-  };
-
-  const distributeOrder = (order, shopName) => {
-    const items = order.items[shopName];
-    let msg = `*📦 طلب جديد - ميني طلبات*\n*🧾 #${order.invoiceRef}*\n*👤 العميل:* ${order.customer?.name}\n*📞 ${order.customer?.phone}*\n*🏠 ${order.customer?.address}*\n*🛒 متجر: ${shopName}*\n\n`;
-    items.forEach(item => msg += `• ${item.name} (${item.quantity})\n`);
-    msg += `\n*💰 المطلوب: ${order.total} ج.م*`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+  const toggleStatus = async (id, current) => {
+    await update(ref(db, `orders/${id}`), { status: current === 'completed' ? 'pending' : 'completed' });
   };
 
   if (!isClient) return null;
 
   return (
-    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif" }}>
-      <audio ref={audioRef} src="/notification.mp3" preload="auto" loop={false} />
+    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#fff", padding: "15px" }}>
+      <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
-      {/* تنبيه تفعيل الصوت - ضروري جداً للمتصفحات */}
+      {/* زر ضروري لإعطاء المتصفح إذن الصوت */}
       {!audioEnabled && (
-        <div style={{ backgroundColor: "#FF6600", color: "#000", padding: "10px", borderRadius: "10px", textAlign: "center", marginBottom: "15px", fontWeight: "bold", cursor: "pointer" }} 
-             onClick={() => { audioRef.current.play(); audioRef.current.pause(); setAudioEnabled(true); }}>
-          اضغط هنا لتفعيل صوت التنبيهات 🔔
-        </div>
+        <button 
+          onClick={() => { audioRef.current.play(); audioRef.current.pause(); setAudioEnabled(true); }}
+          style={{ width: "100%", padding: "15px", backgroundColor: "#FF6600", border: "none", borderRadius: "12px", color: "#000", fontWeight: "bold", marginBottom: "20px" }}
+        >
+          تنشيط نظام التنبيه الصوتي 🔔 (اضغط هنا)
+        </button>
       )}
 
-      <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "10px 0", borderBottom: "1px solid #1e2022", marginBottom: "20px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h1 style={{ color: "#FF6600", margin: 0, fontSize: "20px", fontWeight: "900" }}>لوحة التحكم 🛡️</h1>
-          <div style={{ fontSize: "12px", color: audioEnabled ? "#4caf50" : "#ff4444" }}>
-            {audioEnabled ? "النظام جاهز ●" : "الصوت معطل ✖"}
-          </div>
-        </div>
+      <header style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", borderBottom: "1px solid #222", paddingBottom: "10px" }}>
+        <h1 style={{ fontSize: "20px", color: "#FF6600" }}>لوحة التحكم 🛡️</h1>
+        <div style={{ fontSize: "12px" }}>إجمالي الأوردرات: {orders.length}</div>
       </header>
 
       <div style={{ display: "grid", gap: "15px" }}>
         {orders.map((order) => (
-          <div key={order.id} style={{ backgroundColor: "#16181a", borderRadius: "20px", border: `1px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, overflow: "hidden" }}>
-            <div style={{ backgroundColor: "#1e2124", padding: "10px 15px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
-              <span style={{ color: "#FF6600", fontWeight: "bold" }}>#{order.invoiceRef}</span>
-              <span>{order.orderTime} | {order.orderDate}</span>
-            </div>
-
+          <div key={order.id} style={{ backgroundColor: "#16181a", borderRadius: "20px", border: "1px solid #25282b", overflow: "hidden" }}>
             <div style={{ padding: "15px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: "0", fontSize: "16px" }}>{order.customer?.name}</h3>
-                  <p style={{ margin: "5px 0", fontSize: "12px", color: "#aaa" }}>📍 {order.customer?.address}</p>
-                  <p style={{ margin: "0", fontSize: "13px", color: "#FF6600" }}>📞 {order.customer?.phone}</p>
-                </div>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <a href={`tel:${order.customer?.phone}`} style={{ backgroundColor: "#007bff20", padding: "10px", borderRadius: "12px", border: "1px solid #007bff40", textDecoration: "none" }}>📞</a>
-                  {order.location && <a href={order.location} target="_blank" style={{ backgroundColor: "#dc354520", padding: "10px", borderRadius: "12px", border: "1px solid #dc354540", textDecoration: "none" }}>📍</a>}
-                </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "#FF6600", fontWeight: "bold" }}>#{order.invoiceRef}</span>
+                <span style={{ fontSize: "11px", color: "#888" }}>{order.orderTime}</span>
               </div>
-
-              <div style={{ backgroundColor: "#0b0c0d", borderRadius: "15px", padding: "10px", border: "1px solid #1e2022" }}>
-                {Object.keys(order.items || {}).map((shopName) => (
-                  <div key={shopName} style={{ marginBottom: "10px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-                      <span style={{ fontSize: "13px", fontWeight: "bold" }}>🏪 {shopName}</span>
-                      <button onClick={() => distributeOrder(order, shopName)} style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "4px 10px", borderRadius: "8px", fontSize: "10px" }}>WhatsApp</button>
-                    </div>
-                    {order.items[shopName].map((item, i) => (
-                      <div key={i} style={{ fontSize: "11px", color: "#ccc", display: "flex", justifyContent: "space-between" }}>
-                        <span>{item.name} × {item.quantity}</span>
-                        <span>{item.price * item.quantity} ج</span>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", fontWeight: "bold" }}>
-                <span style={{ color: "#888" }}>الإجمالي:</span>
-                <span style={{ color: "#FF6600", fontSize: "18px" }}>{order.total} ج.م</span>
+              <h3 style={{ margin: "10px 0 5px" }}>{order.customer?.name}</h3>
+              <p style={{ fontSize: "13px", color: "#aaa", margin: "0" }}>📞 {order.customer?.phone}</p>
+              <p style={{ fontSize: "13px", color: "#aaa", margin: "5px 0" }}>📍 {order.customer?.address}</p>
+              
+              <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#000", borderRadius: "10px" }}>
+                <span style={{ fontSize: "12px", color: "#555" }}>الإجمالي:</span>
+                <div style={{ fontSize: "20px", fontWeight: "bold", color: "#FF6600" }}>{order.total} ج.م</div>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b" }}>
-              <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "12px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontSize: "11px" }}>حذف 🗑️</button>
-              <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "12px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontSize: "11px", fontWeight: "bold" }}>
-                {order.status === 'completed' ? 'مكتمل ✅ (تراجع؟)' : 'تحديد كمكتمل ✅'}
-              </button>
-            </div>
+            <button 
+              onClick={() => toggleStatus(order.id, order.status)}
+              style={{ width: "100%", padding: "12px", border: "none", backgroundColor: order.status === 'completed' ? "#1b5e20" : "#FF6600", color: "#fff", fontWeight: "bold" }}
+            >
+              {order.status === 'completed' ? 'تم التوصيل ✅' : 'تحديد كمكتمل'}
+            </button>
           </div>
         ))}
       </div>
