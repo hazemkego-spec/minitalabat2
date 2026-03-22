@@ -56,35 +56,44 @@ export default function AdminPage() {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 2. الربط اللحظي بـ Firebase (نسخة التحديث الفوري)
+    // 2. الربط اللحظي بـ Firebase (نسخة التحديث الفوري المارقة)
   useEffect(() => {
-    if (!isClient) return; // لا تبدأ الاتصال إلا إذا كنت في المتصفح
+    if (!isClient) return; 
 
+    console.log("🔄 جاري محاولة الاتصال بـ Firebase...");
     const ordersRef = ref(db, 'orders');
     
+    // استخدمنا مصفوفة التبعية [isClient] لضمان أن الاتصال يبدأ مرة واحدة فقط وبشكل سليم
     const unsubscribe = onValue(ordersRef, (snapshot) => {
+      console.log("📥 استلام بيانات جديدة من السيرفر!");
       const data = snapshot.val();
+      
       if (data) {
         const orderList = Object.keys(data).map(id => ({
           id, ...data[id]
         })).reverse();
 
-        // التنبيه عند وصول أوردر جديد فعلاً
+        // فحص وصول أوردر جديد (مقارنة بالعدد المخزن في الـ Ref)
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
+          console.log("🔔 اكتشاف أوردر جديد! جاري تشغيل التنبيه...");
           handleNewOrderNotification(orderList[0]);
         }
+        
         setOrders(orderList);
         ordersCountRef.current = orderList.length;
       } else {
+        console.log("📭 لا توجد طلبات في قاعدة البيانات");
         setOrders([]);
         ordersCountRef.current = 0;
       }
+    }, (error) => {
+      console.error("❌ خطأ في الاتصال بـ Firebase:", error);
     });
 
     return () => unsubscribe();
-  }, [isClient]); // الارتباط بـ isClient يضمن الفتح الصحيح للـ Listener
+  }, [isClient]); 
 
-  // 3. دالة التثبيت
+  // 3. دالة التثبيت (كما هي)
   const handleInstallApp = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -92,26 +101,38 @@ export default function AdminPage() {
     if (outcome === "accepted") setDeferredPrompt(null);
   };
 
-  // 4. دالة التنبيه (تأكيد الصوت والاشعارات)
+  // 4. دالة التنبيه (نسخة التشغيل الإجباري للصوت)
   const handleNewOrderNotification = (order) => {
-    // التحقق من حالة الصوت من الـ State أو الـ Storage مباشرة لكسر الكاش
-    const isAudioOk = audioEnabled || localStorage.getItem("adminAudioEnabled") === "true";
+    const isAudioSaved = localStorage.getItem("adminAudioEnabled") === "true";
     
-    if (audioRef.current && isAudioOk) {
+    // محاولة تشغيل الصوت مع كسر حماية المتصفح
+    if (audioRef.current && (audioEnabled || isAudioSaved)) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(e => console.log("Audio Play Blocked:", e));
+      
+      // الوعد (Promise) لضمان التشغيل حتى لو المتصفح معترض
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.warn("⚠️ تشغيل الصوت تلقائياً معطل بواسطة المتصفح، سيتم الاكتفاء بالإشعار.");
+        });
+      }
     }
 
+    // إرسال إشعار النظام (الاشعارات تعمل بشكل مستقل عن الصوت)
     if ("Notification" in window && Notification.permission === "granted") {
-      const n = new Notification("🔔 أوردر جديد وصل!", {
-        body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
-        icon: "/adminMT.png",
-        tag: "admin-new-order", 
-        requireInteraction: true,
-        vibrate: [200, 100, 200]
-      });
-      n.onclick = () => { window.focus(); n.close(); };
+      try {
+        const n = new Notification("🔔 أوردر جديد وصل!", {
+          body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
+          icon: "/adminMT.png",
+          tag: "admin-order-alert", 
+          requireInteraction: true,
+          vibrate: [200, 100, 200]
+        });
+        n.onclick = () => { window.focus(); n.close(); };
+      } catch (e) {
+        console.error("Notification Error:", e);
+      }
     }
   };
 
