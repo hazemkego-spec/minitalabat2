@@ -11,55 +11,57 @@ export default function AdminPage() {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
-  // 1. منطق التشغيل الأول وفصل الهوية تماماً عن تطبيق العميل
+  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW
   useEffect(() => {
     setIsClient(true);
     
+    // استعادة حالة الصوت المحفوظة
+    const savedAudio = localStorage.getItem("adminAudioEnabled");
+    if (savedAudio === "true") {
+      setAudioEnabled(true);
+    }
+
     if (typeof window !== "undefined") {
-      // أ- مسح أي Service Worker قديم مسيطر على النطاق (أهم خطوة)
+      // تسجيل الـ Service Worker لضمان عمل الإشعارات في الخلفية
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let registration of registrations) {
-            registration.unregister();
-          }
-        });
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Admin SW Registered!'))
+          .catch(err => console.log('SW Registration Failed', err));
       }
 
-      // ب- إزالة أي روابط مانيفست قديمة فوراً
+      // إزالة المانيفست القديم وربط الجديد المخصص للإدارة
       const oldManifests = document.querySelectorAll('link[rel="manifest"]');
       oldManifests.forEach(el => el.remove());
 
-      // ج- ربط المانيفست الجديد المخصص للإدارة وكسر الكاش بـ Timestamp
       const link = document.createElement('link');
       link.rel = 'manifest';
       link.href = `/admin.webmanifest?v=${Date.now()}`; 
       document.head.appendChild(link);
 
-      // د- تغيير عنوان التاب ولون الثيم لتمييز الإدارة
       document.title = "لوحة الإدارة 🛡️";
       let themeMeta = document.querySelector('meta[name="theme-color"]');
       if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
     }
 
-    // إذن الإشعارات
+    // طلب إذن الإشعارات إذا لم يتم منحه
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
 
-    // التقاط إشارة التثبيت (PWA Prompt)
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      console.log("Admin PWA: Ready with new identity");
     };
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 2. الربط اللحظي بـ Firebase
+  // 2. الربط اللحظي بـ Firebase (تم تحسينه للعمل الدائم بدون ريفريش)
   useEffect(() => {
     const ordersRef = ref(db, 'orders');
+    
+    // نترك مصفوفة التبعية فارغة [] لضمان بقاء الاتصال مفتوحاً دائماً
     const unsubscribe = onValue(ordersRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -67,6 +69,7 @@ export default function AdminPage() {
           id, ...data[id]
         })).reverse();
 
+        // تنبيه عند وصول أوردر جديد (مقارنة بالعدد المخزن)
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
           handleNewOrderNotification(orderList[0]);
         }
@@ -79,7 +82,7 @@ export default function AdminPage() {
     });
 
     return () => unsubscribe();
-  }, [audioEnabled]);
+  }, []); 
 
   // 3. دالة التثبيت
   const handleInstallApp = async () => {
@@ -89,9 +92,10 @@ export default function AdminPage() {
     if (outcome === "accepted") setDeferredPrompt(null);
   };
 
-  // 4. دالة التنبيه (تعديل أيقونة الإشعار لتطابق الهوية الجديدة)
+  // 4. دالة التنبيه (الصوت + الإشعار) مع حفظ حالة الصوت
   const handleNewOrderNotification = (order) => {
-    if (audioRef.current && audioEnabled) {
+    // قراءة الحالة اللحظية من الـ State لضمان التشغيل
+    if (audioRef.current && (audioEnabled || localStorage.getItem("adminAudioEnabled") === "true")) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => console.log("Audio play blocked"));
@@ -100,12 +104,25 @@ export default function AdminPage() {
     if ("Notification" in window && Notification.permission === "granted") {
       const n = new Notification("🔔 أوردر جديد وصل!", {
         body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
-        icon: "/adminMT.png", // تم التغيير للأيقونة الجديدة 🛡️
+        icon: "/adminMT.png",
         tag: "admin-new-order", 
         requireInteraction: true,
         vibrate: [200, 100, 200]
       });
       n.onclick = () => { window.focus(); n.close(); };
+    }
+  };
+
+  // 5. دالة تفعيل الصوت وحفظ الاختيار (تُستدعى عند الضغط على الزر)
+  const toggleAudioSystem = () => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setAudioEnabled(true);
+        localStorage.setItem("adminAudioEnabled", "true");
+        alert("✅ تم تفعيل التنبيهات الصوتية دائماً");
+      }).catch(() => alert("يرجى المحاولة مرة أخرى"));
     }
   };
 
