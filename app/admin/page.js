@@ -101,32 +101,36 @@ export default function AdminPage() {
     if (outcome === "accepted") setDeferredPrompt(null);
   };
 
-  // 4. دالة التنبيه (نسخة التشغيل الإجباري للصوت)
+    // 4. دالة التنبيه (نسخة التشغيل الإجباري للصوت والاشعارات)
   const handleNewOrderNotification = (order) => {
     const isAudioSaved = localStorage.getItem("adminAudioEnabled") === "true";
     
-    // محاولة تشغيل الصوت مع كسر حماية المتصفح
+    // 1. محاولة تشغيل الصوت مع "إيقاظ" المتصفح
     if (audioRef.current && (audioEnabled || isAudioSaved)) {
+      // سر الصنعة: التأكد أن الصوت ليس صامتاً وإعادة ضبطه
+      audioRef.current.muted = false; 
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       
-      // الوعد (Promise) لضمان التشغيل حتى لو المتصفح معترض
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.warn("⚠️ تشغيل الصوت تلقائياً معطل بواسطة المتصفح، سيتم الاكتفاء بالإشعار.");
+        playPromise.then(() => {
+          console.log("🔊 تم تشغيل صوت التنبيه بنجاح");
+        }).catch(error => {
+          console.warn("⚠️ المتصفح منع الصوت تلقائياً، جاري محاولة الهزاز كبديل:", error);
+          if (navigator.vibrate) navigator.vibrate([500, 200, 500]); // هزاز طويل لو الصوت فشل
         });
       }
     }
 
-    // إرسال إشعار النظام (الاشعارات تعمل بشكل مستقل عن الصوت)
+    // 2. إرسال إشعار النظام (يعمل بشكل مستقل وبقوة)
     if ("Notification" in window && Notification.permission === "granted") {
       try {
         const n = new Notification("🔔 أوردر جديد وصل!", {
           body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
           icon: "/adminMT.png",
           tag: "admin-order-alert", 
-          requireInteraction: true,
+          requireInteraction: true, // يظل الإشعار ثابتاً حتى يفتحه المدير
           vibrate: [200, 100, 200]
         });
         n.onclick = () => { window.focus(); n.close(); };
@@ -136,16 +140,18 @@ export default function AdminPage() {
     }
   };
 
-    // 5. دالة تفعيل الصوت وحفظ الاختيار (تُستدعى عند الضغط على الزر)
+  // 5. دالة تفعيل الصوت (كسر حماية المتصفح للأبد)
   const toggleAudioSystem = () => {
     if (audioRef.current) {
+      // لازم المتصفح يشوف "play" حقيقي من اليوزر عشان يسمح بالصوت لاحقاً
+      audioRef.current.muted = false;
       audioRef.current.play().then(() => {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
         setAudioEnabled(true);
-        localStorage.setItem("adminAudioEnabled", "true"); // حفظ الحالة لعدم الظهور مجدداً
-        alert("✅ تم تفعيل التنبيهات الصوتية دائماً");
-      }).catch(() => alert("يرجى المحاولة مرة أخرى أو الضغط على الشاشة أولاً"));
+        localStorage.setItem("adminAudioEnabled", "true"); 
+        alert("✅ تم تفعيل الصوت! اللوحة الآن جاهزة للتنبيه اللحظي 🛡️");
+      }).catch(() => alert("يرجى الضغط مرة أخرى للسماح بالصوت"));
     }
   };
 
