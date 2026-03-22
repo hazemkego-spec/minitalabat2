@@ -11,32 +11,34 @@ export default function AdminPage() {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
-  // 1. منطق التشغيل الأول وفصل المانيفست تماماً
+  // 1. منطق التشغيل الأول وفصل الهوية تماماً عن تطبيق العميل
   useEffect(() => {
-  setIsClient(true);
-  
-  if (typeof window !== "undefined") {
-    // 1. مسح أي Service Worker قديم مسيطر على الصفحة
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
-      });
-    }
+    setIsClient(true);
+    
+    if (typeof window !== "undefined") {
+      // أ- مسح أي Service Worker قديم مسيطر على النطاق (أهم خطوة)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
 
-    // 2. إزالة المانيفست القديم
-    const oldManifests = document.querySelectorAll('link[rel="manifest"]');
-    oldManifests.forEach(el => el.remove());
+      // ب- إزالة أي روابط مانيفست قديمة فوراً
+      const oldManifests = document.querySelectorAll('link[rel="manifest"]');
+      oldManifests.forEach(el => el.remove());
 
-    // 3. إضافة المانيفست الجديد مع "رقم نسخة" عشوائي لضمان التحديث
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = `/admin.webmanifest?v=${Math.random()}`; 
-    document.head.appendChild(link);
+      // ج- ربط المانيفست الجديد المخصص للإدارة وكسر الكاش بـ Timestamp
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = `/admin.webmanifest?v=${Date.now()}`; 
+      document.head.appendChild(link);
 
-      // تغيير عنوان التاب فوراً
+      // د- تغيير عنوان التاب ولون الثيم لتمييز الإدارة
       document.title = "لوحة الإدارة 🛡️";
+      let themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
     }
 
     // إذن الإشعارات
@@ -44,17 +46,18 @@ export default function AdminPage() {
       Notification.requestPermission();
     }
 
-    // التقاط إشارة التثبيت
+    // التقاط إشارة التثبيت (PWA Prompt)
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      console.log("Admin PWA: Ready with new identity");
     };
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 2. الربط اللحظي بـ Firebase (مبسط ومنظم)
+  // 2. الربط اللحظي بـ Firebase
   useEffect(() => {
     const ordersRef = ref(db, 'orders');
     const unsubscribe = onValue(ordersRef, (snapshot) => {
@@ -76,29 +79,28 @@ export default function AdminPage() {
     });
 
     return () => unsubscribe();
-  }, [audioEnabled]); // تحديث بسيط لضمان سماع الصوت
+  }, [audioEnabled]);
 
-  // 3. دالة التثبيت المحسنة
+  // 3. دالة التثبيت
   const handleInstallApp = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === "accepted") setDeferredPrompt(null);
   };
-  // 4. دالة التنبيه (الصوت + الإشعار)
+
+  // 4. دالة التنبيه (تعديل أيقونة الإشعار لتطابق الهوية الجديدة)
   const handleNewOrderNotification = (order) => {
-    // تشغيل الصوت
     if (audioRef.current && audioEnabled) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => console.log("Audio play blocked by browser"));
+      audioRef.current.play().catch(() => console.log("Audio play blocked"));
     }
 
-    // إرسال إشعار النظام
     if ("Notification" in window && Notification.permission === "granted") {
       const n = new Notification("🔔 أوردر جديد وصل!", {
         body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
-        icon: "/mall-logo.png", // تأكد من وجود اللوجو في فولدر public
+        icon: "/adminMT.png", // تم التغيير للأيقونة الجديدة 🛡️
         tag: "admin-new-order", 
         requireInteraction: true,
         vibrate: [200, 100, 200]
@@ -107,7 +109,7 @@ export default function AdminPage() {
     }
   };
 
-  // 5. التحكم في حالة الطلب (مكتمل / قيد الانتظار)
+    // 5. التحكم في حالة الطلب (مكتمل / قيد الانتظار)
   const toggleStatus = async (orderId, currentStatus) => {
     try {
       const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
@@ -152,38 +154,46 @@ export default function AdminPage() {
 
   if (!isClient) return null;
 
-    return (
+  return (
     <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", paddingBottom: "80px" }}>
       
-      {/* 1. ملف الصوت - تفعيل التحميل المسبق */}
+      {/* ملف الصوت */}
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
       {/* 2. أزرار الأكشن (تفعيل الصوت + التثبيت) */}
       <div style={{ position: "sticky", top: "10px", zIndex: 110, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "15px" }}>
         {!audioEnabled && (
           <div 
-            style={{ backgroundColor: "#FF6600", color: "#000", padding: "15px", borderRadius: "18px", textAlign: "center", fontWeight: "900", cursor: "pointer", boxShadow: "0 8px 20px rgba(255,102,0,0.4)", border: "2px solid #fff" }} 
+            style={{ 
+              backgroundColor: "#FF6600", color: "#000", padding: "15px", borderRadius: "18px", 
+              textAlign: "center", fontWeight: "900", cursor: "pointer", 
+              boxShadow: "0 8px 20px rgba(255,102,0,0.4)", border: "2px solid rgba(255,255,255,0.2)" 
+            }} 
             onClick={() => { 
               if(audioRef.current) {
                 audioRef.current.play().then(() => {
                   audioRef.current.pause();
                   audioRef.current.currentTime = 0;
                   setAudioEnabled(true);
-                  alert("✅ تم تفعيل التنبيهات الصوتية");
+                  alert("✅ تم تفعيل التنبيهات الصوتية للإدارة");
                 }).catch(() => alert("يرجى الضغط مرة أخرى لتفعيل الصوت"));
               }
             }}
           >
-            🔔 تفعيل صوت التنبيهات
+            🔔 تفعيل تنبيهات الإدارة 🛡️
           </div>
         )}
 
         {deferredPrompt && (
           <div 
-            style={{ backgroundColor: "#007bff", color: "#fff", padding: "12px", borderRadius: "15px", textAlign: "center", fontWeight: "bold", cursor: "pointer", boxShadow: "0 5px 15px rgba(0,123,255,0.3)" }} 
+            style={{ 
+              backgroundColor: "#1a73e8", color: "#fff", padding: "12px", borderRadius: "15px", 
+              textAlign: "center", fontWeight: "bold", cursor: "pointer", 
+              boxShadow: "0 5px 15px rgba(26,115,232,0.3)", border: "1px solid rgba(255,255,255,0.1)" 
+            }} 
             onClick={handleInstallApp}
           >
-            📲 تثبيت تطبيق الإدارة
+            📲 تثبيت لوحة الإدارة (منفصل)
           </div>
         )}
       </div>
