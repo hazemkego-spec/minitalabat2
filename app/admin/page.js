@@ -13,18 +13,27 @@ export default function AdminPage() {
 
   // 1. منطق التشغيل الأول وفصل المانيفست تماماً
   useEffect(() => {
-    setIsClient(true);
-    
-    if (typeof window !== "undefined") {
-      // حذف أي مانيفست يخص تطبيق العميل فوراً لمنع التداخل
-      const manifests = document.querySelectorAll('link[rel="manifest"]');
-      manifests.forEach(el => el.remove());
+  setIsClient(true);
+  
+  if (typeof window !== "undefined") {
+    // 1. مسح أي Service Worker قديم مسيطر على الصفحة
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
 
-      // إضافة مانيفست الإدارة بـ Timestamp لكسر الكاش (Cache Busting)
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = `/admin.webmanifest?v=${Date.now()}`;
-      document.head.appendChild(link);
+    // 2. إزالة المانيفست القديم
+    const oldManifests = document.querySelectorAll('link[rel="manifest"]');
+    oldManifests.forEach(el => el.remove());
+
+    // 3. إضافة المانيفست الجديد مع "رقم نسخة" عشوائي لضمان التحديث
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = `/admin.webmanifest?v=${Math.random()}`; 
+    document.head.appendChild(link);
 
       // تغيير عنوان التاب فوراً
       document.title = "لوحة الإدارة 🛡️";
