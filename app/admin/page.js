@@ -55,6 +55,23 @@ export default function AdminPage() {
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
+  // مراقبة عودة المستخدم للتطبيق لإعادة تفعيل نظام الصوت
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log("Welcome back! 🛡️ جاري التأكد من جاهزية الصوت...");
+        // محاولة تشغيل صامتة وسريعة "لتنبيه" المتصفح إننا رجعنا
+        if (audioRef.current && (audioEnabled || localStorage.getItem("adminAudioEnabled") === "true")) {
+          audioRef.current.play().then(() => {
+            audioRef.current.pause(); // نشغله ونوقفه فوراً عشان ناخد الـ Access تاني
+          }).catch(e => console.log("Re-activation blocked until user clicks"));
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [audioEnabled]);
 
     // 2. الربط اللحظي بـ Firebase (نسخة التحديث الفوري المارقة)
   useEffect(() => {
