@@ -209,17 +209,28 @@ export default function AdminPage() {
       {/* 2. أزرار الأكشن (تفعيل الصوت + التثبيت) */}
       <div style={{ position: "sticky", top: "10px", zIndex: 110, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "15px" }}>
         
-        {/* زرار الصوت يظهر فقط إذا لم يتم تفعيله مسبقاً */}
+                {/* زرار الصوت - الضمان النهائي لتفعيل التنبيهات اللحظية */}
         {!audioEnabled && (
           <div 
             style={{ 
-              backgroundColor: "#FF6600", color: "#000", padding: "15px", borderRadius: "18px", 
-              textAlign: "center", fontWeight: "900", cursor: "pointer", 
-              boxShadow: "0 8px 20px rgba(255,102,0,0.4)", border: "2px solid rgba(255,255,255,0.2)" 
+              backgroundColor: "#FF6600", 
+              color: "#000", 
+              padding: "20px", // زيادة الحجم لسهولة الضغط
+              borderRadius: "22px", 
+              textAlign: "center", 
+              fontWeight: "900", 
+              cursor: "pointer", 
+              boxShadow: "0 10px 25px rgba(255,102,0,0.5)", 
+              border: "3px solid #fff", // تمييزه لضمان ضغط المدير عليه
+              marginBottom: "10px",
+              animation: "pulse 2s infinite" // اختيار اختياري لو عندك CSS للفت الانتباه
             }} 
             onClick={toggleAudioSystem}
           >
-            🔔 تفعيل تنبيهات الإدارة 🛡️
+            📢 اضغط هنا لتفعيل صوت التنبيهات 🔔
+            <div style={{ fontSize: "10px", marginTop: "5px", fontWeight: "normal" }}>
+              (يجب التفعيل مرة واحدة لضمان وصول الأوردرات فوراً)
+            </div>
           </div>
         )}
 
