@@ -1,9 +1,10 @@
 {
   "name": "إدارة ميني طلبات 🛡️",
-  "short_name": "الطلبات",
-  "id": "minitalabat-admin-final-v1",
-  "start_url": "/admin/", 
-  "scope": "/admin/", 
+  "short_name": "لوحة الإدارة",
+  "description": "لوحة تحكم مخصصة لإدارة أوردرات ميني طلبات",
+  "id": "/admin-secure-v2",
+  "start_url": "/admin/",
+  "scope": "/admin/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
@@ -11,30 +12,30 @@
   "theme_color": "#FF6600",
   "icons": [
     {
-      "src": "/mall-logo.png",
+      "src": "/adminMT.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/mall-logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/mall-logo.png",
+      "src": "/adminMT.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/adminMT.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["business", "productivity"],
   "shortcuts": [
     {
       "name": "فتح الطلبات",
-      "url": "/admin",
-      "icons": [{ "src": "/mall-logo.png", "sizes": "192x192" }]
+      "url": "/admin/",
+      "icons": [{ "src": "/adminMT.png", "sizes": "192x192" }]
     }
   ]
 }
