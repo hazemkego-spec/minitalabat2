@@ -15,17 +15,24 @@ export default function AdminPage() {
   useEffect(() => {
     setIsClient(true);
     
-    // ربط المانيفست المخصص للإدارة بطريقة آمنة
+      // 1. منطق التشغيل الأول وفصل المانيفست (لمنع تداخل تطبيق الإدارة والزبون)
+  useEffect(() => {
+    setIsClient(true);
+    
     if (typeof window !== "undefined") {
-      const existingLink = document.querySelector('link[rel="manifest"]');
-      if (existingLink) {
-        existingLink.setAttribute('href', '/admin.webmanifest');
-      } else {
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = '/admin.webmanifest';
-        document.head.appendChild(link);
-      }
+      // حذف أي روابط مانيفست قديمة فوراً (تنظيف الصفحة من ملف الزبون)
+      const existingManifests = document.querySelectorAll('link[rel="manifest"]');
+      existingManifests.forEach(el => el.remove());
+
+      // إنشاء رابط المانيفست الجديد الخاص بالإدارة بـ ID فريد وكسر الكاش بـ Timestamp
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      // استخدام v= يضمن تحميل النسخة المعدلة من السيرفر الآن وتجاهل الكاش القديم
+      link.href = `/admin.webmanifest?v=${new Date().getTime()}`;
+      document.head.appendChild(link);
+
+      // تغيير عنوان الصفحة ولون الشريط العلوي لتمييز أبلكيشن الإدارة عن الزبون
+      document.title = "لوحة الإدارة 🛡️";
     }
 
     // طلب إذن الإشعارات
@@ -33,16 +40,18 @@ export default function AdminPage() {
       Notification.requestPermission();
     }
 
+    // التقاط رسالة التثبيت (PWA Prompt)
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      console.log("Admin PWA: Ready to Install");
     };
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 2. الربط اللحظي بـ Firebase
+  // 2. الربط اللحظي بـ Firebase (ثابت كما هو لضمان المزامنة)
   useEffect(() => {
     let unsubscribe;
     const connectToFirebase = () => {
@@ -76,11 +85,15 @@ export default function AdminPage() {
     return () => unsubscribe && unsubscribe();
   }, []);
 
+  // 3. دالة التثبيت
   const handleInstallApp = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") setDeferredPrompt(null);
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+        console.log("Admin App Installed successfully!");
+      }
     }
   };
 
