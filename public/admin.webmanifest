@@ -4,7 +4,7 @@
   "description": "لوحة تحكم وإدارة أوردرات ميني طلبات اللحظية",
   "id": "/admin/app-v1",
   "start_url": "/admin",
-  "scope": "/admin/",
+  "scope": "/admin",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
@@ -19,7 +19,7 @@
     },
     {
       "src": "/mall-logo.png",
-      "sizes": "512x512",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
@@ -33,7 +33,7 @@
   "categories": ["business", "productivity"],
   "shortcuts": [
     {
-      "name": "الطلبات الجديدة",
+      "name": "فتح الطلبات",
       "url": "/admin",
       "icons": [{ "src": "/mall-logo.png", "sizes": "192x192" }]
     }
