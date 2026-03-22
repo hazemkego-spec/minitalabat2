@@ -15,18 +15,18 @@ export default function AdminPage() {
   useEffect(() => {
     setIsClient(true);
     
-    // استعادة حالة الصوت المحفوظة
+    // استعادة حالة الصوت فوراً من الذاكرة
     const savedAudio = localStorage.getItem("adminAudioEnabled");
     if (savedAudio === "true") {
       setAudioEnabled(true);
     }
 
     if (typeof window !== "undefined") {
-      // تسجيل الـ Service Worker لضمان عمل الإشعارات في الخلفية
+      // تسجيل الـ Service Worker (تأكد أن المسار دقيق)
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('Admin SW Registered!'))
-          .catch(err => console.log('SW Registration Failed', err));
+        navigator.serviceWorker.register('/sw.js', { scope: '/admin/' })
+          .then(reg => console.log('Admin SW Registered scope:', reg.scope))
+          .catch(err => console.log('SW registration failed:', err));
       }
 
       // إزالة المانيفست القديم وربط الجديد المخصص للإدارة
@@ -43,7 +43,6 @@ export default function AdminPage() {
       if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
     }
 
-    // طلب إذن الإشعارات إذا لم يتم منحه
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
@@ -57,11 +56,12 @@ export default function AdminPage() {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 2. الربط اللحظي بـ Firebase (تم تحسينه للعمل الدائم بدون ريفريش)
+  // 2. الربط اللحظي بـ Firebase (نسخة التحديث الفوري)
   useEffect(() => {
+    if (!isClient) return; // لا تبدأ الاتصال إلا إذا كنت في المتصفح
+
     const ordersRef = ref(db, 'orders');
     
-    // نترك مصفوفة التبعية فارغة [] لضمان بقاء الاتصال مفتوحاً دائماً
     const unsubscribe = onValue(ordersRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -69,7 +69,7 @@ export default function AdminPage() {
           id, ...data[id]
         })).reverse();
 
-        // تنبيه عند وصول أوردر جديد (مقارنة بالعدد المخزن)
+        // التنبيه عند وصول أوردر جديد فعلاً
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
           handleNewOrderNotification(orderList[0]);
         }
@@ -82,7 +82,7 @@ export default function AdminPage() {
     });
 
     return () => unsubscribe();
-  }, []); 
+  }, [isClient]); // الارتباط بـ isClient يضمن الفتح الصحيح للـ Listener
 
   // 3. دالة التثبيت
   const handleInstallApp = async () => {
@@ -92,13 +92,15 @@ export default function AdminPage() {
     if (outcome === "accepted") setDeferredPrompt(null);
   };
 
-  // 4. دالة التنبيه (الصوت + الإشعار) مع حفظ حالة الصوت
+  // 4. دالة التنبيه (تأكيد الصوت والاشعارات)
   const handleNewOrderNotification = (order) => {
-    // قراءة الحالة اللحظية من الـ State لضمان التشغيل
-    if (audioRef.current && (audioEnabled || localStorage.getItem("adminAudioEnabled") === "true")) {
+    // التحقق من حالة الصوت من الـ State أو الـ Storage مباشرة لكسر الكاش
+    const isAudioOk = audioEnabled || localStorage.getItem("adminAudioEnabled") === "true";
+    
+    if (audioRef.current && isAudioOk) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => console.log("Audio play blocked"));
+      audioRef.current.play().catch(e => console.log("Audio Play Blocked:", e));
     }
 
     if ("Notification" in window && Notification.permission === "granted") {
@@ -113,20 +115,20 @@ export default function AdminPage() {
     }
   };
 
-  // 5. دالة تفعيل الصوت وحفظ الاختيار (تُستدعى عند الضغط على الزر)
+    // 5. دالة تفعيل الصوت وحفظ الاختيار (تُستدعى عند الضغط على الزر)
   const toggleAudioSystem = () => {
     if (audioRef.current) {
       audioRef.current.play().then(() => {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
         setAudioEnabled(true);
-        localStorage.setItem("adminAudioEnabled", "true");
+        localStorage.setItem("adminAudioEnabled", "true"); // حفظ الحالة لعدم الظهور مجدداً
         alert("✅ تم تفعيل التنبيهات الصوتية دائماً");
-      }).catch(() => alert("يرجى المحاولة مرة أخرى"));
+      }).catch(() => alert("يرجى المحاولة مرة أخرى أو الضغط على الشاشة أولاً"));
     }
   };
 
-    // 5. التحكم في حالة الطلب (مكتمل / قيد الانتظار)
+  // 6. التحكم في حالة الطلب (مكتمل / قيد الانتظار)
   const toggleStatus = async (orderId, currentStatus) => {
     try {
       const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
@@ -136,7 +138,7 @@ export default function AdminPage() {
     }
   };
 
-  // 6. حذف الطلب
+  // 7. حذف الطلب
   const deleteOrder = async (orderId) => {
     if (window.confirm("⚠️ هل أنت متأكد من حذف هذا الطلب نهائياً؟")) {
       try {
@@ -147,7 +149,7 @@ export default function AdminPage() {
     }
   };
 
-  // 7. توزيع الطلب للواتساب
+  // 8. توزيع الطلب للواتساب
   const distributeOrder = (order, shopName) => {
     const items = order.items[shopName];
     if (!items) return;
@@ -179,6 +181,8 @@ export default function AdminPage() {
 
       {/* 2. أزرار الأكشن (تفعيل الصوت + التثبيت) */}
       <div style={{ position: "sticky", top: "10px", zIndex: 110, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "15px" }}>
+        
+        {/* زرار الصوت يظهر فقط إذا لم يتم تفعيله مسبقاً */}
         {!audioEnabled && (
           <div 
             style={{ 
@@ -186,16 +190,7 @@ export default function AdminPage() {
               textAlign: "center", fontWeight: "900", cursor: "pointer", 
               boxShadow: "0 8px 20px rgba(255,102,0,0.4)", border: "2px solid rgba(255,255,255,0.2)" 
             }} 
-            onClick={() => { 
-              if(audioRef.current) {
-                audioRef.current.play().then(() => {
-                  audioRef.current.pause();
-                  audioRef.current.currentTime = 0;
-                  setAudioEnabled(true);
-                  alert("✅ تم تفعيل التنبيهات الصوتية للإدارة");
-                }).catch(() => alert("يرجى الضغط مرة أخرى لتفعيل الصوت"));
-              }
-            }}
+            onClick={toggleAudioSystem}
           >
             🔔 تفعيل تنبيهات الإدارة 🛡️
           </div>
@@ -215,12 +210,12 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* 3. الهيدر */}
-      <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px" }}>
+            {/* 3. الهيدر */}
+      <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ color: "#FF6600", margin: 0, fontSize: "24px", fontWeight: "900" }}>لوحة التحكم 🛡️</h1>
-            <p style={{ color: "#555", fontSize: "12px", margin: 0 }}>متابعة الطلبات لحظياً</p>
+            <p style={{ color: "#888", fontSize: "12px", margin: 0 }}>متابعة الطلبات لحظياً</p>
           </div>
           <div style={{ textAlign: "center", backgroundColor: "#1a1c1e", padding: "10px 20px", borderRadius: "15px", border: "1px solid #2d3035" }}>
             <div style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{orders.length}</div>
@@ -232,7 +227,10 @@ export default function AdminPage() {
       {/* 4. عرض الطلبات */}
       <div style={{ display: "grid", gap: "25px" }}>
         {orders.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "50px", color: "#444" }}>لا توجد طلبات حالياً..</div>
+          <div style={{ textAlign: "center", padding: "100px 20px", color: "#444" }}>
+             <div style={{ fontSize: "50px", marginBottom: "10px" }}>📭</div>
+             لا توجد طلبات حالياً..
+          </div>
         ) : (
           orders.map((order) => (
             <div key={order.id} style={{ 
@@ -263,7 +261,7 @@ export default function AdminPage() {
                     <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
                         <span style={{ fontWeight: "bold", color: "#FF6600" }}>🏪 {shopName}</span>
-                        <button onClick={() => distributeOrder(order, shopName)} style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "5px 12px", borderRadius: "8px", fontSize: "10px", fontWeight: "900" }}>إرسال ✅</button>
+                        <button onClick={() => distributeOrder(order, shopName)} style={{ backgroundColor: "#25d366", color: "#fff", border: "none", padding: "8px 15px", borderRadius: "10px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}>إرسال ✅</button>
                       </div>
                       {order.items[shopName].map((item, i) => (
                         <div key={i} style={{ fontSize: "13px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
@@ -276,15 +274,15 @@ export default function AdminPage() {
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
-                  <span style={{ color: "#888" }}>الإجمالي:</span>
+                  <span style={{ color: "#888" }}>الإجمالي المطلوب:</span>
                   <span style={{ fontSize: "22px", fontWeight: "900", color: "#FF6600" }}>{order.total} ج.م</span>
                 </div>
               </div>
 
               <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b" }}>
-                <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "15px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold" }}>حذف 🗑️</button>
-                <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "15px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900" }}>
-                  {order.status === 'completed' ? 'مكتمل ✅' : 'تحديد كمكتمل'}
+                <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold", cursor: "pointer" }}>حذف 🗑️</button>
+                <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "18px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900", cursor: "pointer" }}>
+                  {order.status === 'completed' ? 'تم الاكتمال ✅' : 'تحديد كمكتمل'}
                 </button>
               </div>
             </div>
