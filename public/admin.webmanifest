@@ -1,10 +1,9 @@
 {
   "name": "إدارة ميني طلبات 🛡️",
   "short_name": "الطلبات",
-  "description": "لوحة تحكم وإدارة أوردرات ميني طلبات اللحظية",
-  "id": "/admin/app-v1",
-  "start_url": "/admin",
-  "scope": "/admin",
+  "id": "minitalabat-admin-final-v1",
+  "start_url": "/admin/", 
+  "scope": "/admin/", 
   "display": "standalone",
   "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
