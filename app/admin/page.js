@@ -118,13 +118,12 @@ export default function AdminPage() {
     if (outcome === "accepted") setDeferredPrompt(null);
   };
 
-    // 4. دالة التنبيه (نسخة التشغيل الإجباري للصوت والاشعارات)
+      // 4. دالة التنبيه المطورة (تعمل في الخلفية وعبر الـ Service Worker)
   const handleNewOrderNotification = (order) => {
     const isAudioSaved = localStorage.getItem("adminAudioEnabled") === "true";
     
-    // 1. محاولة تشغيل الصوت مع "إيقاظ" المتصفح
+    // 1. محاولة تشغيل الصوت (تعمل بكفاءة لو التطبيق مفتوح أو في الـ Recent)
     if (audioRef.current && (audioEnabled || isAudioSaved)) {
-      // سر الصنعة: التأكد أن الصوت ليس صامتاً وإعادة ضبطه
       audioRef.current.muted = false; 
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -132,42 +131,55 @@ export default function AdminPage() {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          console.log("🔊 تم تشغيل صوت التنبيه بنجاح");
-        }).catch(error => {
-          console.warn("⚠️ المتصفح منع الصوت تلقائياً، جاري محاولة الهزاز كبديل:", error);
-          if (navigator.vibrate) navigator.vibrate([500, 200, 500]); // هزاز طويل لو الصوت فشل
+          console.log("🔊 تم تشغيل التنبيه الصوتي");
+        }).catch(() => {
+          // لو المتصفح منع الصوت في الخلفية، الهزاز هيشتغل كبديل
+          if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
         });
       }
     }
 
-    // 2. إرسال إشعار النظام (يعمل بشكل مستقل وبقوة)
-    if ("Notification" in window && Notification.permission === "granted") {
-      try {
-        const n = new Notification("🔔 أوردر جديد وصل!", {
+    // 2. إرسال الإشعار عبر الـ Service Worker (لضمان الظهور في الخلفية والموبايل مقفول)
+    if ('serviceWorker' in navigator && Notification.permission === "granted") {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification("🔔 أوردر جديد وصل!", {
           body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
           icon: "/adminMT.png",
-          tag: "admin-order-alert", 
-          requireInteraction: true, // يظل الإشعار ثابتاً حتى يفتحه المدير
-          vibrate: [200, 100, 200]
+          badge: "/adminMT.png",
+          tag: "admin-order-alert", // يمنع تكرار الإشعارات
+          renotify: true, // يهز الموبايل مع كل أوردر جديد
+          requireInteraction: true, // يظل الإشعار ثابتاً حتى تفتحه
+          vibrate: [500, 110, 500, 110, 450, 110, 200],
+          data: { url: '/admin' } // الرابط اللي هيفتحه عند الضغط
         });
-        n.onclick = () => { window.focus(); n.close(); };
-      } catch (e) {
-        console.error("Notification Error:", e);
-      }
+      });
+    } else if ("Notification" in window && Notification.permission === "granted") {
+      // حل احتياطي لو الـ Service Worker مش جاهز في اللحظة دي
+      new Notification("🔔 أوردر جديد وصل!", {
+        body: `العميل: ${order.customer?.name} | المبلغ: ${order.total} ج.م`,
+        icon: "/adminMT.png",
+        tag: "admin-order-alert",
+        requireInteraction: true
+      }).onclick = () => { window.focus(); };
     }
   };
 
   // 5. دالة تفعيل الصوت (كسر حماية المتصفح للأبد)
   const toggleAudioSystem = () => {
     if (audioRef.current) {
-      // لازم المتصفح يشوف "play" حقيقي من اليوزر عشان يسمح بالصوت لاحقاً
       audioRef.current.muted = false;
       audioRef.current.play().then(() => {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
         setAudioEnabled(true);
         localStorage.setItem("adminAudioEnabled", "true"); 
-        alert("✅ تم تفعيل الصوت! اللوحة الآن جاهزة للتنبيه اللحظي 🛡️");
+        
+        // طلب إذن إضافي لضمان عمل الـ SW Notifications
+        if ("Notification" in window) {
+          Notification.requestPermission();
+        }
+
+        alert("✅ اللوحة جاهزة الآن لاستقبال الطلبات في الخلفية 🛡️");
       }).catch(() => alert("يرجى الضغط مرة أخرى للسماح بالصوت"));
     }
   };
