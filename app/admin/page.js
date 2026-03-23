@@ -347,21 +347,26 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {/* 4. عرض الطلبات المفلترة */}
-      <div style={{ display: "grid", gap: "25px" }}>
-        {getFilteredOrders().length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 20px", color: "#444" }}>
-             <div style={{ fontSize: "50px", marginBottom: "10px" }}>📭</div>
-             لا توجد طلبات في "{activeTab}" حالياً..
-          </div>
-        ) : (
-          getFilteredOrders().map((order) => {
+        // 4. دالة فلترة الأوردرات (نسخة آمنة لمنع الـ Crash)
+  const getFilteredOrders = () => {
+    if (!orders || !Array.isArray(orders)) return []; // حماية لو المصفوفة فاضية
+    
+    if (activeTab === "الكل") return orders;
+    
+    return orders.filter(order => 
+      // التأكد أن processedItems موجودة وليست null قبل عمل some
+      order?.processedItems && Array.isArray(order.processedItems) && 
+      order.processedItems.some(item => item?.shopName === activeTab)
+    );
+  };
+
             // حساب إجمالي "المحل الحالي" فقط داخل الفاتورة
-            const getShopTotal = (sName) => {
-                return order.processedItems
-                    ?.filter(item => item.shopName === sName)
-                    .reduce((total, item) => total + (item.price * item.quantity), 0) || 0;
-            };
+              const getShopTotal = (sName) => {
+    if (!order?.processedItems) return 0; // حماية إضافية
+    return order.processedItems
+      .filter(item => item?.shopName === sName)
+      .reduce((total, item) => total + ((item?.price || 0) * (item?.quantity || 1)), 0);
+  };
 
             return (
               <div key={order.id} style={{ 
