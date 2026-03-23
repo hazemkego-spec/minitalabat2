@@ -347,26 +347,46 @@ export default function AdminPage() {
         </div>
       </header>
 
-        // 4. دالة فلترة الأوردرات (نسخة آمنة لمنع الـ Crash)
+    // ✅ 1. دالة فلترة الأوردرات (توضع قبل الـ return)
   const getFilteredOrders = () => {
-    if (!orders || !Array.isArray(orders)) return []; // حماية لو المصفوفة فاضية
-    
+    if (!orders || !Array.isArray(orders)) return []; 
     if (activeTab === "الكل") return orders;
-    
     return orders.filter(order => 
-      // التأكد أن processedItems موجودة وليست null قبل عمل some
       order?.processedItems && Array.isArray(order.processedItems) && 
       order.processedItems.some(item => item?.shopName === activeTab)
     );
   };
 
-            // حساب إجمالي "المحل الحالي" فقط داخل الفاتورة
-              const getShopTotal = (sName) => {
-    if (!order?.processedItems) return 0; // حماية إضافية
-    return order.processedItems
-      .filter(item => item?.shopName === sName)
-      .reduce((total, item) => total + ((item?.price || 0) * (item?.quantity || 1)), 0);
-  };
+  if (!isClient) return null;
+
+  return (
+    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px" }}>
+      {/* ... كود الهيدر والأزرار ... */}
+
+      <div style={{ display: "grid", gap: "25px" }}>
+        {getFilteredOrders().length === 0 ? (
+          <div style={{ textAlign: "center", padding: "100px 20px" }}>لا توجد طلبات..</div>
+        ) : (
+          getFilteredOrders().map((order) => {
+            
+            // ✅ 2. دالة حساب الإجمالي (توضع داخل الـ map مباشرة)
+            const getShopTotal = (sName) => {
+              if (!order?.processedItems) return 0;
+              return order.processedItems
+                .filter(item => item?.shopName === sName)
+                .reduce((total, item) => total + ((item?.price || 0) * (item?.quantity || 1)), 0);
+            };
+
+            return (
+              <div key={order.id} style={{ backgroundColor: "#16181a", borderRadius: "30px" }}>
+                {/* ... باقي كود عرض تفاصيل الأوردر ... */}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
 
             return (
               <div key={order.id} style={{ 
