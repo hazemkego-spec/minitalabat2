@@ -373,7 +373,7 @@ export default function AdminPage() {
        لا توجد طلبات في {activeTab} حالياً..
     </div>
   ) : (
-    getFilteredOrders().map((order) => {
+    {getFilteredOrders().map((order) => {
       if (!order || !order.items) return null;
 
       // 1. تحويل هيكل الفايربيز المعقد لمصفوفة أصناف موحدة للمعالجة
@@ -415,8 +415,8 @@ export default function AdminPage() {
           </div>
 
           <div style={{ padding: "20px" }}>
-            {/* بيانات العميل (تظهر دائماً في كل الحالات) */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            {/* بيانات العميل */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
               <div style={{ flex: 1 }}>
                 <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
                 <p style={{ margin: 0, fontSize: "13px", color: "#888", lineHeight: "1.4" }}>📍 {order.customer?.address || 'العنوان غير مسجل'}</p>
@@ -428,6 +428,15 @@ export default function AdminPage() {
                   <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📍</a>
                 )}
               </div>
+            </div>
+
+            {/* ⚠️ جزء الفحص المؤقت لمعرفة شكل البيانات الحقيقي ⚠️ */}
+            <div style={{ 
+              backgroundColor: "#000", color: "#ffff00", padding: "10px", 
+              borderRadius: "10px", fontSize: "10px", marginBottom: "15px", 
+              wordBreak: "break-all", border: "1px dashed #ffff00" 
+            }}>
+              🔍 داتا الأصناف: {JSON.stringify(order.items)}
             </div>
 
             {/* عرض تفاصيل الأصناف */}
