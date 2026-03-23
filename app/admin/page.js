@@ -93,16 +93,20 @@ export default function AdminPage() {
           id, ...data[id]
         })).reverse();
 
-        // --- استخراج أسماء المتاجر الفريدة من الأوردرات ---
+                // --- ميكانيكا استخراج أسماء المحلات الفريدة (النسخة المؤمنة ✅) ---
         const allShops = new Set();
         orderList.forEach(order => {
-          if (order.items && Array.isArray(order.items)) {
+          // إضافة علامة استفهام ? والتأكد أنها مصفوفة
+          if (order?.items && Array.isArray(order.items)) {
             order.items.forEach(item => {
-              if (item.shopName) allShops.add(item.shopName);
+              if (item?.shopName) {
+                allShops.add(item.shopName);
+              }
             });
           }
         });
-        setShops(Array.from(allShops)); // تحويلها لمصفوفة ليتم عرضها في الـ Tabs
+        setShops(Array.from(allShops));
+ // تحويلها لمصفوفة ليتم عرضها في الـ Tabs
 
         // فحص وصول أوردر جديد للتنبيه
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
@@ -125,11 +129,13 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [isClient]); 
 
-  // --- دالة الفلترة الذكية للأوردرات حسب التاب النشط ---
+    // --- دالة الفلترة الذكية (مؤمنة ضد الـ Undefined ✅) ---
   const getFilteredOrders = () => {
+    if (!orders || !Array.isArray(orders)) return []; // حماية لو البيانات لسه مجتش
     if (activeTab === "الكل") return orders;
+    
     return orders.filter(order => 
-      order.items?.some(item => item.shopName === activeTab)
+      order?.items?.some(item => item?.shopName === activeTab)
     );
   };
 
