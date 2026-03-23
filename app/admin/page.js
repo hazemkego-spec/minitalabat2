@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { db } from "../../lib/firebase"; 
 import { ref, onValue, update, remove, query } from "firebase/database";
 // استدعاء المتاجر من ملفك الخاص بناءً على الخريطة التي أرسلتها
-import { shops as staticShops } from "../../components/ShopList"; 
+import { shops as staticShops } from "../components/ShopList";
 
 export default function AdminPage() {
   const [orders, setOrders] = useState([]);
