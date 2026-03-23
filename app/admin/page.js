@@ -120,15 +120,19 @@ export default function AdminPage() {
   }, [isClient]); 
 
   // --- دالة الفلترة الذكية للأوردرات (مؤمنة بالكامل ✅) ---
-  const getFilteredOrders = () => {
-    // لو الـ orders لسبب ما مش مصفوفة، نرجع مصفوفة فاضية فوراً
-    if (!orders || !Array.isArray(orders)) return [];
-    
-    if (activeTab === "الكل") return orders;
-    
-    return orders.filter(order => 
-      order?.items?.some(item => item?.shopName === activeTab)
-    );
+    const getFilteredOrders = () => {
+    try {
+      if (!orders || !Array.isArray(orders)) return [];
+      if (activeTab === "الكل") return orders;
+      
+      return orders.filter(order => {
+        if (!order || !order.items || !Array.isArray(order.items)) return false;
+        return order.items.some(item => item && item.shopName === activeTab);
+      });
+    } catch (err) {
+      console.error("Filter Error:", err);
+      return [];
+    }
   };
 
   // 4. دالة التثبيت (كاملة كما هي)
