@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { db } from "../../lib/firebase"; 
 import { ref, onValue, update, remove, query } from "firebase/database";
+// استدعاء المتاجر من ملفك الخاص بناءً على الخريطة التي أرسلتها
+import { shops as staticShops } from "../../components/ShopList"; 
 
 export default function AdminPage() {
   const [orders, setOrders] = useState([]);
@@ -14,15 +16,16 @@ export default function AdminPage() {
   // --- الإضافات الجديدة لنظام المتاجر الديناميكي ---
   const [activeTab, setActiveTab] = useState("الكل"); 
   const [shops, setShops] = useState([]); 
-  
-  console.log("Current Orders:", orders);
-  console.log("Current Shops:", shops);
-  console.log("Active Tab:", activeTab);
 
-  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW (كاملة)
+  // 1. منطق التشغيل الأول + تحميل المتاجر من ملف ShopList
   useEffect(() => {
     setIsClient(true);
     
+    // تحميل المتاجر فوراً من ملفك لضمان عدم حدوث Exception
+    if (staticShops && Array.isArray(staticShops)) {
+      setShops(staticShops);
+    }
+
     const savedAudio = localStorage.getItem("adminAudioEnabled");
     if (savedAudio === "true") {
       setAudioEnabled(true);
@@ -61,7 +64,7 @@ export default function AdminPage() {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // 2. مراقبة عودة المستخدم للتطبيق (كاملة لإعادة تنشيط الصوت)
+  // 2. مراقبة عودة المستخدم للتطبيق
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -69,7 +72,7 @@ export default function AdminPage() {
           audioRef.current.play().then(() => {
             audioRef.current.pause(); 
             audioRef.current.currentTime = 0;
-          }).catch(e => console.log("Re-activation blocked until user clicks"));
+          }).catch(e => console.log("Audio play blocked"));
         }
       }
     };
@@ -77,7 +80,7 @@ export default function AdminPage() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [audioEnabled]);
 
-  // 3. الربط اللحظي بـ Firebase + استخراج المتاجر (مؤمن بالكامل ✅)
+  // 3. الربط اللحظي بـ Firebase (نسخة مؤمنة وخفيفة ✅)
   useEffect(() => {
     if (!isClient) return; 
 
@@ -91,20 +94,6 @@ export default function AdminPage() {
           id, ...data[id]
         })).reverse();
 
-        // استخراج المتاجر بأمان تام لمنع الشاشة البيضاء
-        const allShops = new Set();
-        orderList.forEach(order => {
-          // فحص صارم للأصناف قبل الـ Loop
-          if (order && order.items && Array.isArray(order.items)) {
-            order.items.forEach(item => {
-              if (item && item.shopName) {
-                allShops.add(item.shopName);
-              }
-            });
-          }
-        });
-        setShops(Array.from(allShops));
-
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
           handleNewOrderNotification(orderList[0]);
         }
@@ -113,7 +102,6 @@ export default function AdminPage() {
         ordersCountRef.current = orderList.length;
       } else {
         setOrders([]);
-        setShops([]);
         ordersCountRef.current = 0;
       }
     }, (error) => {
@@ -123,15 +111,18 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [isClient]); 
 
-  // --- دالة الفلترة الذكية للأوردرات (مؤمنة بالكامل ✅) ---
-    const getFilteredOrders = () => {
+  // --- دالة الفلترة الذكية للأوردرات (درع الحماية الأساسي ✅) ---
+  const getFilteredOrders = () => {
     try {
       if (!orders || !Array.isArray(orders)) return [];
       if (activeTab === "الكل") return orders;
       
       return orders.filter(order => {
-        if (!order || !order.items || !Array.isArray(order.items)) return false;
-        return order.items.some(item => item && item.shopName === activeTab);
+        // فحص هيكل الأوردر قبل الفلترة لمنع أي كراش
+        const items = order?.items || [];
+        // تحويل الـ items لمصفوفة لو كانت جاية بصيغة Object
+        const itemsArray = Array.isArray(items) ? items : Object.values(items);
+        return itemsArray.some(item => item && item.shopName === activeTab);
       });
     } catch (err) {
       console.error("Filter Error:", err);
@@ -139,7 +130,7 @@ export default function AdminPage() {
     }
   };
 
-  // 4. دالة التثبيت (كاملة كما هي)
+    // 4. دالة التثبيت (كاملة كما هي)
   const handleInstallApp = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -152,8 +143,12 @@ export default function AdminPage() {
     if (!order) return;
 
     // منطق الفلترة: هل الأوردر يخص المتجر المفتوح حالياً؟
+    // تم إضافة حماية لتحويل items لمصفوفة في حالة كانت Object من الفايربيز
+    const orderItems = order.items || [];
+    const itemsArray = Array.isArray(orderItems) ? orderItems : Object.values(orderItems);
+    
     const isRelevantToTab = activeTab === "الكل" || 
-      order.items?.some(item => item && item.shopName === activeTab);
+      itemsArray.some(item => item && item.shopName === activeTab);
 
     // لو الأوردر ملوش علاقة بالتاب المفتوح، مش هنعمل إزعاج بالصوت
     if (!isRelevantToTab) return;
@@ -240,13 +235,15 @@ export default function AdminPage() {
       }
     }
   };
-
-      // 9. توزيع الطلب للواتساب (مطور ليدعم نظام التابات والمحلات ✅)
+        // 9. توزيع الطلب للواتساب (مطور ليدعم نظام التابات والمحلات ✅)
   const distributeOrder = (order, shopName) => {
     if (!order || !shopName) return;
 
-    // تصفية الأصناف الخاصة بالمحل المختار فقط بأمان
-    const shopItems = order.items?.filter(item => item && item.shopName === shopName);
+    // تصفية الأصناف مع حماية إضافية لهيكل البيانات
+    const orderItems = order.items || [];
+    const itemsArray = Array.isArray(orderItems) ? orderItems : Object.values(orderItems);
+    
+    const shopItems = itemsArray.filter(item => item && item.shopName === shopName);
     
     if (!shopItems || shopItems.length === 0) {
       alert("⚠️ لا توجد أصناف لهذا المحل في هذا الأوردر");
@@ -287,9 +284,9 @@ export default function AdminPage() {
       padding: "15px", 
       fontFamily: "sans-serif", 
       paddingBottom: "100px",
-      overflowX: "hidden" // حماية إضافية من الـ Scroll العرضي
+      overflowX: "hidden" 
     }}>
-            {/* ملف الصوت */}
+      {/* ملف الصوت */}
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
       {/* 2. أزرار الأكشن (تفعيل الصوت + التثبيت) */}
@@ -321,7 +318,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* 3. الهيدر وشريط التابات الديناميكي */}
+      {/* 3. الهيدر وشريط التابات الديناميكي (يعمل من ShopList ✅) */}
       <header style={{ position: "sticky", top: 0, backgroundColor: "#0b0c0d", zIndex: 100, padding: "10px 0", borderBottom: "1px solid #1e2022", marginBottom: "20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
           <div>
@@ -348,6 +345,7 @@ export default function AdminPage() {
             الكل 🌍
           </div>
 
+          {/* عرض التابات من مصفوفة shops المؤمنة */}
           {(shops || []).map((shop) => (
             <div 
               key={shop}
@@ -364,8 +362,8 @@ export default function AdminPage() {
           ))}
         </div>
       </header>
-
-      {/* 4. عرض الطلبات المفلترة ذكياً */}
+        
+            {/* 4. عرض الطلبات المفلترة ذكياً */}
       <div style={{ display: "grid", gap: "25px" }}>
         {getFilteredOrders().length === 0 ? (
           <div style={{ textAlign: "center", padding: "100px 20px", color: "#444" }}>
@@ -376,16 +374,18 @@ export default function AdminPage() {
           getFilteredOrders().map((order) => {
             if (!order) return null;
 
-            // حساب آمن للأصناف
-            const orderItems = Array.isArray(order.items) ? order.items : [];
+            // حساب آمن للأصناف: تحويلها لمصفوفة في كل الأحوال لضمان عمل الـ map والـ filter
+            const orderItemsRaw = order.items || [];
+            const orderItems = Array.isArray(orderItemsRaw) ? orderItemsRaw : Object.values(orderItemsRaw);
             
             const currentTabItems = activeTab === "الكل" 
               ? orderItems 
               : orderItems.filter(item => item && item.shopName === activeTab);
 
+            // حساب الإجمالي بناءً على العناصر المفلترة حالياً
             const tabTotal = activeTab === "الكل" 
               ? (order.total || 0) 
-              : currentTabItems.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0);
+              : currentTabItems.reduce((sum, item) => sum + ((item?.price || 0) * (item?.quantity || 0)), 0);
 
             return (
               <div key={order.id} style={{ 
@@ -394,7 +394,7 @@ export default function AdminPage() {
                 boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
               }}>
       
-                                {/* شريط المعلومات العلوي */}
+                {/* شريط المعلومات العلوي */}
                 <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
                   <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
                   <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
@@ -419,13 +419,13 @@ export default function AdminPage() {
                   <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
                     {activeTab === "الكل" ? (
                       // عرض كل المتاجر لو التاب "الكل"
-                      Array.from(new Set((order.items || []).map(i => i?.shopName).filter(Boolean))).map(shop => (
+                      Array.from(new Set(orderItems.map(i => i?.shopName).filter(Boolean))).map(shop => (
                         <div key={shop} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                             <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "13px" }}>🏪 {shop}</span>
                             <button onClick={() => distributeOrder(order, shop)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "5px 12px", borderRadius: "8px", fontSize: "10px", fontWeight: "900", cursor: "pointer" }}>إرسال ✅</button>
                           </div>
-                          {(order.items || []).filter(i => i?.shopName === shop).map((item, idx) => (
+                          {orderItems.filter(i => i?.shopName === shop).map((item, idx) => (
                             <div key={idx} style={{ fontSize: "13px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
                               <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity}</b></span>
                               <span>{(item?.price || 0) * (item?.quantity || 0)} ج</span>
@@ -453,7 +453,7 @@ export default function AdminPage() {
                   {/* الإجمالي حسب الفلترة */}
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", alignItems: "baseline" }}>
                     <span style={{ color: "#888", fontSize: "13px" }}>{activeTab === "الكل" ? "إجمالي الأوردر:" : `إجمالي ${activeTab}:`}</span>
-                    <span style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{tabTotal || 0} ج.م</span>
+                    <span style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{tabTotal} ج.م</span>
                   </div>
                 </div>
 
