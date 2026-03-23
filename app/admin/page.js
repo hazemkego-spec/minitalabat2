@@ -23,7 +23,9 @@ export default function AdminPage() {
     
     // تحميل المتاجر فوراً من ملفك لضمان عدم حدوث Exception
     if (staticShops && Array.isArray(staticShops)) {
-      setShops(staticShops);
+      // استخراج الأسماء فقط (name) من مصفوفة المحلات
+      const shopNames = staticShops.map(s => s.name).filter(Boolean);
+      setShops(shopNames);
     }
 
     const savedAudio = localStorage.getItem("adminAudioEnabled");
