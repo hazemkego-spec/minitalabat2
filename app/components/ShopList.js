@@ -1,6 +1,6 @@
 // app/components/ShopList.js
 
-const shops = [
+export const shops = [
   // ... باقي المتاجر اللي عندك
 
   {
