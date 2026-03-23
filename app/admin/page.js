@@ -376,28 +376,29 @@ export default function AdminPage() {
     getFilteredOrders().map((order) => {
       if (!order || !order.items) return null;
 
-      // 🔍 تحويل هيكل الفايربيز المعقد (Object of Objects) إلى مصفوفة أصناف موحدة
+      // 1. تحويل هيكل الفايربيز المعقد لمصفوفة أصناف موحدة للمعالجة
       const allItems = [];
       Object.keys(order.items).forEach(shopName => {
-        const itemsObj = order.items[shopName];
-        const itemsArray = Array.isArray(itemsObj) ? itemsObj : Object.values(itemsObj);
+        const shopData = order.items[shopName];
+        // التأكد من تحويل البيانات لمصفوفة سواء كانت Object أو Array
+        const itemsArray = Array.isArray(shopData) ? shopData : Object.values(shopData);
         
         itemsArray.forEach(item => {
           if (item) {
-            allItems.push({ ...item, shopName }); // نلحق اسم المحل بكل صنف
+            allItems.push({ ...item, shopName }); // نربط اسم المحل بالصنف
           }
         });
       });
       
-      // تصفية الأصناف حسب التاب النشط
+      // 2. تصفية الأصناف حسب التاب النشط
       const currentTabItems = activeTab === "الكل" 
         ? allItems 
         : allItems.filter(item => item.shopName === activeTab);
 
-      // حساب الإجمالي بناءً على الأصناف المفلترة
+      // 3. حساب إجمالي الحساب بناءً على الأصناف المعروضة حالياً
       const tabTotal = currentTabItems.reduce((sum, item) => sum + ((item?.price || 0) * (item?.quantity || 1)), 0);
 
-      // لو التاب مش "الكل" والطلب ده أصلاً مفيهوش أصناف للمحل ده، مش هنعرض الكارت
+      // لو التاب مخصص لمحل والطلب ملوش أصناف فيه، مش هنعرض الكارت
       if (activeTab !== "الكل" && currentTabItems.length === 0) return null;
 
       return (
@@ -407,14 +408,14 @@ export default function AdminPage() {
           boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
         }}>
 
-          {/* شريط المعلومات العلوي */}
+          {/* شريط معلومات الفاتورة */}
           <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
             <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
             <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
           </div>
 
           <div style={{ padding: "20px" }}>
-            {/* معلومات العميل */}
+            {/* بيانات العميل (تظهر دائماً في كل الحالات) */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <div style={{ flex: 1 }}>
                 <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
@@ -429,13 +430,12 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* قائمة الأصناف الذكية */}
+            {/* عرض تفاصيل الأصناف */}
             <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
               {activeTab === "الكل" ? (
-                // عرض الأصناف مقسمة حسب كل محل (كما في الفايربيز)
+                // في تابة "الكل": نعرض الأصناف مقسمة حسب كل محل
                 Object.keys(order.items).map(shop => {
-                  const shopItemsObj = order.items[shop];
-                  const shopItems = Array.isArray(shopItemsObj) ? shopItemsObj : Object.values(shopItemsObj);
+                  const shopItems = Array.isArray(order.items[shop]) ? order.items[shop] : Object.values(order.items[shop]);
                   return (
                     <div key={shop} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
@@ -444,7 +444,7 @@ export default function AdminPage() {
                       </div>
                       {shopItems.map((item, idx) => (
                         <div key={idx} style={{ fontSize: "14px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                          <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity}</b></span>
+                          <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity || 1}</b></span>
                           <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
                         </div>
                       ))}
@@ -452,7 +452,7 @@ export default function AdminPage() {
                   )
                 })
               ) : (
-                // عرض أصناف المحل المختار فقط
+                // في تابة المحل: نعرض أصناف هذا المحل فقط
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
                     <span style={{ fontWeight: "bold", color: "#FF6600" }}>🏪 طلبات {activeTab}</span>
@@ -460,7 +460,7 @@ export default function AdminPage() {
                   </div>
                   {currentTabItems.map((item, idx) => (
                     <div key={idx} style={{ fontSize: "15px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                      <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity}</b></span>
+                      <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity || 1}</b></span>
                       <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
                     </div>
                   ))}
@@ -468,7 +468,7 @@ export default function AdminPage() {
               )}
             </div>
 
-            {/* الإجمالي */}
+            {/* إجمالي الحساب بناءً على الفلترة */}
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", alignItems: "baseline" }}>
               <span style={{ color: "#888", fontSize: "13px" }}>{activeTab === "الكل" ? "إجمالي الفاتورة:" : `حساب ${activeTab}:`}</span>
               <span style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{tabTotal} ج.م</span>
@@ -479,7 +479,7 @@ export default function AdminPage() {
           <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b", borderTop: "1px solid #25282b" }}>
             <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold" }}>حذف 🗑️</button>
             <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "18px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900" }}>
-              {order.status === 'completed' ? 'تم ✅' : 'تحديد كمكتمل'}
+              {order.status === 'completed' ? 'تم الاكتمال ✅' : 'تحديد كمكتمل'}
             </button>
           </div>
         </div>
