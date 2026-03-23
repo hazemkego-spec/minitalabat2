@@ -365,134 +365,103 @@ export default function AdminPage() {
         </div>
       </header>
         
-                  {/* 4. عرض الطلبات المفلترة ذكياً */}
-<div style={{ display: "grid", gap: "25px" }}>
-  {getFilteredOrders().length === 0 ? (
-    <div style={{ textAlign: "center", padding: "100px 20px", color: "#444" }}>
-       <div style={{ fontSize: "50px", marginBottom: "10px" }}>📭</div>
-       لا توجد طلبات في {activeTab} حالياً..
-    </div>
-  ) : (
-    {getFilteredOrders().map((order) => {
-      if (!order || !order.items) return null;
-
-      // 1. تحويل هيكل الفايربيز المعقد لمصفوفة أصناف موحدة للمعالجة
-      const allItems = [];
-      Object.keys(order.items).forEach(shopName => {
-        const shopData = order.items[shopName];
-        // التأكد من تحويل البيانات لمصفوفة سواء كانت Object أو Array
-        const itemsArray = Array.isArray(shopData) ? shopData : Object.values(shopData);
-        
-        itemsArray.forEach(item => {
-          if (item) {
-            allItems.push({ ...item, shopName }); // نربط اسم المحل بالصنف
-          }
-        });
-      });
-      
-      // 2. تصفية الأصناف حسب التاب النشط
-      const currentTabItems = activeTab === "الكل" 
-        ? allItems 
-        : allItems.filter(item => item.shopName === activeTab);
-
-      // 3. حساب إجمالي الحساب بناءً على الأصناف المعروضة حالياً
-      const tabTotal = currentTabItems.reduce((sum, item) => sum + ((item?.price || 0) * (item?.quantity || 1)), 0);
-
-      // لو التاب مخصص لمحل والطلب ملوش أصناف فيه، مش هنعرض الكارت
-      if (activeTab !== "الكل" && currentTabItems.length === 0) return null;
-
-      return (
-        <div key={order.id} style={{ 
-          backgroundColor: "#16181a", borderRadius: "30px", 
-          border: `2px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, 
-          boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
-        }}>
-
-          {/* شريط معلومات الفاتورة */}
-          <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
-            <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
-            <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
+                        {/* 4. عرض الطلبات المفلترة ذكياً */}
+      <div style={{ display: "grid", gap: "25px" }}>
+        {getFilteredOrders().length === 0 ? (
+          <div style={{ textAlign: "center", padding: "100px 20px", color: "#444" }}>
+             <div style={{ fontSize: "50px", marginBottom: "10px" }}>📭</div>
+             لا توجد طلبات في {activeTab} حالياً..
           </div>
+        ) : (
+          getFilteredOrders().map((order) => {
+            if (!order || !order.items) return null;
 
-          <div style={{ padding: "20px" }}>
-            {/* بيانات العميل */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
-                <p style={{ margin: 0, fontSize: "13px", color: "#888", lineHeight: "1.4" }}>📍 {order.customer?.address || 'العنوان غير مسجل'}</p>
-                <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#FF6600" }}>📱 {order.customer?.phone || '---'}</p>
-              </div>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <a href={`tel:${order.customer?.phone || ''}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📞</a>
-                {order.location && (
-                  <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📍</a>
-                )}
-              </div>
-            </div>
+            // 1. استخراج كل الأصناف وربطها باسم المحل (العنوان في الفايربيز)
+            const allItems = [];
+            Object.keys(order.items).forEach(shopKey => {
+              const shopContent = order.items[shopKey];
+              const itemsArray = Array.isArray(shopContent) ? shopContent : Object.values(shopContent);
+              
+              itemsArray.forEach(item => {
+                if (item) {
+                  // هنا بنخلي اسم المحل هو الـ shopKey اللي جاي من الفايربيز (زي: سوبر ماركت أحمد..)
+                  allItems.push({ ...item, shopName: shopKey }); 
+                }
+              });
+            });
+            
+            // 2. تصفية الأصناف حسب التاب (المحل) المختار
+            const currentTabItems = activeTab === "الكل" 
+              ? allItems 
+              : allItems.filter(item => item.shopName === activeTab);
 
-            {/* ⚠️ جزء الفحص المؤقت لمعرفة شكل البيانات الحقيقي ⚠️ */}
-            <div style={{ 
-              backgroundColor: "#000", color: "#ffff00", padding: "10px", 
-              borderRadius: "10px", fontSize: "10px", marginBottom: "15px", 
-              wordBreak: "break-all", border: "1px dashed #ffff00" 
-            }}>
-              🔍 داتا الأصناف: {JSON.stringify(order.items)}
-            </div>
+            // 3. حساب إجمالي الحساب للتاب الحالي فقط
+            const tabTotal = currentTabItems.reduce((sum, item) => sum + ((item?.price || 0) * (item?.quantity || 1)), 0);
 
-            {/* عرض تفاصيل الأصناف */}
-            <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px", border: "1px solid #1e2022" }}>
-              {activeTab === "الكل" ? (
-                // في تابة "الكل": نعرض الأصناف مقسمة حسب كل محل
-                Object.keys(order.items).map(shop => {
-                  const shopItems = Array.isArray(order.items[shop]) ? order.items[shop] : Object.values(order.items[shop]);
-                  return (
-                    <div key={shop} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                        <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "13px" }}>🏪 {shop}</span>
-                        <button onClick={() => distributeOrder(order, shop)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "5px 12px", borderRadius: "8px", fontSize: "10px", fontWeight: "900" }}>إرسال ✅</button>
-                      </div>
-                      {shopItems.map((item, idx) => (
-                        <div key={idx} style={{ fontSize: "14px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                          <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity || 1}</b></span>
-                          <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                })
-              ) : (
-                // في تابة المحل: نعرض أصناف هذا المحل فقط
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                    <span style={{ fontWeight: "bold", color: "#FF6600" }}>🏪 طلبات {activeTab}</span>
-                    <button onClick={() => distributeOrder(order, activeTab)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "6px 15px", borderRadius: "10px", fontSize: "11px", fontWeight: "900" }}>إرسال الواتساب ✅</button>
-                  </div>
-                  {currentTabItems.map((item, idx) => (
-                    <div key={idx} style={{ fontSize: "15px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                      <span>{item?.name} <b style={{ color: "#FF6600" }}>×{item?.quantity || 1}</b></span>
-                      <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
-                    </div>
-                  ))}
+            // لو التاب محل والطلب ملوش حاجة فيه.. اخفي الكارت
+            if (activeTab !== "الكل" && currentTabItems.length === 0) return null;
+
+            return (
+              <div key={order.id} style={{ backgroundColor: "#16181a", borderRadius: "30px", border: `2px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, marginBottom: "20px", overflow: "hidden" }}>
+                
+                {/* رأس الكارت */}
+                <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+                  <span style={{ color: "#FF6600", fontWeight: "bold" }}>فاتورة #{order.invoiceRef || '---'}</span>
+                  <span style={{ color: "#aaa" }}>{order.orderTime || ''}</span>
                 </div>
-              )}
-            </div>
 
-            {/* إجمالي الحساب بناءً على الفلترة */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", alignItems: "baseline" }}>
-              <span style={{ color: "#888", fontSize: "13px" }}>{activeTab === "الكل" ? "إجمالي الفاتورة:" : `حساب ${activeTab}:`}</span>
-              <span style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{tabTotal} ج.م</span>
-            </div>
-          </div>
+                <div style={{ padding: "20px" }}>
+                  {/* بيانات العميل */}
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
+                    <div>
+                      <h3 style={{ margin: 0, color: "#fff" }}>{order.customer?.name}</h3>
+                      <p style={{ margin: "5px 0", color: "#888", fontSize: "13px" }}>📍 {order.customer?.address}</p>
+                    </div>
+                    <a href={`tel:${order.customer?.phone}`} style={{ backgroundColor: "#28a745", color: "#fff", padding: "10px", borderRadius: "10px", textDecoration: "none" }}>📞</a>
+                  </div>
 
-          {/* أزرار التحكم */}
-          <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b", borderTop: "1px solid #25282b" }}>
-            <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold" }}>حذف 🗑️</button>
-            <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "18px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900" }}>
-              {order.status === 'completed' ? 'تم الاكتمال ✅' : 'تحديد كمكتمل'}
-            </button>
-          </div>
-        </div>
-      );
-    })
-  )}
-</div>
+                  {/* 🟢 عرض الأصناف (هنا الشغل كله) */}
+                  <div style={{ backgroundColor: "#0b0c0d", borderRadius: "15px", padding: "15px" }}>
+                    {activeTab === "الكل" ? (
+                      // في تابة الكل: قسمهم حسب المحل
+                      Object.keys(order.items).map(shopName => (
+                        <div key={shopName} style={{ marginBottom: "10px", borderBottom: "1px solid #1e2124", paddingBottom: "10px" }}>
+                          <div style={{ color: "#FF6600", fontSize: "12px", fontWeight: "bold", marginBottom: "5px" }}>🏪 {shopName}</div>
+                          {(Array.isArray(order.items[shopName]) ? order.items[shopName] : Object.values(order.items[shopName])).map((item, i) => (
+                            <div key={i} style={{ color: "#ddd", display: "flex", justifyContent: "space-between", fontSize: "14px" }}>
+                              <span>{item.name} x{item.quantity || 1}</span>
+                              <span>{item.price * (item.quantity || 1)} ج</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))
+                    ) : (
+                      // في تابة محل معين: اعرض أصنافه بس
+                      currentTabItems.map((item, i) => (
+                        <div key={i} style={{ color: "#ddd", display: "flex", justifyContent: "space-between", fontSize: "15px", marginBottom: "5px" }}>
+                          <span>{item.name} x{item.quantity || 1}</span>
+                          <span>{item.price * (item.quantity || 1)} ج</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* الإجمالي المفلتر */}
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
+                    <span style={{ color: "#888" }}>{activeTab === "الكل" ? "إجمالي الفاتورة" : `حساب ${activeTab}`}</span>
+                    <span style={{ color: "#4caf50", fontWeight: "bold", fontSize: "18px" }}>{tabTotal} ج.م</span>
+                  </div>
+                </div>
+
+                {/* أزرار التحكم */}
+                <div style={{ display: "flex" }}>
+                  <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "15px", background: "#16181a", color: "#ff4444", border: "none" }}>حذف</button>
+                  <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "15px", background: order.status === 'completed' ? "#25282b" : "#FF6600", color: "#000", border: "none", fontWeight: "bold" }}>
+                    {order.status === 'completed' ? 'تم ✅' : 'تحديد كمكتمل'}
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
