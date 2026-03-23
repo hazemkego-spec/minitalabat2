@@ -14,6 +14,10 @@ export default function AdminPage() {
   // --- الإضافات الجديدة لنظام المتاجر الديناميكي ---
   const [activeTab, setActiveTab] = useState("الكل"); 
   const [shops, setShops] = useState([]); 
+  
+  console.log("Current Orders:", orders);
+  console.log("Current Shops:", shops);
+  console.log("Active Tab:", activeTab);
 
   // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW (كاملة)
   useEffect(() => {
