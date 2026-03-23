@@ -3,15 +3,23 @@ import { useState, useEffect, useRef } from "react";
 import { db } from "../../lib/firebase"; 
 import { ref, onValue, update, remove, query } from "firebase/database";
 
+// --- إضافة استيراد المتاجر بناءً على خريطة الملفات ---
+import { shops } from "../components/ShopList"; 
+
 export default function AdminPage() {
   const [orders, setOrders] = useState([]);
   const [isClient, setIsClient] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  
+  // --- إضافة حالات جديدة للنظام المطور ---
+  const [activeTab, setActiveTab] = useState("الكل"); 
+  const shopTabs = ["الكل", ...shops.map(shop => shop.name)];
+
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
-  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW
+  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW (كما أرسلت)
   useEffect(() => {
     setIsClient(true);
     
@@ -53,7 +61,7 @@ export default function AdminPage() {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // مراقبة عودة المستخدم للتطبيق
+  // مراقبة عودة المستخدم للتطبيق (كما أرسلت)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -68,7 +76,7 @@ export default function AdminPage() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [audioEnabled]);
 
-  // 2. الربط اللحظي بـ Firebase (تم التعديل لقراءة هيكل المتاجر الجديد)
+    // 2. الربط اللحظي بـ Firebase (معالجة الهيكل الجديد + التنبيهات)
   useEffect(() => {
     if (!isClient) return; 
 
@@ -80,7 +88,7 @@ export default function AdminPage() {
         const orderList = Object.keys(data).map(id => {
           const rawOrder = data[id];
           
-          // تحويل هيكل الأصناف (Object of Objects) إلى مصفوفة بسيطة
+          // تحويل هيكل الأصناف من Object لـ Array مع ربط اسم المحل
           let processedItems = [];
           if (rawOrder.items && typeof rawOrder.items === 'object') {
             Object.keys(rawOrder.items).forEach(shopName => {
@@ -91,7 +99,7 @@ export default function AdminPage() {
                 if (item) {
                   processedItems.push({ 
                     ...item, 
-                    shopName: shopName.trim() // ربط اسم المحل بالصنف
+                    shopName: shopName.trim() 
                   });
                 }
               });
@@ -101,12 +109,23 @@ export default function AdminPage() {
           return {
             id,
             ...rawOrder,
-            processedItems // هذه المصفوفة الجاهزة للعرض
+            processedItems 
           };
         }).reverse();
 
+        // 🔔 منطق التنبيه الذكي
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
-          handleNewOrderNotification(orderList[0]);
+          const newOrder = orderList[0];
+          
+          // التنبيه يشتغل في حالتين: 
+          // 1. المدير فاتح تابة "الكل"
+          // 2. أو الأوردر الجديد فيه أصناف تخص "المحل" اللي المدير فاتحه حالياً
+          const isRelevantToTab = activeTab === "الكل" || 
+            newOrder.processedItems.some(item => item.shopName === activeTab);
+
+          if (isRelevantToTab) {
+            handleNewOrderNotification(newOrder);
+          }
         }
         
         setOrders(orderList);
@@ -118,20 +137,20 @@ export default function AdminPage() {
     });
 
     return () => unsubscribe();
-  }, [isClient]);
+  }, [isClient, activeTab]); // إضافة activeTab هنا لضمان دقة التنبيه
 
-  // 3. دالة التثبيت
+  // 3. دالة التثبيت (PWA)
   const handleInstallApp = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === "accepted") setDeferredPrompt(null);
   };
-// 4. دالة التنبيه (نسخة التشغيل الإجباري للصوت والاشعارات)
+
+  // 4. دالة التنبيه (صوت + إشعارات نظام)
   const handleNewOrderNotification = (order) => {
     const isAudioSaved = localStorage.getItem("adminAudioEnabled") === "true";
     
-    // 1. محاولة تشغيل الصوت مع "إيقاظ" المتصفح
     if (audioRef.current && (audioEnabled || isAudioSaved)) {
       audioRef.current.muted = false; 
       audioRef.current.pause();
@@ -140,27 +159,24 @@ export default function AdminPage() {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          console.log("🔊 تم تشغيل صوت التنبيه بنجاح");
+          console.log("🔊 صوت التنبيه يعمل");
         }).catch(error => {
-          console.warn("⚠️ المتصفح منع الصوت تلقائياً:", error);
+          console.warn("⚠️ محاولة الهزاز كبديل:", error);
           if (navigator.vibrate) navigator.vibrate([500, 200, 500]); 
         });
       }
     }
 
-    // 2. إرسال إشعار النظام
     if ("Notification" in window && Notification.permission === "granted") {
       try {
-        new Notification("🔔 أوردر جديد وصل!", {
-          body: `العميل: ${order.customer?.name || 'مجهول'} | المبلغ: ${order.total || 0} ج.م`,
-          icon: "/adminMT.png",
-          tag: "admin-order-alert", 
+        new Notification("🔔 أوردر جديد لـ ميني طلبات", {
+          body: `العميل: ${order.customer?.name || 'مجهول'} | فاتورة #${order.invoiceRef}`,
+          icon: "/icon.png",
+          tag: "admin-alert", 
           requireInteraction: true, 
           vibrate: [200, 100, 200]
         });
-      } catch (e) {
-        console.error("Notification Error:", e);
-      }
+      } catch (e) { console.error(e); }
     }
   };
 
@@ -173,12 +189,12 @@ export default function AdminPage() {
         audioRef.current.currentTime = 0;
         setAudioEnabled(true);
         localStorage.setItem("adminAudioEnabled", "true"); 
-        alert("✅ تم تفعيل الصوت بنجاح! 🛡️");
-      }).catch(() => alert("يرجى الضغط مرة أخرى للسماح بالصوت"));
+        alert("✅ تم تفعيل التنبيهات الصوتية بنجاح! 🛡️");
+      }).catch(() => alert("يرجى المحاولة مرة أخرى"));
     }
   };
 
-  // 6. التحكم في حالة الطلب
+    // 6. التحكم في حالة الطلب
   const toggleStatus = async (orderId, currentStatus) => {
     try {
       const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
@@ -199,32 +215,74 @@ export default function AdminPage() {
     }
   };
 
-  // 8. توزيع الطلب للواتساب (تم تحديثها لتدعم الهيكل الجديد ✅)
-  const distributeOrder = (order, shopName) => {
-    // سحب الأصناف الخاصة بهذا المحل فقط من المصفوفة المعالجة
+  // 8. دالة الطباعة الاحترافية (Print) 🖨️
+  const printOrder = (order, shopName) => {
     const shopItems = order.processedItems?.filter(item => item.shopName === shopName) || [];
+    if (shopItems.length === 0) return;
+
+    const printWindow = window.open('', '_blank');
+    let shopTotal = 0;
     
-    if (shopItems.length === 0) {
-        alert("لا توجد أصناف لهذا المتجر");
-        return;
-    }
+    const itemsHtml = shopItems.map(item => {
+      const total = item.price * item.quantity;
+      shopTotal += total;
+      return `
+        <tr>
+          <td style="padding: 5px; border-bottom: 1px dashed #ccc;">${item.name}</td>
+          <td style="padding: 5px; border-bottom: 1px dashed #ccc; text-align: center;">${item.quantity}</td>
+          <td style="padding: 5px; border-bottom: 1px dashed #ccc; text-align: left;">${total}ج</td>
+        </tr>`;
+    }).join('');
+
+    printWindow.document.write(`
+      <div dir="rtl" style="font-family: Arial, sans-serif; width: 80mm; padding: 10px; color: #000;">
+        <center>
+          <h2 style="margin: 0;">ميني طلبات 🛵</h2>
+          <p style="font-size: 14px; margin: 5px 0;">متجر: ${shopName}</p>
+          <hr style="border: 1px solid #000;">
+        </center>
+        <p style="font-size: 12px;"><b>رقم الفاتورة:</b> #${order.invoiceRef}</p>
+        <p style="font-size: 12px;"><b>العميل:</b> ${order.customer?.name}</p>
+        <p style="font-size: 12px;"><b>العنوان:</b> ${order.customer?.address}</p>
+        <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="border-bottom: 1px solid #000;">
+              <th style="text-align: right;">الصنف</th>
+              <th>العدد</th>
+              <th style="text-align: left;">السعر</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+        <h3 style="text-align: left; margin-top: 15px;">الإجمالي: ${shopTotal} ج.م</h3>
+        <center><p style="font-size: 10px; margin-top: 20px;">شكراً لتعاملكم معنا ✨</p></center>
+      </div>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+  };
+
+  // 9. توزيع الطلب للواتساب
+  const distributeOrder = (order, shopName) => {
+    const shopItems = order.processedItems?.filter(item => item.shopName === shopName) || [];
+    if (shopItems.length === 0) return;
 
     let msg = `*📦 طلب جديد - ميني طلبات*\n`;
     msg += `*🧾 فاتورة رقم: #${order.invoiceRef || '---'}*\n`;
     msg += `*👤 العميل:* ${order.customer?.name || 'غير مسجل'}\n`;
-    msg += `*📞 الهاتف:* ${order.customer?.phone || '---'}\n`;
+    msg += `*📍 العنوان:* ${order.customer?.address || '---'}\n`;
     msg += `*🛒 متجر: ${shopName}*\n\n`;
     
     let shopTotal = 0;
     shopItems.forEach(item => {
-      const q = item.quantity || 1;
-      const p = item.price || 0;
-      const itemTotal = p * q;
+      const itemTotal = item.price * item.quantity;
       shopTotal += itemTotal;
-      msg += `• ${item.name} (${q}) = ${itemTotal} ج\n`;
+      msg += `• ${item.name} (${item.quantity}) = ${itemTotal} ج\n`;
     });
     
-    msg += `\n*💰 المطلوب تحصيله: ${shopTotal} ج.م*`;
+    msg += `\n*💰 المطلوب تحصيله للمتجر: ${shopTotal} ج.م*`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
@@ -232,129 +290,155 @@ export default function AdminPage() {
 
   return (
     <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", paddingBottom: "80px" }}>
-      
-      {/* ملف الصوت */}
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
-      {/* 2. أزرار الأكشن */}
+      {/* أزرار الأكشن العلوية */}
       <div style={{ position: "sticky", top: "10px", zIndex: 110, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "15px" }}>
-        
         {!audioEnabled && (
           <div 
             style={{ 
-              backgroundColor: "#FF6600", color: "#000", padding: "20px", borderRadius: "22px", 
+              backgroundColor: "#FF6600", color: "#000", padding: "18px", borderRadius: "20px", 
               textAlign: "center", fontWeight: "900", cursor: "pointer", 
-              boxShadow: "0 10px 25px rgba(255,102,0,0.5)", border: "3px solid #fff",
-              marginBottom: "10px"
+              boxShadow: "0 10px 25px rgba(255,102,0,0.5)", border: "3px solid #fff"
             }} 
             onClick={toggleAudioSystem}
           >
-            📢 اضغط هنا لتفعيل صوت التنبيهات 🔔
-            <div style={{ fontSize: "10px", marginTop: "5px", fontWeight: "normal" }}>
-              (يجب التفعيل مرة واحدة لضمان وصول الأوردرات فوراً)
-            </div>
-          </div>
-        )}
-
-        {deferredPrompt && (
-          <div 
-            style={{ 
-              backgroundColor: "#1a73e8", color: "#fff", padding: "12px", borderRadius: "15px", 
-              textAlign: "center", fontWeight: "bold", cursor: "pointer", 
-              boxShadow: "0 5px 15px rgba(26,115,232,0.3)", border: "1px solid rgba(255,255,255,0.1)" 
-            }} 
-            onClick={handleInstallApp}
-          >
-            📲 تثبيت لوحة الإدارة (منفصل)
+            📢 اضغط لتفعيل صوت التنبيهات 🔔
           </div>
         )}
       </div>
-      {/* 3. الهيدر */}
+
+            {/* 3. الهيدر المطور (دعم الـ Tabs) */}
       <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px", marginBottom: "15px" }}>
           <div>
             <h1 style={{ color: "#FF6600", margin: 0, fontSize: "24px", fontWeight: "900" }}>لوحة التحكم 🛡️</h1>
-            <p style={{ color: "#888", fontSize: "12px", margin: 0 }}>متابعة الطلبات لحظياً</p>
+            <p style={{ color: "#888", fontSize: "12px", margin: 0 }}>متابعة {activeTab} لحظياً</p>
           </div>
           <div style={{ textAlign: "center", backgroundColor: "#1a1c1e", padding: "10px 20px", borderRadius: "15px", border: "1px solid #2d3035" }}>
-            <div style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{orders.length}</div>
+            <div style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{getFilteredOrders().length}</div>
             <div style={{ fontSize: "10px", color: "#888" }}>طلب نشط</div>
           </div>
         </div>
+
+        {/* 📱 شريط التبويبات (ديناميكي من ShopList) */}
+        <div style={{ display: "flex", gap: "10px", overflowX: "auto", padding: "0 10px 10px", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {shopTabs.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: "10px 22px",
+                borderRadius: "15px",
+                border: "none",
+                backgroundColor: activeTab === tab ? "#FF6600" : "#1a1c1e",
+                color: activeTab === tab ? "#000" : "#fff",
+                fontWeight: "900",
+                whiteSpace: "nowrap",
+                cursor: "pointer",
+                transition: "0.3s",
+                boxShadow: activeTab === tab ? "0 4px 15px rgba(255,102,0,0.3)" : "none",
+                fontSize: "13px"
+              }}
+            >
+              {tab === "الكل" ? "🌍 الكل" : tab}
+            </button>
+          ))}
+        </div>
       </header>
 
-      {/* 4. عرض الطلبات (تم التعديل لضمان قراءة البيانات مهما كان شكلها) */}
+      {/* 4. عرض الطلبات المفلترة */}
       <div style={{ display: "grid", gap: "25px" }}>
-        {orders.length === 0 ? (
+        {getFilteredOrders().length === 0 ? (
           <div style={{ textAlign: "center", padding: "100px 20px", color: "#444" }}>
              <div style={{ fontSize: "50px", marginBottom: "10px" }}>📭</div>
-             لا توجد طلبات حالياً..
+             لا توجد طلبات في "{activeTab}" حالياً..
           </div>
         ) : (
-          orders.map((order) => (
-            <div key={order.id} style={{ 
-              backgroundColor: "#16181a", borderRadius: "30px", border: `2px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, 
-              boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
-            }}>
-              <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
-                <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
-                <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
-              </div>
+          getFilteredOrders().map((order) => {
+            // حساب إجمالي "المحل الحالي" فقط داخل الفاتورة
+            const getShopTotal = (sName) => {
+                return order.processedItems
+                    ?.filter(item => item.shopName === sName)
+                    .reduce((total, item) => total + (item.price * item.quantity), 0) || 0;
+            };
 
-              <div style={{ padding: "20px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>📍 {order.customer?.address || 'بدون عنوان'}</p>
+            return (
+              <div key={order.id} style={{ 
+                backgroundColor: "#16181a", borderRadius: "30px", border: `2px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, 
+                boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
+              }}>
+                <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+                  <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
+                  <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
+                </div>
+
+                <div style={{ padding: "20px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
+                      <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>📍 {order.customer?.address || 'بدون عنوان'}</p>
+                    </div>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📞</a>
+                      {order.location && (
+                        <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📍</a>
+                      )}
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: "12px" }}>
-                    <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "15px", fontSize: "20px" }}>📞</a>
-                    {order.location && (
-                      <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "15px", fontSize: "20px" }}>📍</a>
+
+                  {/* 🛒 عرض الأصناف (حسب التبويب المختار) */}
+                  <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px" }}>
+                    {order.items && typeof order.items === 'object' ? (
+                      Object.keys(order.items)
+                        .filter(shopName => activeTab === "الكل" || shopName === activeTab)
+                        .map((shopName) => {
+                          const shopItems = Array.isArray(order.items[shopName]) ? order.items[shopName] : Object.values(order.items[shopName]);
+                          return (
+                            <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                                <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "14px" }}>🏪 {shopName}</span>
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                    <button onClick={() => printOrder(order, shopName)} style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #444", padding: "6px 10px", borderRadius: "8px", fontSize: "10px", cursor: "pointer" }}>🖨️ طباعة</button>
+                                    <button onClick={() => distributeOrder(order, shopName)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "6px 12px", borderRadius: "8px", fontSize: "10px", fontWeight: "900", cursor: "pointer" }}>ارسال ✅</button>
+                                </div>
+                              </div>
+                              {shopItems.map((item, i) => (
+                                <div key={i} style={{ fontSize: "13px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+                                  <span>{item?.name} <b>×{item?.quantity || 1}</b></span>
+                                  <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
+                                </div>
+                              ))}
+                              {/* إجمالي المتجر الواحد داخل الفاتورة */}
+                              <div style={{ textAlign: "left", fontSize: "11px", color: "#4caf50", marginTop: "5px", fontWeight: "bold" }}>
+                                إجمالي المتجر: {getShopTotal(shopName)} ج.م
+                              </div>
+                            </div>
+                          );
+                        })
+                    ) : (
+                      <div style={{ color: "#555", textAlign: "center", fontSize: "12px" }}>لا توجد تفاصيل</div>
                     )}
                   </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "18px", alignItems: "center" }}>
+                    <span style={{ color: "#888", fontSize: "13px" }}>{activeTab === "الكل" ? "الإجمالي الكلي للفاتورة:" : `حساب ${activeTab}:`}</span>
+                    <span style={{ fontSize: "22px", fontWeight: "900", color: "#FF6600" }}>
+                        {activeTab === "الكل" ? (order.total || 0) : getShopTotal(activeTab)} ج.م
+                    </span>
+                  </div>
                 </div>
 
-                {/* 🛒 عرض الأصناف مقسمة حسب المحل */}
-                <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px" }}>
-                  {order.items && typeof order.items === 'object' ? (
-                    Object.keys(order.items).map((shopName) => {
-                      const shopItems = Array.isArray(order.items[shopName]) ? order.items[shopName] : Object.values(order.items[shopName]);
-                      return (
-                        <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                            <span style={{ fontWeight: "bold", color: "#FF6600" }}>🏪 {shopName}</span>
-                            <button onClick={() => distributeOrder(order, shopName)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "8px 15px", borderRadius: "10px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}>إرسال ✅</button>
-                          </div>
-                          {shopItems.map((item, i) => (
-                            <div key={i} style={{ fontSize: "13px", color: "#ddd", display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-                              <span>{item?.name} <b>×{item?.quantity || 1}</b></span>
-                              <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div style={{ color: "#555", textAlign: "center", fontSize: "12px" }}>لا توجد تفاصيل للأصناف</div>
-                  )}
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
-                  <span style={{ color: "#888" }}>الإجمالي المطلوب:</span>
-                  <span style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{order.total || 0} ج.م</span>
+                {/* أزرار التحكم السفلية */}
+                <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b" }}>
+                  <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold", cursor: "pointer" }}>حذف 🗑️</button>
+                  <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "18px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900", cursor: "pointer" }}>
+                    {order.status === 'completed' ? 'تم الاكتمال ✅' : 'تحديد كمكتمل'}
+                  </button>
                 </div>
               </div>
-
-              {/* أزرار التحكم */}
-              <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b" }}>
-                <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold", cursor: "pointer" }}>حذف 🗑️</button>
-                <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "18px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900", cursor: "pointer" }}>
-                  {order.status === 'completed' ? 'تم الاكتمال ✅' : 'تحديد كمكتمل'}
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
