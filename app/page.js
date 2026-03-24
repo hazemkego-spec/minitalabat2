@@ -407,7 +407,7 @@ export default function HomePage() {
       )}
 {activeTab === "home" && !selectedShop && (
   <>
-    {/* 🖼️ 1. الـ Cover Section (ثابت في الوضعين لضمان ظهور البانر بوضوح) */}
+    {/* 🖼️ 1. الـ Cover Section */}
     <div style={{ position: "relative", width: "100%", height: "180px", overflow: "hidden" }}>
       <img
         src="/cover.png"
@@ -419,7 +419,6 @@ export default function HomePage() {
           filter: isDarkMode ? "brightness(0.9) contrast(1.1)" : "brightness(1.05)" 
         }}
       />
-      {/* تدريج لوني يدمج الكوفر مع الخلفية الديناميكية */}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         height: "50px", 
@@ -427,12 +426,11 @@ export default function HomePage() {
       }}></div>
     </div>
 
-    {/* 🎡 2. شعار المول مع إضاءة خلفية (تتفاعل مع الوضع) */}
+    {/* 🎡 2. شعار المول */}
     <div style={{ textAlign: "center", marginTop: "-45px", position: "relative", zIndex: 5 }}>
       <div style={{
         display: "inline-block",
         borderRadius: "50%",
-        // إضاءة برتقالية قوية في الداكن وخفيفة في الفاتح
         boxShadow: isDarkMode ? "0 0 25px 8px rgba(255,102,0,0.35)" : "0 5px 15px rgba(255,102,0,0.2)" 
       }}>
         <img
@@ -440,55 +438,37 @@ export default function HomePage() {
           alt="Mall Logo"
           style={{
             width: "85px", height: "85px", borderRadius: "50%",
-            border: `4px solid ${theme.background}`, // حدود بلون الخلفية
+            border: `4px solid ${theme.background}`,
             backgroundColor: "#fff"
           }}
         />
       </div>
     </div>
 
-    {/* 🔍 3. شريط البحث (ديناميكي + منع الزوم) */}
+    {/* 🔍 3. شريط البحث */}
     <div style={{ padding: "15px 15px 5px", display: "flex", justifyContent: "center" }}>
       <div style={{ position: "relative", width: "95%" }}>
-        {/* العدسة على اليسار */}
-        <span style={{ 
-          position: "absolute", 
-          left: "12px", 
-          top: "50%", 
-          transform: "translateY(-50%)", 
-          color: theme.subText, 
-          fontSize: "14px",
-          zIndex: 2 
-        }}>🔍</span>
-        
+        <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: theme.subText, fontSize: "14px", zIndex: 2 }}>🔍</span>
         <input
           type="text"
           placeholder="ابحث عن متجر أو صنف..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
-            width: "100%", 
-            padding: "12px 15px 12px 40px", 
-            borderRadius: "15px",
-            border: `1px solid ${theme.border}`, 
-            backgroundColor: theme.cardBg, // خلفية متغيرة
-            color: theme.text, // نص متغير
-            outline: "none", 
-            fontSize: "16px", // 🛡️ منع الزوم التلقائي
-            textAlign: "right",
+            width: "100%", padding: "12px 15px 12px 40px", borderRadius: "15px",
+            border: `1px solid ${theme.border}`, backgroundColor: theme.cardBg,
+            color: theme.text, outline: "none", fontSize: "16px", textAlign: "right",
             boxShadow: isDarkMode ? "none" : "0 2px 10px rgba(0,0,0,0.05)"
           }}
         />
       </div>
     </div>
 
-    {/* 📑 4. شريط التصنيفات (Sticky & Dynamic) */}
+    {/* 📑 4. شريط التصنيفات */}
     <div style={{ 
       display: "flex", overflowX: "auto", padding: "10px 15px", gap: "8px", 
       scrollbarWidth: "none", position: "sticky", top: "0", zIndex: 10,
-      backgroundColor: theme.background, 
-      borderBottom: `1px solid ${theme.border}`,
-      transition: "background-color 0.3s ease"
+      backgroundColor: theme.background, borderBottom: `1px solid ${theme.border}`
     }}>
       {categories.map((cat) => (
         <button
@@ -496,148 +476,72 @@ export default function HomePage() {
           onClick={() => setSelectedCategory(cat)}
           style={{
             flex: "0 0 auto", padding: "8px 18px", borderRadius: "20px",
-            border: "none", 
-            backgroundColor: selectedCategory === cat ? theme.primary : theme.cardBg,
+            border: "none", backgroundColor: selectedCategory === cat ? theme.primary : theme.cardBg,
             color: selectedCategory === cat ? "#fff" : theme.text,
-            fontWeight: "bold", cursor: "pointer",
-            transition: "all 0.3s ease", 
-            fontSize: "13px",
-            boxShadow: isDarkMode ? "none" : "0 2px 5px rgba(0,0,0,0.05)"
+            fontWeight: "bold", transition: "all 0.3s ease", fontSize: "13px"
           }}
         >
           {cat}
         </button>
       ))}
     </div>
-  </>
-)}
-      {/* 🏬 5. عرض المتاجر - نظام الزوجي الديناميكي */}
-      <div style={{ 
-        padding: "15px", 
-        display: "grid", 
-        gridTemplateColumns: "repeat(2, 1fr)", 
-        gap: "12px" 
-      }}>
-        {filteredShops.length === 0 ? (
-          <div style={{ textAlign: "center", gridColumn: "span 2", padding: "40px 0" }}>
-            <span style={{ fontSize: "40px" }}>🔍</span>
-            <p style={{ color: theme.subText, marginTop: "10px" }}>لا توجد متاجر مطابقة لطلبك</p>
-          </div>
-        ) : (
-          filteredShops.map((shop) => (
-            <div
-              key={shop.id}
-              onClick={() => setSelectedShop(shop)}
-              style={{
-                position: "relative",
-                height: "180px",
-                borderRadius: "20px",
-                overflow: "hidden",
-                cursor: "pointer",
-                backgroundColor: theme.cardBg, // خلفية ديناميكية
-                border: `1px solid ${theme.border}`, // حدود ديناميكية
-                boxShadow: theme.shadow,
-                transition: "transform 0.2s ease"
-              }}
-              onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.96)"}
-              onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
-            >
-              {/* صورة الغلاف */}
-              <img
-                src={shop.cover || shop.logo} 
-                alt={shop.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  opacity: isDarkMode ? "0.6" : "0.85", // تفتيح الصورة في الوضع الفاتح
-                  filter: isDarkMode ? "brightness(0.7)" : "brightness(1)"
-                }}
-              />
 
-              {/* طبقة التدريج (تتغير حسب الوضع لدمج النصوص) */}
-              <div style={{
-                position: "absolute",
-                top: 0, left: 0, right: 0, bottom: 0,
-                background: isDarkMode 
-                  ? "linear-gradient(to top, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.4) 50%, transparent 100%)"
-                  : "linear-gradient(to top, rgba(255,255,255,0.98) 10%, rgba(255,255,255,0.3) 50%, transparent 100%)"
-              }}></div>
-
-              {/* محتوى الكارت */}
-              <div style={{
-                position: "absolute",
-                bottom: "12px",
-                right: "10px",
-                left: "10px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center"
-              }}>
-                <div style={{ position: "relative", marginBottom: "8px" }}>
-                  <img
-                    src={shop.logo}
-                    alt={shop.name}
-                    style={{
-                      width: "48px", height: "48px", borderRadius: "12px",
-                      border: `2px solid ${theme.primary}`, 
-                      backgroundColor: "#fff",
-                      objectFit: "contain", padding: "2px"
-                    }}
-                  />
-                  {shop.isOpen && (
-                    <span style={{
-                      position: "absolute", top: "-3px", left: "-3px",
-                      width: "10px", height: "10px", backgroundColor: "#4caf50",
-                      borderRadius: "50%", border: `2px solid ${theme.cardBg}`
-                    }}></span>
-                  )}
-                </div>
-                
-                <h4 style={{ 
-                  color: theme.text, // اسم المحل يقلب أبيض/أسود تلقائي
-                  margin: "0", 
-                  fontSize: "13px", 
-                  fontWeight: "900", // خط عريض وواضح
-                  lineHeight: "1.2",
-                  display: "-webkit-box",
-                  WebkitLineClamp: "1",
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden"
-                }}>
-                  {shop.name}
-                </h4>
-
-                <div style={{ marginTop: "4px" }}>
-                   <span style={{ 
-                     fontSize: "9px", 
-                     color: shop.isOpen ? "#4caf50" : "#f44336",
-                     fontWeight: "bold",
-                     backgroundColor: isDarkMode ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)",
-                     padding: "2px 6px",
-                     borderRadius: "4px"
-                   }}>
-                     {shop.isOpen ? "● مفتوح" : "○ مغلق"}
-                   </span>
-                </div>
+    {/* 🏬 5. عرض المتاجر (تم إدخاله داخل الـ Fragment والشرط) */}
+    <div style={{ padding: "15px", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+      {filteredShops.length === 0 ? (
+        <div style={{ textAlign: "center", gridColumn: "span 2", padding: "40px 0" }}>
+          <span style={{ fontSize: "40px" }}>🔍</span>
+          <p style={{ color: theme.subText, marginTop: "10px" }}>لا توجد متاجر مطابقة لطلبك</p>
+        </div>
+      ) : (
+        filteredShops.map((shop) => (
+          <div
+            key={shop.id}
+            onClick={() => setSelectedShop(shop)}
+            style={{
+              position: "relative", height: "180px", borderRadius: "20px",
+              overflow: "hidden", cursor: "pointer", backgroundColor: theme.cardBg,
+              border: `1px solid ${theme.border}`, boxShadow: theme.shadow, transition: "transform 0.2s ease"
+            }}
+            onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.96)"}
+            onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
+            <img src={shop.cover || shop.logo} alt={shop.name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: isDarkMode ? "0.6" : "0.85" }} />
+            <div style={{
+              position: "absolute", inset: 0,
+              background: isDarkMode 
+                ? "linear-gradient(to top, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.4) 50%, transparent 100%)"
+                : "linear-gradient(to top, rgba(255,255,255,0.98) 10%, rgba(255,255,255,0.3) 50%, transparent 100%)"
+            }}></div>
+            <div style={{ position: "absolute", bottom: "12px", right: "10px", left: "10px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <div style={{ position: "relative", marginBottom: "8px" }}>
+                <img src={shop.logo} alt={shop.name} style={{ width: "48px", height: "48px", borderRadius: "12px", border: `2px solid ${theme.primary}`, backgroundColor: "#fff", objectFit: "contain", padding: "2px" }} />
+                {shop.isOpen && <span style={{ position: "absolute", top: "-3px", left: "-3px", width: "10px", height: "10px", backgroundColor: "#4caf50", borderRadius: "50%", border: `2px solid ${theme.cardBg}` }}></span>}
+              </div>
+              <h4 style={{ color: theme.text, margin: "0", fontSize: "13px", fontWeight: "900", WebkitLineClamp: "1", display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{shop.name}</h4>
+              <div style={{ marginTop: "4px" }}>
+                 <span style={{ fontSize: "9px", color: shop.isOpen ? "#4caf50" : "#f44336", fontWeight: "bold", backgroundColor: isDarkMode ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)", padding: "2px 6px", borderRadius: "4px" }}>
+                   {shop.isOpen ? "● مفتوح" : "○ مغلق"}
+                 </span>
               </div>
             </div>
-          ))
-        )}
-      </div>
-    </>
-    )}
-
-      {activeTab === "home" && selectedShop && (
-        <ShopDetails
-          shop={selectedShop}
-          onBack={() => setSelectedShop(null)}
-          addToCart={addToCart}
-          theme={theme} // تمرير الثيم لصفحة التفاصيل
-          isDarkMode={isDarkMode}
-        />
+          </div>
+        ))
       )}
+    </div>
+  </>
+)}
+
+{/* انتقالات الصفحات الأخرى */}
+{activeTab === "home" && selectedShop && (
+  <ShopDetails
+    shop={selectedShop}
+    onBack={() => setSelectedShop(null)}
+    addToCart={addToCart}
+    theme={theme}
+    isDarkMode={isDarkMode}
+  />
+)}
 
       {activeTab === "cart" && (
         <Cart
