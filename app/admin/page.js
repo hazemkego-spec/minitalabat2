@@ -286,6 +286,16 @@ export default function AdminPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
+// ✅ 1. دالة فلترة الأوردرات (توضع قبل الـ return)
+  const getFilteredOrders = () => {
+    if (!orders || !Array.isArray(orders)) return []; 
+    if (activeTab === "الكل") return orders;
+    return orders.filter(order => 
+      order?.processedItems && Array.isArray(order.processedItems) && 
+      order.processedItems.some(item => item?.shopName === activeTab)
+    );
+  };
+
   if (!isClient) return null;
 
   return (
@@ -346,22 +356,6 @@ export default function AdminPage() {
           ))}
         </div>
       </header>
-
-    // ✅ 1. دالة فلترة الأوردرات (توضع قبل الـ return)
-  const getFilteredOrders = () => {
-    if (!orders || !Array.isArray(orders)) return []; 
-    if (activeTab === "الكل") return orders;
-    return orders.filter(order => 
-      order?.processedItems && Array.isArray(order.processedItems) && 
-      order.processedItems.some(item => item?.shopName === activeTab)
-    );
-  };
-
-  if (!isClient) return null;
-
-  return (
-    <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px" }}>
-      {/* ... كود الهيدر والأزرار ... */}
 
       <div style={{ display: "grid", gap: "25px" }}>
         {getFilteredOrders().length === 0 ? (
