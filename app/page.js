@@ -365,54 +365,98 @@ export default function HomePage() {
         </div>
       )}
 
-      {activeTab === "home" && !selectedShop && (
+            {activeTab === "home" && !selectedShop && (
         <>
-          <img
-            src="/cover.png"
-            alt="App Cover"
-            style={{ width: "100%", height: "165px", objectFit: "cover" }}
-          />
-          <div style={{ textAlign: "center", marginTop: "-40px" }}>
+          {/* 1. الهيدر التفاعلي (Hero Section) */}
+          <div style={{ position: "relative", width: "100%", height: "200px", overflow: "hidden" }}>
+            <img
+              src="/cover.png"
+              alt="App Cover"
+              style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.6)" }}
+            />
+            {/* نص ترحيبي عائم فوق البانر */}
+            <div style={{ 
+              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+              textAlign: "center", width: "100%", padding: "0 20px" 
+            }}>
+              <h1 style={{ color: "#fff", fontSize: "24px", fontWeight: "900", marginBottom: "5px", textShadow: "2px 2px 10px rgba(0,0,0,0.8)" }}>
+                ميني طلبات 🚀
+              </h1>
+              <p style={{ color: "#FF6600", fontSize: "14px", fontWeight: "bold" }}>أكبر مول تجاري رقمي في جيبك</p>
+            </div>
+          </div>
+
+          {/* 2. شعار المول العائم (Floating Logo) */}
+          <div style={{ textAlign: "center", marginTop: "-45px", position: "relative", zIndex: 5 }}>
             <img
               src="/mall-logo.png"
               alt="Mall Logo"
               style={{
-                width: "80px", height: "80px", borderRadius: "50%",
-                border: "3px solid #FF6600", backgroundColor: "#fff"
+                width: "90px", height: "90px", borderRadius: "50%",
+                border: "4px solid #121212", backgroundColor: "#fff",
+                boxShadow: "0 10px 20px rgba(0,0,0,0.5)"
               }}
             />
           </div>
 
-        <div style={{ padding: "15px" }}>
-          <input
-            type="text"
-            placeholder="ابحث عن متجر أو صنف..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: "100%", padding: "12px", borderRadius: "10px",
-              border: "1px solid #333", backgroundColor: "#1e1e1e",
-              color: "#fff", outline: "none"
-            }}
-          />
-        </div>
+          {/* 3. شريط مؤشرات الثقة (Trust Signals Bar) */}
+          <div style={{ 
+            display: "flex", justifyContent: "space-around", padding: "15px 10px", 
+            backgroundColor: "#1e1e1e", margin: "15px", borderRadius: "15px", border: "1px solid #252525" 
+          }}>
+            <div style={{ textAlign: "center" }}>
+              <span style={{ fontSize: "18px" }}>🛡️</span>
+              <p style={{ fontSize: "10px", color: "#aaa", marginTop: "5px" }}>محلات موثقة</p>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <span style={{ fontSize: "18px" }}>⚡</span>
+              <p style={{ fontSize: "10px", color: "#aaa", marginTop: "5px" }}>توصيل سريع</p>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <span style={{ fontSize: "18px" }}>💰</span>
+              <p style={{ fontSize: "10px", color: "#aaa", marginTop: "5px" }}>أفضل الأسعار</p>
+            </div>
+          </div>
 
-        <div style={{ display: "flex", overflowX: "auto", padding: "10px", gap: "10px", scrollbarWidth: "none" }}>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              style={{
-                flex: "0 0 auto", padding: "8px 18px", borderRadius: "20px",
-                border: "none", backgroundColor: selectedCategory === cat ? "#FF6600" : "#252525",
-                color: "#fff", fontWeight: "bold", cursor: "pointer",
-                transition: "all 0.3s ease"
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+          {/* 4. شريط البحث المطور */}
+          <div style={{ padding: "0 15px 15px" }}>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", right: "15px", top: "12px", color: "#888", zIndex: 1 }}>🔍</span>
+              <input
+                type="text"
+                placeholder="بتدور على مطعم أو صنف معين؟"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: "100%", padding: "12px 40px 12px 12px", borderRadius: "15px",
+                  border: "1px solid #333", backgroundColor: "#1e1e1e",
+                  color: "#fff", outline: "none", fontSize: "14px", textAlign: "right"
+                }}
+              />
+            </div>
+          </div>
+
+          {/* 5. شريط التصنيفات (Categories) */}
+          <div style={{ 
+            display: "flex", overflowX: "auto", padding: "10px", gap: "10px", 
+            scrollbarWidth: "none", position: "sticky", top: "0", zIndex: 10,
+            backgroundColor: "#121212" 
+          }}>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  flex: "0 0 auto", padding: "8px 18px", borderRadius: "20px",
+                  border: "none", backgroundColor: selectedCategory === cat ? "#FF6600" : "#252525",
+                  color: "#fff", fontWeight: "bold", cursor: "pointer",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
 
              {/* عرض المتاجر المفلترة - نظام الزوجي المحسن (2 في كل صف) */}
 <div style={{ 
