@@ -366,120 +366,134 @@ export default function HomePage() {
       )}
 
                   {activeTab === "home" && !selectedShop && (
-        <>
-          {/* 🖼️ 1. الـ Cover Section المفتح والواضح */}
-          <div style={{ position: "relative", width: "100%", height: "180px", overflow: "hidden" }}>
-            <img
-              src="/cover.png"
-              alt="App Cover"
-              style={{ 
-                width: "100%", 
-                height: "100%", 
-                objectFit: "cover", 
-                // تفتيح اللون عن طريق زيادة الـ brightness والـ grayscale قليلاً لتباين النصوص
-                filter: "brightness(0.9) grayscale(10%)" 
-              }}
-            />
-            {/* طبقة تدريجية خفيفة جداً فقط لضمان قراءة نصوص البانر الأصلي */}
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0,
-              height: "60px", background: "linear-gradient(to top, #121212, transparent)"
-            }}></div>
-          </div>
+  <>
+    {/* 🖼️ 1. الـ Cover Section المفتح والواضح جداً */}
+    <div style={{ position: "relative", width: "100%", height: "180px", overflow: "hidden" }}>
+      <img
+        src="/cover.png"
+        alt="App Cover"
+        style={{ 
+          width: "100%", 
+          height: "100%", 
+          objectFit: "cover", 
+          filter: "brightness(1) contrast(1.1)" // تفتيح كامل ووضوح للصورة
+        }}
+      />
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        height: "40px", background: "linear-gradient(to top, #121212, transparent)"
+      }}></div>
+    </div>
 
-          {/* 🎡 2. شعار المول مع "تأثير الإضاءة الخلفية الشيك" */}
-          <div style={{ textAlign: "center", marginTop: "-45px", position: "relative", zIndex: 5 }}>
-            <div style={{
-              display: "inline-block",
-              borderRadius: "50%",
-              // تأثير الإضاءة الخلفية (Glowing Effect) باللون البرتقالي الخفيف
-              boxShadow: "0 0 20px 5px rgba(255,102,0,0.4)" 
-            }}>
-              <img
-                src="/mall-logo.png"
-                alt="Mall Logo"
-                style={{
-                  width: "85px", height: "85px", borderRadius: "50%",
-                  border: "4px solid #121212", backgroundColor: "#fff"
-                }}
-              />
-            </div>
-          </div>
+    {/* 🎡 2. شعار المول مع "تأثير الإضاءة الخلفية الشيك" (Glowing Effect) */}
+    <div style={{ textAlign: "center", marginTop: "-45px", position: "relative", zIndex: 5 }}>
+      <div style={{
+        display: "inline-block",
+        borderRadius: "50%",
+        boxShadow: "0 0 25px 8px rgba(255,102,0,0.35)" // هالة مضيئة برتقالية حول اللوجو
+      }}>
+        <img
+          src="/mall-logo.png"
+          alt="Mall Logo"
+          style={{
+            width: "85px", height: "85px", borderRadius: "50%",
+            border: "4px solid #121212", backgroundColor: "#fff"
+          }}
+        />
+      </div>
+    </div>
 
-          {/* 🛡️ 3. شريط مؤشرات الثقة "المصغر والمدمج" */}
-          <div style={{ 
-            backgroundColor: "#1e1e1e", margin: "10px 15px", borderRadius: "15px", 
-            border: "1px solid #252525", padding: "10px" 
-          }}>
-            {/* جملة "أكبر مول" في سطر واحد داخل المربع (تصغير الخط لتناسب المساحة) */}
-            <p style={{ 
-              color: "#aaa", fontSize: "11px", fontWeight: "bold", 
-              textAlign: "center", marginBottom: "10px" 
-            }}>
-              أكبر مول تجاري رقمي في جيبك
-            </p>
-            
-            <div style={{ display: "flex", justifyContent: "space-around" }}>
-              <div style={{ textAlign: "center" }}>
-                <span style={{ fontSize: "16px" }}>🛡️</span>
-                <p style={{ fontSize: "9px", color: "#eee", marginTop: "3px" }}>محلات موثقة</p>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <span style={{ fontSize: "16px" }}>⚡</span>
-                <p style={{ fontSize: "9px", color: "#eee", marginTop: "3px" }}>توصيل سريع</p>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <span style={{ fontSize: "16px" }}>💰</span>
-                <p style={{ fontSize: "9px", color: "#eee", marginTop: "3px" }}>أفضل الأسعار</p>
-              </div>
-            </div>
-          </div>
+    {/* 🛡️ 3. شريط مؤشرات الثقة (تصغير للنصف + جملة برتقالية مميزة) */}
+    <div style={{ 
+      backgroundColor: "#1e1e1e", 
+      margin: "10px auto", 
+      width: "80%", // تصغير عرض المربع ليكون في منتصف الشاشة
+      borderRadius: "15px", 
+      border: "1px solid #252525", 
+      padding: "8px" 
+    }}>
+      <p style={{ 
+        color: "#FF6600", // اللون البرتقالي المميز
+        fontSize: "12px", 
+        fontWeight: "900", // خط عريض جداً
+        textAlign: "center", 
+        marginBottom: "6px" 
+      }}>
+        أكبر مول تجاري رقمي في جيبك
+      </p>
+      
+      <div style={{ display: "flex", justifyContent: "space-around" }}>
+        <div style={{ textAlign: "center" }}>
+          <span style={{ fontSize: "14px" }}>🛡️</span>
+          <p style={{ fontSize: "8px", color: "#eee", marginTop: "2px" }}>محلات موثقة</p>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <span style={{ fontSize: "14px" }}>⚡</span>
+          <p style={{ fontSize: "8px", color: "#eee", marginTop: "2px" }}>توصيل سريع</p>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <span style={{ fontSize: "14px" }}>💰</span>
+          <p style={{ fontSize: "8px", color: "#eee", marginTop: "2px" }}>أفضل الأسعار</p>
+        </div>
+      </div>
+    </div>
 
-          {/* 🔍 4. شريط البحث مع إزاحة العدسة للنهاية */}
-          <div style={{ padding: "0 15px 10px" }}>
-            <div style={{ position: "relative" }}>
-              {/* العدسة في أخر الشريط على اليمين */}
-              <span style={{ position: "absolute", right: "12px", top: "12px", color: "#888", zIndex: 1 }}>🔍</span>
-              <input
-                type="text"
-                placeholder="بتدور على مطعم أو صنف معين؟"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: "100%", 
-                  // padding يمين كبير لإفساح مساحة العدسة، ويسار صغير للكلمة
-                  padding: "11px 40px 11px 11px", 
-                  borderRadius: "15px",
-                  border: "1px solid #333", backgroundColor: "#1e1e1e",
-                  color: "#fff", outline: "none", fontSize: "13px", 
-                  // النص محاذى لليمين تماماً كما بالصورة
-                  textAlign: "right" 
-                }}
-              />
-            </div>
-          </div>
+    {/* 🔍 4. شريط البحث (منع الزوم التلقائي + العدسة في أقصى اليمين) */}
+    <div style={{ padding: "0 20px 10px" }}>
+      <div style={{ position: "relative", width: "100%" }}>
+        {/* العدسة في أقصى اليمين تماماً */}
+        <span style={{ 
+          position: "absolute", 
+          right: "12px", 
+          top: "50%", 
+          transform: "translateY(-50%)", 
+          color: "#888", 
+          fontSize: "14px",
+          zIndex: 2 
+        }}>🔍</span>
+        
+        <input
+          type="text"
+          placeholder="ابحث عن متجر أو صنف..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: "100%", 
+            padding: "10px 40px 10px 12px", // ترك مساحة كافية للعدسة على اليمين
+            borderRadius: "12px",
+            border: "1px solid #333", 
+            backgroundColor: "#1e1e1e",
+            color: "#fff", 
+            outline: "none", 
+            fontSize: "16px", // استخدام 16px يمنع المتصفح من عمل Zoom In إجباري عند الضغط
+            textAlign: "right" 
+          }}
+        />
+      </div>
+    </div>
 
-          {/* 📑 5. شريط التصنيفات (Categories) المحدث */}
-          <div style={{ 
-            display: "flex", overflowX: "auto", padding: "10px 15px", gap: "8px", 
-            scrollbarWidth: "none", position: "sticky", top: "0", zIndex: 10,
-            backgroundColor: "#121212", borderBottom: "1px solid #252525" 
-          }}>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  flex: "0 0 auto", padding: "8px 16px", borderRadius: "18px",
-                  border: "none", backgroundColor: selectedCategory === cat ? "#FF6600" : "#252525",
-                  color: "#fff", fontWeight: "bold", cursor: "pointer",
-                  transition: "all 0.3s ease", fontSize: "12px"
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+    {/* 📑 5. شريط التصنيفات (Categories) */}
+    <div style={{ 
+      display: "flex", overflowX: "auto", padding: "10px 15px", gap: "8px", 
+      scrollbarWidth: "none", position: "sticky", top: "0", zIndex: 10,
+      backgroundColor: "#121212", borderBottom: "1px solid #252525" 
+    }}>
+      {categories.map((cat) => (
+        <button
+          key={cat}
+          onClick={() => setSelectedCategory(cat)}
+          style={{
+            flex: "0 0 auto", padding: "8px 16px", borderRadius: "18px",
+            border: "none", backgroundColor: selectedCategory === cat ? "#FF6600" : "#252525",
+            color: selectedCategory === cat ? "#000" : "#fff",
+            fontWeight: "bold", cursor: "pointer",
+            transition: "all 0.3s ease", fontSize: "12px"
+          }}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
 
              {/* عرض المتاجر المفلترة - نظام الزوجي المحسن (2 في كل صف) */}
 <div style={{ 
