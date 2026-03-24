@@ -414,15 +414,15 @@ export default function HomePage() {
           ))}
         </div>
 
-             {/* عرض المتاجر المفلترة بتصميم بانورامي جديد */}
+             {/* عرض المتاجر المفلترة - نظام الزوجي المحسن (2 في كل صف) */}
 <div style={{ 
   padding: "15px", 
   display: "grid", 
-  gridTemplateColumns: "1fr", // هخلي الكروت عريضة لملء الشاشة بشكل احترافي
-  gap: "20px" 
+  gridTemplateColumns: "repeat(2, 1fr)", // عرض متجرين جنب بعض
+  gap: "12px" // مسافة متوازنة بين الكروت
 }}>
   {filteredShops.length === 0 ? (
-    <div style={{ textAlign: "center", width: "100%", padding: "40px 0" }}>
+    <div style={{ textAlign: "center", gridColumn: "span 2", padding: "40px 0" }}>
       <span style={{ fontSize: "40px" }}>🔍</span>
       <p style={{ color: "#888", marginTop: "10px" }}>لا توجد متاجر مطابقة لطلبك</p>
     </div>
@@ -433,91 +433,97 @@ export default function HomePage() {
         onClick={() => setSelectedShop(shop)}
         style={{
           position: "relative",
-          height: "160px",
-          borderRadius: "25px",
-          overflow: "hidden", // عشان الصورة متطلعش بره الحواف
+          height: "180px", // ارتفاع مناسب للمربع ليبرز تفاصيل الغلاف
+          borderRadius: "20px",
+          overflow: "hidden",
           cursor: "pointer",
           backgroundColor: "#1e1e1e",
           border: "1px solid #252525",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
-          transition: "transform 0.3s ease"
+          boxShadow: "0 6px 15px rgba(0,0,0,0.3)",
+          transition: "transform 0.2s ease"
         }}
-        onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.97)"}
+        onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.96)"}
         onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
       >
-        {/* 🖼️ صورة الغلاف كخلفية للكارت */}
+        {/* 🖼️ صورة الغلاف كخلفية كارت المتجر */}
         <img
-          src={shop.cover || shop.logo} // لو مفيش كوفر يستخدم اللوجو مؤقتاً
+          src={shop.cover || shop.logo} 
           alt={shop.name}
           style={{
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            opacity: "0.5", // تعتيم الصورة عشان الكلام يظهر
-            filter: "grayscale(30%)"
+            opacity: "0.5",
+            filter: "brightness(0.7)"
           }}
         />
 
-        {/* 🌑 طبقة تدريج أسود عشان الكلام يبان شيك */}
+        {/* 🌑 طبقة تدريج أسود لضمان وضوح البيانات */}
         <div style={{
           position: "absolute",
           top: 0, left: 0, right: 0, bottom: 0,
-          background: "linear-gradient(to top, rgba(0,0,0,0.9) 20%, transparent 100%)"
+          background: "linear-gradient(to top, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.4) 50%, transparent 100%)"
         }}></div>
 
-        {/* 🏷️ محتوى الكارت (اللوجو والاسم) */}
+        {/* 🏷️ محتوى الكارت (اللوجو والاسم في المنتصف) */}
         <div style={{
           position: "absolute",
-          bottom: "15px",
-          right: "15px",
+          bottom: "12px",
+          right: "10px",
+          left: "10px",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          gap: "15px",
-          textAlign: "right"
+          textAlign: "center"
         }}>
-          <div style={{ position: "relative" }}>
+          {/* اللوجو بحجم متناسق */}
+          <div style={{ position: "relative", marginBottom: "8px" }}>
             <img
               src={shop.logo}
               alt={shop.name}
               style={{
-                width: "55px", height: "55px", borderRadius: "15px",
+                width: "48px", height: "48px", borderRadius: "12px",
                 border: "2px solid #FF6600", backgroundColor: "#fff",
-                objectFit: "contain", padding: "3px"
+                objectFit: "contain", padding: "2px"
               }}
             />
             {shop.isOpen && (
               <span style={{
-                position: "absolute", top: "-4px", left: "-4px",
-                width: "12px", height: "12px", backgroundColor: "#4caf50",
+                position: "absolute", top: "-3px", left: "-3px",
+                width: "10px", height: "10px", backgroundColor: "#4caf50",
                 borderRadius: "50%", border: "2px solid #000"
               }}></span>
             )}
           </div>
           
-          <div>
-            <h4 style={{ color: "#fff", margin: "0", fontSize: "18px", fontWeight: "900" }}>
-              {shop.name}
-            </h4>
-            <div style={{ display: "flex", gap: "5px", alignItems: "center", marginTop: "4px" }}>
-               <span style={{ 
-                 fontSize: "10px", 
-                 backgroundColor: shop.isOpen ? "rgba(76,175,80,0.2)" : "rgba(244,67,54,0.2)",
-                 color: shop.isOpen ? "#4caf50" : "#f44336",
-                 padding: "2px 8px", borderRadius: "5px", fontWeight: "bold"
-               }}>
-                 {shop.isOpen ? "مفتوح الآن" : "مغلق"}
-               </span>
-               <span style={{ color: "#aaa", fontSize: "10px" }}>• {shop.category}</span>
-            </div>
+          {/* اسم المحل - تصغير الخط وحمايته من التداخل */}
+          <h4 style={{ 
+            color: "#fff", 
+            margin: "0", 
+            fontSize: "13px", 
+            fontWeight: "bold",
+            lineHeight: "1.2",
+            display: "-webkit-box",
+            WebkitLineClamp: "1", // يظهر الاسم في سطر واحد فقط
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden"
+          }}>
+            {shop.name}
+          </h4>
+
+          {/* حالة المحل */}
+          <div style={{ marginTop: "4px" }}>
+             <span style={{ 
+               fontSize: "9px", 
+               color: shop.isOpen ? "#4caf50" : "#f44336",
+               fontWeight: "bold",
+               backgroundColor: "rgba(0,0,0,0.3)",
+               padding: "2px 6px",
+               borderRadius: "4px"
+             }}>
+               {shop.isOpen ? "● مفتوح الآن" : "○ مغلق حالياً"}
+             </span>
           </div>
-        </div>
-        
-        {/* ⚡ سهم صغير لإعطاء إيحاء بالدخول */}
-        <div style={{
-          position: "absolute", top: "20px", left: "20px",
-          color: "rgba(255,255,255,0.3)", fontSize: "20px"
-        }}>
-          ←
         </div>
       </div>
     ))
