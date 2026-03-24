@@ -414,54 +414,115 @@ export default function HomePage() {
           ))}
         </div>
 
-             {/* عرض المتاجر المفلترة */}
-        <div style={{ 
-          padding: "15px", display: "grid", 
-          gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "15px" 
+             {/* عرض المتاجر المفلترة بتصميم بانورامي جديد */}
+<div style={{ 
+  padding: "15px", 
+  display: "grid", 
+  gridTemplateColumns: "1fr", // هخلي الكروت عريضة لملء الشاشة بشكل احترافي
+  gap: "20px" 
+}}>
+  {filteredShops.length === 0 ? (
+    <div style={{ textAlign: "center", width: "100%", padding: "40px 0" }}>
+      <span style={{ fontSize: "40px" }}>🔍</span>
+      <p style={{ color: "#888", marginTop: "10px" }}>لا توجد متاجر مطابقة لطلبك</p>
+    </div>
+  ) : (
+    filteredShops.map((shop) => (
+      <div
+        key={shop.id}
+        onClick={() => setSelectedShop(shop)}
+        style={{
+          position: "relative",
+          height: "160px",
+          borderRadius: "25px",
+          overflow: "hidden", // عشان الصورة متطلعش بره الحواف
+          cursor: "pointer",
+          backgroundColor: "#1e1e1e",
+          border: "1px solid #252525",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
+          transition: "transform 0.3s ease"
+        }}
+        onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.97)"}
+        onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
+      >
+        {/* 🖼️ صورة الغلاف كخلفية للكارت */}
+        <img
+          src={shop.cover || shop.logo} // لو مفيش كوفر يستخدم اللوجو مؤقتاً
+          alt={shop.name}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: "0.5", // تعتيم الصورة عشان الكلام يظهر
+            filter: "grayscale(30%)"
+          }}
+        />
+
+        {/* 🌑 طبقة تدريج أسود عشان الكلام يبان شيك */}
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.9) 20%, transparent 100%)"
+        }}></div>
+
+        {/* 🏷️ محتوى الكارت (اللوجو والاسم) */}
+        <div style={{
+          position: "absolute",
+          bottom: "15px",
+          right: "15px",
+          display: "flex",
+          alignItems: "center",
+          gap: "15px",
+          textAlign: "right"
         }}>
-          {filteredShops.length === 0 ? (
-            <div style={{ textAlign: "center", width: "100%", padding: "40px 0" }}>
-              <span style={{ fontSize: "40px" }}>🔍</span>
-              <p style={{ color: "#888", marginTop: "10px" }}>لا توجد متاجر مطابقة لطلبك</p>
+          <div style={{ position: "relative" }}>
+            <img
+              src={shop.logo}
+              alt={shop.name}
+              style={{
+                width: "55px", height: "55px", borderRadius: "15px",
+                border: "2px solid #FF6600", backgroundColor: "#fff",
+                objectFit: "contain", padding: "3px"
+              }}
+            />
+            {shop.isOpen && (
+              <span style={{
+                position: "absolute", top: "-4px", left: "-4px",
+                width: "12px", height: "12px", backgroundColor: "#4caf50",
+                borderRadius: "50%", border: "2px solid #000"
+              }}></span>
+            )}
+          </div>
+          
+          <div>
+            <h4 style={{ color: "#fff", margin: "0", fontSize: "18px", fontWeight: "900" }}>
+              {shop.name}
+            </h4>
+            <div style={{ display: "flex", gap: "5px", alignItems: "center", marginTop: "4px" }}>
+               <span style={{ 
+                 fontSize: "10px", 
+                 backgroundColor: shop.isOpen ? "rgba(76,175,80,0.2)" : "rgba(244,67,54,0.2)",
+                 color: shop.isOpen ? "#4caf50" : "#f44336",
+                 padding: "2px 8px", borderRadius: "5px", fontWeight: "bold"
+               }}>
+                 {shop.isOpen ? "مفتوح الآن" : "مغلق"}
+               </span>
+               <span style={{ color: "#aaa", fontSize: "10px" }}>• {shop.category}</span>
             </div>
-          ) : (
-            filteredShops.map((shop) => (
-              <div
-                key={shop.id}
-                onClick={() => setSelectedShop(shop)}
-                style={{
-                  backgroundColor: "#1e1e1e", borderRadius: "20px",
-                  padding: "15px", textAlign: "center", cursor: "pointer",
-                  border: "1px solid #252525", transition: "transform 0.2s",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
-                }}
-              >
-                <div style={{ position: "relative", display: "inline-block" }}>
-                  <img
-                    src={shop.logo}
-                    alt={shop.name}
-                    style={{
-                      width: "75px", height: "75px", borderRadius: "18px",
-                      border: "2px solid #FF6600", backgroundColor: "#fff",
-                      marginBottom: "10px", objectFit: "contain", padding: "5px"
-                    }}
-                  />
-                  {shop.isOpen && (
-                    <span style={{
-                      position: "absolute", top: "-5px", right: "-5px",
-                      width: "12px", height: "12px", backgroundColor: "#4caf50",
-                      borderRadius: "50%", border: "2px solid #1e1e1e"
-                    }}></span>
-                  )}
-                </div>
-                <h4 style={{ color: "#fff", margin: "2px 0", fontSize: "14px", fontWeight: "bold" }}>{shop.name}</h4>
-                <span style={{ fontSize: "11px", color: shop.isOpen ? "#4caf50" : "#f44336" }}>
-                  {shop.isOpen ? "مفتوح الآن" : "مغلق حالياً"}
-                </span>
-              </div>
-            ))
-          )}
+          </div>
         </div>
+        
+        {/* ⚡ سهم صغير لإعطاء إيحاء بالدخول */}
+        <div style={{
+          position: "absolute", top: "20px", left: "20px",
+          color: "rgba(255,255,255,0.3)", fontSize: "20px"
+        }}>
+          ←
+        </div>
+      </div>
+    ))
+  )}
+</div>
       </>
     )}
 
