@@ -404,7 +404,7 @@ export default function HomePage() {
     </div>
 
     {/* 🔍 3. شريط البحث (العدسة على اليسار + منع الزوم) */}
-    <div style={{ padding: "10px 10px 5px" }}>
+    <div style={{ padding: "5px 5px 3px" }}>
       <div style={{ position: "relative", width: "85%" }}>
         {/* ⬅️ العدسة الآن في أقصى اليسار */}
         <span style={{ 
