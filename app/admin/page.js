@@ -367,9 +367,9 @@ export default function AdminPage() {
         {getFilteredOrders().length === 0 ? (
           <div style={{ textAlign: "center", padding: "100px 20px" }}>لا توجد طلبات..</div>
         ) : (
-          getFilteredOrders().map((order) => {
+                    getFilteredOrders().map((order) => {
             
-            // ✅ 2. دالة حساب الإجمالي (توضع داخل الـ map مباشرة)
+            // ✅ دالة حساب الإجمالي للمحل المختار
             const getShopTotal = (sName) => {
               if (!order?.processedItems) return 0;
               return order.processedItems
@@ -378,27 +378,18 @@ export default function AdminPage() {
             };
 
             return (
-              <div key={order.id} style={{ backgroundColor: "#16181a", borderRadius: "30px" }}>
-                {/* ... باقي كود عرض تفاصيل الأوردر ... */}
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-
-            return (
               <div key={order.id} style={{ 
                 backgroundColor: "#16181a", borderRadius: "30px", border: `2px solid ${order.status === 'completed' ? '#2e7d32' : '#25282b'}`, 
-                boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden" 
+                boxShadow: "0 15px 35px rgba(0,0,0,0.6)", overflow: "hidden", marginBottom: "20px" 
               }}>
+                {/* رأس الكارت */}
                 <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
                   <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
                   <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
                 </div>
 
                 <div style={{ padding: "20px" }}>
+                  {/* بيانات العميل */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                     <div style={{ flex: 1 }}>
                       <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
@@ -412,7 +403,7 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* 🛒 عرض الأصناف (حسب التبويب المختار) */}
+                  {/* 🛒 عرض الأصناف مقسمة حسب المحل */}
                   <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px" }}>
                     {order.items && typeof order.items === 'object' ? (
                       Object.keys(order.items)
@@ -434,7 +425,6 @@ export default function AdminPage() {
                                   <span>{(item?.price || 0) * (item?.quantity || 1)} ج</span>
                                 </div>
                               ))}
-                              {/* إجمالي المتجر الواحد داخل الفاتورة */}
                               <div style={{ textAlign: "left", fontSize: "11px", color: "#4caf50", marginTop: "5px", fontWeight: "bold" }}>
                                 إجمالي المتجر: {getShopTotal(shopName)} ج.م
                               </div>
@@ -442,10 +432,11 @@ export default function AdminPage() {
                           );
                         })
                     ) : (
-                      <div style={{ color: "#555", textAlign: "center", fontSize: "12px" }}>لا توجد تفاصيل</div>
+                      <div style={{ color: "#555", textAlign: "center", fontSize: "12px" }}>لا توجد تفاصيل للأصناف</div>
                     )}
                   </div>
 
+                  {/* إجمالي الفاتورة النهائي */}
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: "18px", alignItems: "center" }}>
                     <span style={{ color: "#888", fontSize: "13px" }}>{activeTab === "الكل" ? "الإجمالي الكلي للفاتورة:" : `حساب ${activeTab}:`}</span>
                     <span style={{ fontSize: "22px", fontWeight: "900", color: "#FF6600" }}>
