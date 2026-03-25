@@ -26,7 +26,7 @@ export const shops = [
         description: "كيلو كفتة + سلطات + عيش + لتر بيبسي بـ 380 ج.م بدل 450", 
         price: 380,
         oldPrice: 450,
-        image: "/sawan-logo.png" 
+        image: "/sawan-offer.png" 
       }
     ],
 
