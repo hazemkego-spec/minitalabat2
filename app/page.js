@@ -419,7 +419,7 @@ export default function HomePage() {
       </div>
     </div>
 
-    {/* 🔥 3. قسم العروض المتحرك (Slider) - الجديد بالكامل */}
+        {/* 🔥 3. قسم العروض المتحرك (Slider) - الجديد بالكامل */}
     {allOffers && allOffers.length > 0 && (
       <div style={{ marginTop: "20px", padding: "0 15px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
@@ -465,17 +465,17 @@ export default function HomePage() {
           ))}
         </div>
       </div>
-   
-        {/* 🔍 3. شريط البحث (تصميم معالج لمنع الزوم وتسهيل الوصول) */}
+    )}
+
+    {/* 🔍 4. شريط البحث (تصميم معالج لمنع الزوم وتسهيل الوصول) */}
     <div style={{ padding: "10px 15px 5px" }}>
-      <div style={{ position: "relative", width: "100%" }}> {/* خليناه 100% لملء العرض المتاح بشكل أفضل */}
-        {/* ⬅️ العدسة في أقصى اليسار */}
+      <div style={{ position: "relative", width: "100%" }}>
         <span style={{ 
           position: "absolute", 
           left: "15px", 
           top: "50%", 
           transform: "translateY(-50%)", 
-          color: "#FF6600", // خليناها بلون الهوية عشان تبرز
+          color: "#FF6600", 
           fontSize: "16px",
           zIndex: 2 
         }}>🔍</span>
@@ -487,15 +487,15 @@ export default function HomePage() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             width: "100%", 
-            padding: "14px 15px 14px 45px", // زيادة الـ padding لراحة العين
+            padding: "14px 15px 14px 45px", 
             borderRadius: "20px",
             border: "1px solid #333", 
             backgroundColor: "#1e1e1e",
             color: "#fff", 
             outline: "none", 
-            fontSize: "16px", // 🛡️ يمنع الـ Zoom In التلقائي في Safari/Chrome موبايل
+            fontSize: "16px", 
             textAlign: "right",
-            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)" // عمق بسيط للداخل
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)" 
           }}
         />
       </div>
