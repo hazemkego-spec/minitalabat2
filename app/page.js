@@ -19,24 +19,28 @@ export default function HomePage() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-  // --- 🚀 منطق الحركة التلقائية للسلايدر ---
+  // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
   const sliderRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false); // المفتاح الجديد للتحكم في الإيقاف
 
   useEffect(() => {
+    // إذا كان المستخدم يتحكم يدوياً، لا تقم بإنشاء تايمر جديد
+    if (isPaused) return; 
+
     const interval = setInterval(() => {
       if (sliderRef.current) {
         const { scrollLeft, offsetWidth, scrollWidth } = sliderRef.current;
-        // إذا وصلنا لآخر العروض، ارجع للبداية، وإلا اتحرك للمربع التالي
+        
         if (scrollLeft + offsetWidth >= scrollWidth - 10) {
           sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
         } else {
-          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" }); // 300 هي عرض الكارت تقريباً
+          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
         }
       }
-    }, 3000); // يتحرك كل 3 ثواني
+    }, 3000); 
 
-    return () => clearInterval(interval); // تنظيف التايمر عند قفل الصفحة
-  }, []);
+    return () => clearInterval(interval); 
+  }, [isPaused]); // التايمر الآن يراقب حالة isPaused
 
   // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر ---
   const allOffers = useMemo(() => {
@@ -57,7 +61,7 @@ export default function HomePage() {
     });
     return combined;
   }, [shops]);
-  // -----------------------------------------------------
+
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
