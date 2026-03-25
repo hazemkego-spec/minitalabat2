@@ -445,7 +445,7 @@ export default function HomePage() {
 
         {/* 🔥 3. قسم العروض المتحرك (Slider) - النسخة الاحترافية المتحركة والذكية */}
 {allOffers && allOffers.length > 0 && (
-  <div style={{ marginTop: "10px", padding: "0 15px" }}>
+  <div style={{ marginTop: "2px", padding: "0 15px" }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
       <h3 style={{ fontSize: "18px", fontWeight: "900", color: "#FF6600", letterSpacing: "0.5px" }}>🔥 أقوى العروض</h3>
       <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
