@@ -277,7 +277,7 @@ export const shops = [
         description: "غسول وجه + كريم مرطب + واقي شمس بخصم 15% لفترة محدودة", 
         price: 450,
         oldPrice: 530,
-        image: "/HanyFarPharmlogo.png" 
+        image: "/hanyfar-offer.png" 
       }
     ],
 
