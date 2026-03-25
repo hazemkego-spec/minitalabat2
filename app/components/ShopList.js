@@ -10,7 +10,25 @@ export const shops = [
     name: "جزارة ومشويات محمد صوان",
     isOpen: true,
     logo: "/sawan-logo.png",
-cover: "/sawan-logo.png",
+    cover: "/sawan-cover.jpg", // يفضل صورة عرض عريضة هنا
+    
+    // --- الإضافات الجديدة ---
+    rating: 4.8,            // تقييم المحل (من 5)
+    reviewCount: 120,       // عدد المراجعات
+    isTrending: true,       // علامة "الأكثر طلباً"
+    deliveryTime: "30-45",  // وقت التوصيل المتوقع بالدقائق
+    
+    // مصفوفة العروض الخاصة بالمحل (ستظهر في الـ Slider العلوي)
+    offers: [
+      { 
+        id: "off1", 
+        title: "عرض العيلة", 
+        description: "كيلو كفتة + سلطات + عيش بـ 350 ج.م بس!", 
+        image: "/offers/sawan-offer1.jpg" 
+      }
+    ],
+    // ------------------------
+
     menuCategories: [
       {
         title: "ركن المشويات 🍗",
@@ -222,13 +240,31 @@ cover: "/sawan-logo.png",
     ]
   },
   {
-    id: 5, // تأكد من أن الـ ID غير مكرر
+    id: 5, 
     category: "صيدليات",
     whatsapp: "201092293348",
     name: "صيدلية د_ هاني فاروق",
     isOpen: true,
     logo: "/HanyFarPharmlogo.png",
     cover: "/HanyFarPharmlogo.png",
+    
+    // --- البيانات التجارية الجديدة (بدون تغيير مساراتك) ---
+    rating: 4.9,              // تقييم الصيدلية
+    reviewCount: 92,          // عدد المراجعات
+    isTrending: false,        
+    deliveryTime: "15-25",    // سرعة التوصيل للصيدلية
+    
+    // مصفوفة العروض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_ph1", 
+        title: "رعاية وخصومات", 
+        description: "خصم 10% على منتجات العناية بالبشرة والشعر", 
+        image: "/HanyFarPharmlogo.png" // placeholder مؤقت
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "💊 مسكنات الألم وخافض الحرارة",
@@ -358,6 +394,24 @@ cover: "/sawan-logo.png",
     isOpen: true,
     logo: "/A-eleskandrany.png",
     cover: "/A-eleskandrany.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.7,              // تقييم السوبر ماركت
+    reviewCount: 156,          // عدد المقيّمين
+    isTrending: true,         // السوبر ماركت دايماً عليه سحب
+    deliveryTime: "20-40",    // وقت مناسب لطلبات البقالة
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_sm1", 
+        title: "عروض الويك إند", 
+        description: "خصومات تصل لـ 15% على جميع المنظفات والألبان", 
+        image: "/A-eleskandrany.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "🥛 منتجات الألبان",
@@ -452,10 +506,29 @@ cover: "/sawan-logo.png",
   {
     id: 7,
     category: "سوبر ماركت",
+    whatsapp: "201011111111", // تأكد من مراجعة رقم الواتساب الخاص به
     name: "سوبر ماركت الحسيني",
     isOpen: true,
     logo: "/Elhuseny.png",
     cover: "/Elhuseny.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.6,              
+    reviewCount: 110,          
+    isTrending: false,        
+    deliveryTime: "25-45",    
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_sm2", 
+        title: "خصم السوبر", 
+        description: "وفر 10% على جميع أنواع الجبن والألبان الطازجة", 
+        image: "/Elhuseny.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "🥖 الحبوب والمكرونة",
@@ -613,7 +686,7 @@ cover: "/sawan-logo.png",
       }
     ]
   },
-  {
+    {
     id: 8,
     category: "مطاعم",
     whatsapp: "201117903253",
@@ -621,6 +694,24 @@ cover: "/sawan-logo.png",
     isOpen: true,
     logo: "/Haneen.png",
     cover: "/Haneen.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.8,              // تقييم عالي لمحبي الكشري
+    reviewCount: 210,          // عدد كبير من المقيّمين
+    isTrending: true,         // الكشري دائماً مطلوب (تريند)
+    deliveryTime: "15-30",    // أسرع وقت توصيل للطلبات الساخنة
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_ks1", 
+        title: "عرض السوبر حنين", 
+        description: "علبة كشري جامبو + لتر بيبسي بخصم خاص", 
+        image: "/Haneen.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "🥣 ركن الكشري",
@@ -749,13 +840,32 @@ cover: "/sawan-logo.png",
       }
     ]
   },
-  {
+    {
     id: 9,
     category: "مصنعات اللحوم",
+    whatsapp: "201022947479", // تأكد من إضافة الرقم الصحيح
     name: "مصنعات اليُمن",
     isOpen: false,
     logo: "/Msn3atElyomn.png",
     cover: "/Msn3atElyomn.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.5,              
+    reviewCount: 68,          
+    isTrending: false,        
+    deliveryTime: "30-60",    // وقت أطول قليلاً لضمان سلامة التبريد
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_ms1", 
+        title: "تجهيزات الأسبوع", 
+        description: "خصم 10% عند طلب أكثر من 3 كيلو من البرجر أو السجق", 
+        image: "/Msn3atElyomn.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "🥩 منتجات اللحوم المصنعة",
@@ -779,6 +889,24 @@ cover: "/sawan-logo.png",
     isOpen: true,
     logo: "/GamalyHSwan.png",
     cover: "/GamalyHSwan.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.9,              // تقييم ممتاز للطلب المخصوص
+    reviewCount: 185,         // عدد كبير من محبي الكبدة الجملي
+    isTrending: true,         // الأكل المخصوص دايماً تريند
+    deliveryTime: "25-45",    
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_gs1", 
+        title: "عرض الساندوتش الجامد", 
+        description: "اطلب 5 ساندوتشات كبدة جملي واحصل على السادس مجاناً", 
+        image: "/GamalyHSwan.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "🌯 ركن السندوتشات",
@@ -827,7 +955,7 @@ cover: "/sawan-logo.png",
     ]
   },
 
-{
+  {
     id: 11,
     category: "مطاعم",
     whatsapp: "201122947479",
@@ -835,6 +963,24 @@ cover: "/sawan-logo.png",
     isOpen: true,
     logo: "/Elza3im.png",
     cover: "/Elza3im.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.7,              
+    reviewCount: 320,         // الكشري دايماً عليه إقبال وتفاعل عالي
+    isTrending: true,         
+    deliveryTime: "15-30",    
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_z1", 
+        title: "عرض الزعيم المخصوص", 
+        description: "علبة كشري عائلي + 2 طبق رز بلبن هدية", 
+        image: "/Elza3im.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "🥣 ركن الكشري",
@@ -963,7 +1109,7 @@ cover: "/sawan-logo.png",
       }
     ]
   },
-{
+  {
     id: 12, 
     category: "صيدليات",
     whatsapp: "201092293348",
@@ -971,6 +1117,24 @@ cover: "/sawan-logo.png",
     isOpen: true,
     logo: "/Shahinda.png",
     cover: "/Shahinda.png",
+    
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.8,              
+    reviewCount: 74,          
+    isTrending: false,        
+    deliveryTime: "15-25",    // توصيل سريع للأدوية والحالات العاجلة
+    
+    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    offers: [
+      { 
+        id: "off_sh1", 
+        title: "عرض العناية بالأم والطفل", 
+        description: "خصومات خاصة على منتجات حديثي الولادة ومستحضرات التجميل", 
+        image: "/Shahinda.png" // placeholder مؤقت للوجو
+      }
+    ],
+    // ------------------------------------------------
+
     menuCategories: [
       {
         title: "💊 مسكنات الألم وخافض الحرارة",
