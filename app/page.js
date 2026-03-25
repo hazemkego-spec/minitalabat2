@@ -20,7 +20,7 @@ export default function HomePage() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-  // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر ---
+    // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر (تعديل الربط الذكي) ---
   const allOffers = useMemo(() => {
     const combined = [];
     shops.forEach(shop => {
@@ -28,16 +28,19 @@ export default function HomePage() {
         shop.offers.forEach(offer => {
           combined.push({
             ...offer,
-            shopId: shop.id,      // عشان لما يضغط على العرض يفتح المحل
-            shopName: shop.name   // كمعلومة إضافية
+            shopId: shop.id,      
+            shopName: shop.name,
+            // نضمن إن كل بيانات العرض (السعر والوصف) انتقلت للسلايدر
+            price: offer.price,
+            oldPrice: offer.oldPrice,
+            description: offer.description || offer.desc
           });
         });
       }
     });
     return combined;
-  }, []);
+  }, [shops]); // هيعيد الحساب فقط لو قائمة المتاجر اتغيرت
   // -----------------------------------------------------
-
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
