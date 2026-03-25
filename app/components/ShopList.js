@@ -439,7 +439,7 @@ export const shops = [
         description: "زيت + سكر + أرز + مكرونة بخصم خاص جداً بدل 210 ج.م", 
         price: 185,
         oldPrice: 210,
-        image: "/A-eleskandrany.png" 
+        image: "/A-eleskandrany-offer.png" 
       }
     ],
 
