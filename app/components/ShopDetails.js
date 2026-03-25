@@ -6,7 +6,7 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
   );
 
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", paddingBottom: "50px" }}>
       
       {/* 🖼️ Cover Section مع تأثير التدرج */}
       <div style={{ position: "relative", width: "100%", height: "200px" }}>
@@ -36,8 +36,8 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
         />
         <h2 style={{ color: "#fff", marginTop: "10px", fontSize: "22px", fontWeight: "900" }}>{shop.name}</h2>
         <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "5px" }}>
-           <span style={{ fontSize: "12px", color: "#4caf50", backgroundColor: "rgba(76,175,80,0.1)", padding: "4px 10px", borderRadius: "10px" }}>✓ متجر موثق</span>
-           <span style={{ fontSize: "12px", color: "#FF6600", backgroundColor: "rgba(255,102,0,0.1)", padding: "4px 10px", borderRadius: "10px" }}>⚡ سريع التوصيل</span>
+           <span style={{ fontSize: "12px", color: "#4caf50", backgroundColor: "rgba(76,175,80,0.1)", padding: "4px 10px", borderRadius: "10px" }}>⭐ {shop.rating}</span>
+           <span style={{ fontSize: "12px", color: "#FF6600", backgroundColor: "rgba(255,102,0,0.1)", padding: "4px 10px", borderRadius: "10px" }}>🕒 {shop.deliveryTime} دقيقة</span>
         </div>
       </div>
 
@@ -69,52 +69,72 @@ export default function ShopDetails({ shop, onBack, addToCart }) {
       <div style={{ padding: "15px", display: "grid", gap: "15px" }}>
         {shop.menuCategories
           .find((cat) => cat.title === activeCategory)
-          ?.items.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                backgroundColor: "#1e1e1e", borderRadius: "20px",
-                padding: "15px", display: "flex", gap: "15px",
-                alignItems: "center", border: "1px solid #252525",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
-              }}
-            >
-              {/* تفاصيل الصنف */}
-              <div style={{ flex: 1 }}>
-                <h4 style={{ color: "#fff", margin: "0 0 5px 0", fontSize: "16px", fontWeight: "bold" }}>{item.name}</h4>
-                {item.desc && (
-                  <p style={{ color: "#888", fontSize: "12px", margin: "0 0 10px 0", lineHeight: "1.4" }}>
-                    {item.desc}
-                  </p>
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ color: "#FF6600", fontWeight: "900", fontSize: "18px" }}>{item.price} <small style={{ fontSize: "10px" }}>ج.م</small></span>
-                  {item.tag && (
-                    <span style={{ fontSize: "10px", backgroundColor: "#333", color: "#FF6600", padding: "2px 8px", borderRadius: "5px" }}>{item.tag}</span>
+          ?.items.map((item, index) => {
+            const isOffer = item.isOffer || activeCategory.includes("عروض");
+            const hasDiscount = item.oldPrice && item.oldPrice > item.price;
+
+            return (
+              <div
+                key={index}
+                style={{
+                  backgroundColor: isOffer ? "#1a130f" : "#1e1e1e", 
+                  borderRadius: "20px",
+                  padding: "15px", display: "flex", gap: "15px",
+                  alignItems: "center", 
+                  border: isOffer ? "1px solid #FF6600" : "1px solid #252525",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  position: "relative"
+                }}
+              >
+                {/* تفاصيل الصنف */}
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ color: "#fff", margin: "0 0 5px 0", fontSize: "16px", fontWeight: "bold" }}>
+                    {item.name}
+                  </h4>
+                  {(item.description || item.desc) && (
+                    <p style={{ color: "#aaa", fontSize: "12px", margin: "0 0 10px 0", lineHeight: "1.4" }}>
+                      {item.description || item.desc}
+                    </p>
+                  )}
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                    <span style={{ color: "#FF6600", fontWeight: "900", fontSize: "20px" }}>
+                      {item.price} <small style={{ fontSize: "10px" }}>ج.م</small>
+                    </span>
+                    {hasDiscount && (
+                      <span style={{ color: "#666", textDecoration: "line-through", fontSize: "12px" }}>
+                        {item.oldPrice} ج.م
+                      </span>
+                    )}
+                  </div>
+                  {hasDiscount && (
+                    <div style={{ 
+                      fontSize: "10px", color: "#4caf50", fontWeight: "bold", marginTop: "5px" 
+                    }}>
+                      وفرت {item.oldPrice - item.price} جنيه ✨
+                    </div>
                   )}
                 </div>
-              </div>
 
-              {/* زر الإضافة السريع */}
-              <button
-                onClick={() => addToCart(shop.name, item)}
-                style={{
-                  width: "45px", height: "45px", borderRadius: "15px",
-                  backgroundColor: "#FF6600", color: "#000", border: "none",
-                  fontSize: "22px", fontWeight: "bold", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: "0 4px 10px rgba(255,102,0,0.3)", transition: "0.2s"
-                }}
-                onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.9)"}
-                onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
-              >
-                +
-              </button>
-            </div>
-          ))}
+                {/* زر الإضافة السريع */}
+                <button
+                  onClick={() => addToCart(shop.name, item)}
+                  style={{
+                    width: "45px", height: "45px", borderRadius: "15px",
+                    backgroundColor: "#FF6600", color: "#000", border: "none",
+                    fontSize: "22px", fontWeight: "bold", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 4px 10px rgba(255,102,0,0.3)", transition: "0.2s"
+                  }}
+                  onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.9)"}
+                  onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
+                >
+                  +
+                </button>
+              </div>
+            );
+          })}
       </div>
 
-      {/* رسالة توضيحية في النهاية */}
       <div style={{ textAlign: "center", padding: "40px 20px", color: "#444", fontSize: "12px" }}>
         جميع الأسعار تشمل ضريبة القيمة المضافة لمتجر {shop.name}
       </div>
