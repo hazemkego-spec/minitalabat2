@@ -1,7 +1,7 @@
 "use client";
 import { db } from "../lib/firebase"; 
 import { ref, push, set, serverTimestamp } from "firebase/database"; 
-import React, { useState, useEffect, useMemo } from "react"; // أضفنا useMemo للسرعة
+import React, { useState, useEffect, useMemo, useRef } from "react"; // أضفنا useRef للتحكم في الحركة
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
 import InstallGuide from "./components/InstallGuide";
@@ -16,11 +16,29 @@ export default function HomePage() {
   const [isSending, setIsSending] = useState(false); 
   
   const [showMultiOrderModal, setShowMultiOrderModal] = useState({ isOpen: false });
-   
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-    // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر (تعديل الربط الذكي) ---
+  // --- 🚀 منطق الحركة التلقائية للسلايدر ---
+  const sliderRef = useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (sliderRef.current) {
+        const { scrollLeft, offsetWidth, scrollWidth } = sliderRef.current;
+        // إذا وصلنا لآخر العروض، ارجع للبداية، وإلا اتحرك للمربع التالي
+        if (scrollLeft + offsetWidth >= scrollWidth - 10) {
+          sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" }); // 300 هي عرض الكارت تقريباً
+        }
+      }
+    }, 3000); // يتحرك كل 3 ثواني
+
+    return () => clearInterval(interval); // تنظيف التايمر عند قفل الصفحة
+  }, []);
+
+  // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر ---
   const allOffers = useMemo(() => {
     const combined = [];
     shops.forEach(shop => {
@@ -30,7 +48,6 @@ export default function HomePage() {
             ...offer,
             shopId: shop.id,      
             shopName: shop.name,
-            // نضمن إن كل بيانات العرض (السعر والوصف) انتقلت للسلايدر
             price: offer.price,
             oldPrice: offer.oldPrice,
             description: offer.description || offer.desc
@@ -39,7 +56,7 @@ export default function HomePage() {
       }
     });
     return combined;
-  }, [shops]); // هيعيد الحساب فقط لو قائمة المتاجر اتغيرت
+  }, [shops]);
   // -----------------------------------------------------
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -422,72 +439,122 @@ export default function HomePage() {
       </div>
     </div>
 
-        {/* 🔥 3. قسم العروض المتحرك (Slider) - الجديد بالكامل */}
-    {allOffers && allOffers.length > 0 && (
-      <div style={{ marginTop: "2px", padding: "0 15px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-          <h3 style={{ fontSize: "16px", fontWeight: "bold", color: "#FF6600" }}>🔥 أقوى العروض</h3>
-          <span style={{ fontSize: "11px", color: "#888" }}>اسحب لليسار ⬅️</span>
-        </div>
-        
-        <div style={{ 
-          display: "flex", overflowX: "auto", gap: "12px", 
-          paddingBottom: "10px", scrollbarWidth: "none", msOverflowStyle: "none" 
-        }}>
-                    {allOffers.map((offer, idx) => (
-            <div 
-              key={idx}
-              onClick={() => {
-                // 1. تحديد المتجر صاحب العرض
-                const targetShop = shops.find(s => s.id === offer.shopId);
-                
-                if (targetShop) {
-                  // 2. البحث عن الصنف داخل منيو المتجر (بناءً على اسم العرض)
-                  let targetItem = null;
-                  targetShop.menuCategories.forEach(cat => {
-                    const item = cat.items.find(i => i.name === offer.title);
-                    if (item) targetItem = item;
-                  });
-
-                  if (targetItem) {
-                    // 3. إضافة الصنف للسلة مع وسم "عرض خاص"
-                    addToCart(targetShop.name, { ...targetItem, isOffer: true });
-                    // 4. الانتقال الفوري لتبويب السلة لإتمام الطلب
-                    setActiveTab("cart");
-                  } else {
-                    // خيار احتياطي: لو لم يتطابق الاسم، يفتح صفحة المتجر كالمعتاد
-                    setSelectedShop(targetShop);
-                  }
-                }
-              }}
-              style={{
-                minWidth: "280px", height: "140px", position: "relative",
-                borderRadius: "15px", overflow: "hidden", cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.5)", border: "1px solid #333"
-              }}
-            >
-              <img 
-                src={offer.image} 
-                alt={offer.title}
-                style={{ width: "100%", height: "100%", objectFit: "cover", opacity: "0.6" }}
-              />
-              <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px",
-                background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)"
-              }}>
-                <h4 style={{ margin: 0, fontSize: "14px", color: "#FF6600" }}>{offer.title}</h4>
-                <p style={{ margin: "2px 0 0", fontSize: "11px", color: "#ddd", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {offer.description}
-                </p>
-                <div style={{ marginTop: "5px", fontSize: "10px", backgroundColor: "rgba(255,102,0,0.2)", display: "inline-block", padding: "2px 8px", borderRadius: "4px", color: "#FF6600" }}>
-                  {offer.shopName}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* 🔥 3. قسم العروض المتحرك (Slider) - النسخة الاحترافية المتحركة */}
+{allOffers && allOffers.length > 0 && (
+  <div style={{ marginTop: "10px", padding: "0 15px" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+      <h3 style={{ fontSize: "18px", fontWeight: "900", color: "#FF6600", letterSpacing: "0.5px" }}>🔥 أقوى العروض</h3>
+      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+         <span style={{ width: "8px", height: "8px", backgroundColor: "#FF6600", borderRadius: "50%", display: "inline-block" }}></span>
+         <span style={{ fontSize: "11px", color: "#666", fontWeight: "bold" }}>محدث الآن</span>
       </div>
-    )}
+    </div>
+    
+    <div 
+      ref={sliderRef} // الربط مع محرك الحركة التلقائية
+      style={{ 
+        display: "flex", 
+        overflowX: "auto", 
+        gap: "15px", 
+        paddingBottom: "15px", 
+        scrollbarWidth: "none", 
+        msOverflowStyle: "none",
+        scrollBehavior: "smooth" // لجعل الحركة ناعمة جداً
+      }}
+    >
+      {allOffers.map((offer, idx) => (
+        <div 
+          key={idx}
+          onClick={() => {
+            const targetShop = shops.find(s => s.id === offer.shopId);
+            if (targetShop) {
+              let targetItem = null;
+              targetShop.menuCategories.forEach(cat => {
+                const item = cat.items.find(i => i.name === offer.title);
+                if (item) targetItem = item;
+              });
+
+              if (targetItem) {
+                addToCart(targetShop.name, { ...targetItem, isOffer: true });
+                setActiveTab("cart");
+              } else {
+                setSelectedShop(targetShop);
+              }
+            }
+          }}
+          style={{
+            minWidth: "300px", 
+            height: "160px", 
+            position: "relative",
+            borderRadius: "20px", 
+            overflow: "hidden", 
+            cursor: "pointer",
+            border: "1.5px solid #252525", // إطار خفيف بديل للظلال لتبريز الكارت
+            backgroundColor: "#1e1e1e"
+          }}
+        >
+          {/* صورة الكارت */}
+          <img 
+            src={offer.image} 
+            alt={offer.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: "0.7" }}
+          />
+
+          {/* طبقة النص الواضحة */}
+          <div style={{
+            position: "absolute", 
+            bottom: 0, 
+            left: 0, 
+            right: 0, 
+            padding: "15px",
+            background: "linear-gradient(to top, rgba(0,0,0,1) 20%, rgba(0,0,0,0.4) 60%, transparent)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end"
+          }}>
+            {/* اسم المتجر في تاق علوي صغير */}
+            <div style={{ 
+              alignSelf: "flex-start",
+              fontSize: "10px", 
+              backgroundColor: "#FF6600", 
+              padding: "2px 10px", 
+              borderRadius: "50px", 
+              color: "#000",
+              fontWeight: "900",
+              marginBottom: "8px",
+              boxShadow: "0 2px 5px rgba(0,0,0,0.3)"
+            }}>
+              {offer.shopName}
+            </div>
+
+            {/* عنوان العرض بخط عريض جداً */}
+            <h4 style={{ 
+              margin: 0, 
+              fontSize: "18px", 
+              color: "#fff", 
+              fontWeight: "900",
+              textShadow: "0 2px 4px rgba(0,0,0,0.8)" 
+            }}>
+              {offer.title}
+            </h4>
+
+            {/* الوصف */}
+            <p style={{ 
+              margin: "4px 0 0", 
+              fontSize: "12px", 
+              color: "#ccc", 
+              fontWeight: "500",
+              lineHeight: "1.2"
+            }}>
+              {offer.description}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
 
     {/* 🔍 4. شريط البحث (تصميم معالج لمنع الزوم وتسهيل الوصول) */}
     <div style={{ padding: "10px 15px 5px" }}>
