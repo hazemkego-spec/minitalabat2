@@ -3,33 +3,48 @@
 export const shops = [
   // ... باقي المتاجر اللي عندك
 
-  {
+   {
     id: 4,
     category: "مطاعم",
     whatsapp: "201092878201",
     name: "جزارة ومشويات محمد صوان",
     isOpen: true,
     logo: "/sawan-logo.png",
-    cover: "/sawan-logo.png", // يفضل صورة عرض عريضة هنا
+    cover: "/sawan-logo.png", 
     
-    // --- الإضافات الجديدة ---
-    rating: 4.8,            // تقييم المحل (من 5)
-    reviewCount: 120,       // عدد المراجعات
-    isTrending: true,       // علامة "الأكثر طلباً"
-    deliveryTime: "30-45",  // وقت التوصيل المتوقع بالدقائق
+    // --- الإضافات الفنية الجديدة ---
+    rating: 4.8,            
+    reviewCount: 120,       
+    isTrending: true,       
+    deliveryTime: "30-45",  
     
-    // مصفوفة العروض الخاصة بالمحل (ستظهر في الـ Slider العلوي)
+    // 🎡 مصفوفة العروض (المصدر اللي بيغذي السلايدر في الرئيسية)
     offers: [
       { 
         id: "off1", 
-        title: "عرض العيلة", 
-        description: "كيلو كفتة + سلطات + عيش بـ 350 ج.م بس!", 
+        title: "عرض ملوك المشويات 👑", 
+        description: "كيلو كفتة + سلطات + عيش + لتر بيبسي بـ 380 ج.م بدل 450", 
+        price: 380,
+        oldPrice: 450,
         image: "/sawan-logo.png" 
       }
     ],
-    // ------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: لازم يكون أول واحد لربط السلايدر
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "عرض ملوك المشويات 👑", 
+            price: 380, 
+            image: "/sawan-logo.png",
+            description: "كيلو كفتة بلدي + سلطات + عيش + لتر بيبسي",
+            isOffer: true // وسم لتمييز العرض في السلة
+          },
+        ]
+      },
+      // باقي الأقسام العادية
       {
         title: "ركن المشويات 🍗",
         items: [
@@ -239,7 +254,7 @@ export const shops = [
       }
     ]
   },
-  {
+   {
     id: 5, 
     category: "صيدليات",
     whatsapp: "201092293348",
@@ -248,24 +263,39 @@ export const shops = [
     logo: "/HanyFarPharmlogo.png",
     cover: "/HanyFarPharmlogo.png",
     
-    // --- البيانات التجارية الجديدة (بدون تغيير مساراتك) ---
-    rating: 4.9,              // تقييم الصيدلية
-    reviewCount: 92,          // عدد المراجعات
+    // --- البيانات التجارية الجديدة ---
+    rating: 4.9,              
+    reviewCount: 92,          
     isTrending: false,        
-    deliveryTime: "15-25",    // سرعة التوصيل للصيدلية
+    deliveryTime: "15-25",    
     
-    // مصفوفة العروض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_ph1", 
-        title: "رعاية وخصومات", 
-        description: "خصم 10% على منتجات العناية بالبشرة والشعر", 
-        image: "/HanyFarPharmlogo.png" // placeholder مؤقت
+        title: "باقة العناية المتكاملة ✨", 
+        description: "غسول وجه + كريم مرطب + واقي شمس بخصم 15% لفترة محدودة", 
+        price: 450,
+        oldPrice: 530,
+        image: "/HanyFarPharmlogo.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: العروض الحصرية للصيدلية
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "باقة العناية المتكاملة ✨", 
+            price: 450, 
+            image: "/HanyFarPharmlogo.png",
+            description: "تتكون من غسول، مرطب، وواقي شمس (أعلى جودة)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام الأدوية والمنتجات
       {
         title: "💊 مسكنات الألم وخافض الحرارة",
         items: [
@@ -386,7 +416,7 @@ export const shops = [
       }
     ]
   },
-  {
+    {
     id: 6,
     category: "سوبر ماركت",
     whatsapp: "201110884088",
@@ -396,23 +426,38 @@ export const shops = [
     cover: "/A-eleskandrany.png",
     
     // --- البيانات التجارية الجديدة ---
-    rating: 4.7,              // تقييم السوبر ماركت
-    reviewCount: 156,          // عدد المقيّمين
-    isTrending: true,         // السوبر ماركت دايماً عليه سحب
-    deliveryTime: "20-40",    // وقت مناسب لطلبات البقالة
+    rating: 4.7,              
+    reviewCount: 156,          
+    isTrending: true,         
+    deliveryTime: "20-40",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_sm1", 
-        title: "عروض الويك إند", 
-        description: "خصومات تصل لـ 15% على جميع المنظفات والألبان", 
-        image: "/A-eleskandrany.png" // placeholder مؤقت للوجو
+        title: "كرتونة الخير الموفرة 📦", 
+        description: "زيت + سكر + أرز + مكرونة بخصم خاص جداً بدل 210 ج.م", 
+        price: 185,
+        oldPrice: 210,
+        image: "/A-eleskandrany.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض التوفير في السوبر ماركت
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "كرتونة الخير الموفرة 📦", 
+            price: 185, 
+            image: "/A-eleskandrany.png",
+            description: "توفير حقيقي على أساسيات البيت (زيت، سكر، أرز، مكرونة)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام البقالة
       {
         title: "🥛 منتجات الألبان",
         items: [
@@ -506,7 +551,7 @@ export const shops = [
   {
     id: 7,
     category: "سوبر ماركت",
-    whatsapp: "201011111111", // تأكد من مراجعة رقم الواتساب الخاص به
+    whatsapp: "201011111111", 
     name: "سوبر ماركت الحسيني",
     isOpen: true,
     logo: "/Elhuseny.png",
@@ -518,18 +563,33 @@ export const shops = [
     isTrending: false,        
     deliveryTime: "25-45",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_sm2", 
-        title: "خصم السوبر", 
-        description: "وفر 10% على جميع أنواع الجبن والألبان الطازجة", 
-        image: "/Elhuseny.png" // placeholder مؤقت للوجو
+        title: "عرض خزين المطبخ 🥖", 
+        description: "باقة مكرونة متنوعة + أرز مصري فاخر بخصم خاص جداً بدل 180 ج.م", 
+        price: 155,
+        oldPrice: 180,
+        image: "/Elhuseny.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض التوفير الحصرية
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "عرض خزين المطبخ 🥖", 
+            price: 155, 
+            image: "/Elhuseny.png",
+            description: "أرز مصري + 3 أنواع مكرونة (توفير حقيقي للبيت)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام السوبر ماركت
       {
         title: "🥖 الحبوب والمكرونة",
         items: [
@@ -686,7 +746,7 @@ export const shops = [
       }
     ]
   },
-    {
+   {
     id: 8,
     category: "مطاعم",
     whatsapp: "201117903253",
@@ -696,23 +756,38 @@ export const shops = [
     cover: "/Haneen.png",
     
     // --- البيانات التجارية الجديدة ---
-    rating: 4.8,              // تقييم عالي لمحبي الكشري
-    reviewCount: 210,          // عدد كبير من المقيّمين
-    isTrending: true,         // الكشري دائماً مطلوب (تريند)
-    deliveryTime: "15-30",    // أسرع وقت توصيل للطلبات الساخنة
+    rating: 4.8,              
+    reviewCount: 210,          
+    isTrending: true,         
+    deliveryTime: "15-30",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_ks1", 
-        title: "عرض السوبر حنين", 
-        description: "علبة كشري جامبو + لتر بيبسي بخصم خاص", 
-        image: "/Haneen.png" // placeholder مؤقت للوجو
+        title: "وجبة السوبر حنين 🥣", 
+        description: "علبة كشري جامبو + طاجن لحمة + أرز بلبن بـ 95 ج.م بدل 120", 
+        price: 95,
+        oldPrice: 120,
+        image: "/Haneen.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض كشري حنين الحصرية
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "وجبة السوبر حنين 🥣", 
+            price: 95, 
+            image: "/Haneen.png",
+            description: "الوجبة المتكاملة (كشري جامبو، طاجن، وحلو الأرز باللبن)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام الكشري والطواجن
       {
         title: "🥣 ركن الكشري",
         items: [
@@ -840,12 +915,12 @@ export const shops = [
       }
     ]
   },
-    {
+   {
     id: 9,
     category: "مصنعات اللحوم",
-    whatsapp: "201022947479", // تأكد من إضافة الرقم الصحيح
+    whatsapp: "201022947479", 
     name: "مصنعات اليُمن",
-    isOpen: false,
+    isOpen: false, // المحل مغلق حالياً، هيظهر في الـ Slider لكن بعلامة مغلق
     logo: "/Msn3atElyomn.png",
     cover: "/Msn3atElyomn.png",
     
@@ -853,20 +928,35 @@ export const shops = [
     rating: 4.5,              
     reviewCount: 68,          
     isTrending: false,        
-    deliveryTime: "30-60",    // وقت أطول قليلاً لضمان سلامة التبريد
+    deliveryTime: "30-60",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_ms1", 
-        title: "تجهيزات الأسبوع", 
-        description: "خصم 10% عند طلب أكثر من 3 كيلو من البرجر أو السجق", 
-        image: "/Msn3atElyomn.png" // placeholder مؤقت للوجو
+        title: "عرض خزين الأسبوع 🥩", 
+        description: "كيلو برجر + كيلو سجق + كيلو كفتة بخصم 100 ج بدل 900", 
+        price: 800,
+        oldPrice: 900,
+        image: "/Msn3atElyomn.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض التوفير في اللحوم
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "عرض خزين الأسبوع 🥩", 
+            price: 800, 
+            image: "/Msn3atElyomn.png",
+            description: "تشكيلة من أجود مصنعات اللحوم (برجر، سجق، وكفتة)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام مصنعات اللحوم
       {
         title: "🥩 منتجات اللحوم المصنعة",
         items: [
@@ -891,23 +981,38 @@ export const shops = [
     cover: "/GamalyHSwan.png",
     
     // --- البيانات التجارية الجديدة ---
-    rating: 4.9,              // تقييم ممتاز للطلب المخصوص
-    reviewCount: 185,         // عدد كبير من محبي الكبدة الجملي
-    isTrending: true,         // الأكل المخصوص دايماً تريند
+    rating: 4.9,              
+    reviewCount: 185,         
+    isTrending: true,         
     deliveryTime: "25-45",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_gs1", 
-        title: "عرض الساندوتش الجامد", 
-        description: "اطلب 5 ساندوتشات كبدة جملي واحصل على السادس مجاناً", 
-        image: "/GamalyHSwan.png" // placeholder مؤقت للوجو
+        title: "عرض الصحاب (5+1 مجاناً) 🌯", 
+        description: "6 سندوتشات كبدة جملي مشوحة بسعر 5 فقط (توفير 45 ج.م)", 
+        price: 225,
+        oldPrice: 270,
+        image: "/GamalyHSwan.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض ملك الكبدة الجملي
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "عرض الصحاب (5+1 مجاناً) 🌯", 
+            price: 225, 
+            image: "/GamalyHSwan.png",
+            description: "باقة الـ 6 سندوتشات (كبدة جملي مشوحة بالخلطة السرية)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام المنيو
       {
         title: "🌯 ركن السندوتشات",
         items: [
@@ -966,22 +1071,37 @@ export const shops = [
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.7,              
-    reviewCount: 320,         // الكشري دايماً عليه إقبال وتفاعل عالي
+    reviewCount: 320,         
     isTrending: true,         
     deliveryTime: "15-30",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_z1", 
-        title: "عرض الزعيم المخصوص", 
-        description: "علبة كشري عائلي + 2 طبق رز بلبن هدية", 
-        image: "/Elza3im.png" // placeholder مؤقت للوجو
+        title: "صينية الزعيم العائلية 🥣", 
+        description: "علبة عائلية ضخمة + 2 طاجن لحمة + 2 أرز بلبن بـ 185 ج بدل 230", 
+        price: 185,
+        oldPrice: 230,
+        image: "/Elza3im.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض الزعيم الحصرية
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "صينية الزعيم العائلية 🥣", 
+            price: 185, 
+            image: "/Elza3im.png",
+            description: "وجبة تكفي العيلة (كشري عائلي، 2 طاجن، و 2 حلو)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام الكشري
       {
         title: "🥣 ركن الكشري",
         items: [
@@ -1122,20 +1242,35 @@ export const shops = [
     rating: 4.8,              
     reviewCount: 74,          
     isTrending: false,        
-    deliveryTime: "15-25",    // توصيل سريع للأدوية والحالات العاجلة
+    deliveryTime: "15-25",    
     
-    // مصفوفة العرض (تستخدم اللوجو كصورة مؤقتة)
+    // 🎡 مصفوفة العروض (المصدر للسلايدر الرئيسي)
     offers: [
       { 
         id: "off_sh1", 
-        title: "عرض العناية بالأم والطفل", 
-        description: "خصومات خاصة على منتجات حديثي الولادة ومستحضرات التجميل", 
-        image: "/Shahinda.png" // placeholder مؤقت للوجو
+        title: "شنطة العناية بالبيبي 👶", 
+        description: "حفاضات + مناديل مبللة + بودرة أطفال بخصم 60 ج بدل 410", 
+        price: 350,
+        oldPrice: 410,
+        image: "/Shahinda.png" 
       }
     ],
-    // ------------------------------------------------
 
     menuCategories: [
+      // 🎁 القسم الجديد: عروض التوفير في صيدلية شاهندا
+      {
+        title: "🎁 عروض حصرية",
+        items: [
+          { 
+            name: "شنطة العناية بالبيبي 👶", 
+            price: 350, 
+            image: "/Shahinda.png",
+            description: "كل احتياجات طفلك في باقة واحدة موفرة (أفضل الماركات)",
+            isOffer: true 
+          },
+        ]
+      },
+      // باقي أقسام الأدوية
       {
         title: "💊 مسكنات الألم وخافض الحرارة",
         items: [
