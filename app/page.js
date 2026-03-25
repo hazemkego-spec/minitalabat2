@@ -387,7 +387,7 @@ export default function HomePage() {
   {activeTab === "home" && !selectedShop && (
   <>
     {/* 🖼️ 1. الـ Cover Section */}
-    <div style={{ position: "relative", width: "100%", height: "190px", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", height: "175px", overflow: "hidden" }}>
       <img
         src="/cover.png"
         alt="App Cover"
@@ -424,7 +424,7 @@ export default function HomePage() {
 
         {/* 🔥 3. قسم العروض المتحرك (Slider) - الجديد بالكامل */}
     {allOffers && allOffers.length > 0 && (
-      <div style={{ marginTop: "10px", padding: "0 15px" }}>
+      <div style={{ marginTop: "4px", padding: "0 15px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
           <h3 style={{ fontSize: "16px", fontWeight: "bold", color: "#FF6600" }}>🔥 أقوى العروض</h3>
           <span style={{ fontSize: "11px", color: "#888" }}>اسحب لليسار ⬅️</span>
