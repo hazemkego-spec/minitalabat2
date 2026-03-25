@@ -431,12 +431,31 @@ export default function HomePage() {
           display: "flex", overflowX: "auto", gap: "12px", 
           paddingBottom: "10px", scrollbarWidth: "none", msOverflowStyle: "none" 
         }}>
-          {allOffers.map((offer, idx) => (
+                    {allOffers.map((offer, idx) => (
             <div 
               key={idx}
               onClick={() => {
+                // 1. تحديد المتجر صاحب العرض
                 const targetShop = shops.find(s => s.id === offer.shopId);
-                if (targetShop) setSelectedShop(targetShop);
+                
+                if (targetShop) {
+                  // 2. البحث عن الصنف داخل منيو المتجر (بناءً على اسم العرض)
+                  let targetItem = null;
+                  targetShop.menuCategories.forEach(cat => {
+                    const item = cat.items.find(i => i.name === offer.title);
+                    if (item) targetItem = item;
+                  });
+
+                  if (targetItem) {
+                    // 3. إضافة الصنف للسلة مع وسم "عرض خاص"
+                    addToCart(targetShop.name, { ...targetItem, isOffer: true });
+                    // 4. الانتقال الفوري لتبويب السلة لإتمام الطلب
+                    setActiveTab("cart");
+                  } else {
+                    // خيار احتياطي: لو لم يتطابق الاسم، يفتح صفحة المتجر كالمعتاد
+                    setSelectedShop(targetShop);
+                  }
+                }
               }}
               style={{
                 minWidth: "280px", height: "140px", position: "relative",
