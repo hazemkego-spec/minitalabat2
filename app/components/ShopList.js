@@ -10,7 +10,7 @@ export const shops = [
     name: "جزارة ومشويات محمد صوان",
     isOpen: true,
     logo: "/sawan-logo.png",
-    cover: "/sawan-cover.jpg", // يفضل صورة عرض عريضة هنا
+    cover: "/sawan-logo.png", // يفضل صورة عرض عريضة هنا
     
     // --- الإضافات الجديدة ---
     rating: 4.8,            // تقييم المحل (من 5)
@@ -24,7 +24,7 @@ export const shops = [
         id: "off1", 
         title: "عرض العيلة", 
         description: "كيلو كفتة + سلطات + عيش بـ 350 ج.م بس!", 
-        image: "/offers/sawan-offer1.jpg" 
+        image: "/sawan-logo.png" 
       }
     ],
     // ------------------------
