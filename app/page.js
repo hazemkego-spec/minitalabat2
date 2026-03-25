@@ -1,7 +1,7 @@
 "use client";
 import { db } from "../lib/firebase"; 
 import { ref, push, set, serverTimestamp } from "firebase/database"; 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // أضفنا useMemo للسرعة
 import NavBar from "./components/NavBar";
 import Cart from "./components/Cart";
 import InstallGuide from "./components/InstallGuide";
@@ -19,6 +19,24 @@ export default function HomePage() {
    
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
+
+  // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر ---
+  const allOffers = useMemo(() => {
+    const combined = [];
+    shops.forEach(shop => {
+      if (shop.offers && Array.isArray(shop.offers)) {
+        shop.offers.forEach(offer => {
+          combined.push({
+            ...offer,
+            shopId: shop.id,      // عشان لما يضغط على العرض يفتح المحل
+            shopName: shop.name   // كمعلومة إضافية
+          });
+        });
+      }
+    });
+    return combined;
+  }, []);
+  // -----------------------------------------------------
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -107,6 +125,7 @@ export default function HomePage() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
+        // تصحيح الرابط ليكون Google Maps مباشر
         setLocationUrl(`https://www.google.com/maps?q=${latitude},${longitude}`);
       });
     }
@@ -165,7 +184,7 @@ export default function HomePage() {
       const ordersRef = ref(db, 'orders');
       await set(push(ordersRef), orderData);
 
-      // --- الضربة القاضية: تمرير البيانات المحسوبة للـ Modal ---
+      // --- تمرير البيانات المحسوبة للـ Modal ---
       setShowMultiOrderModal({ 
         isOpen: true, 
         fixedDate: dateStr, 
@@ -192,7 +211,9 @@ export default function HomePage() {
             const itemTotal = item.quantity * item.price;
             shopSubtotal += itemTotal;
             const note = itemNotes[item.key] ? `\n   📝 ملاحظة: ${itemNotes[item.key]}` : "";
-            msg += `• ${item.name} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
+            // تم إضافة تفصيلة بسيطة هنا لتوضيح لو الصنف كان "عرض"
+            const offerTag = item.isOffer ? " [🎁 عرض خاص]" : "";
+            msg += `• ${item.name}${offerTag} (${item.quantity} × ${item.price} ج.م) = ${itemTotal} ج.م${note}\n`;
           });
           msg += `*💰 إجمالي المتجر:* ${shopSubtotal} ج.م\n`;
           msg += `*--------------------*\n\n`;
@@ -207,7 +228,7 @@ export default function HomePage() {
       const adminWhatsapp = "201122947479"; 
       window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(buildFullDetailMessage())}`, "_blank");
 
-      // تصفير بيانات السلة فقط (النافذة ستظل مفتوحة ببياناتها الثابتة)
+      // تصفير بيانات السلة فقط
       setCart({});
       setItemNotes({});
       
@@ -218,8 +239,7 @@ export default function HomePage() {
       setIsSending(false);
     }
   };
-
-  // --- تحديث الفلاتر ونافذة توزيع الطلبات ---
+// --- تحديث الفلاتر ونافذة توزيع الطلبات ---
   const categories = ["الكل", "مطاعم", "صيدليات", "سوبر ماركت", "عطارة", "مصنعات اللحوم"];
 
   const filteredShops = shops.filter((shop) => {
@@ -235,7 +255,7 @@ export default function HomePage() {
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "#fff", paddingBottom: "80px", overflowX: "hidden" }}>
       
-            {showMultiOrderModal.isOpen && (
+      {showMultiOrderModal.isOpen && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: "rgba(0,0,0,0.95)", zIndex: 20000,
@@ -254,8 +274,6 @@ export default function HomePage() {
                 const itemsInShop = getGroupedCart()[shopName];
 
                 const buildShopSpecificMessage = () => {
-                  // الضربة القاضية: سحب التاريخ والوقت الثابتين من الـ State
-                  // دي البيانات اللي حسبناها في دالة sendOrder وبعتناها هنا
                   const { fixedDate, fixedTime, fixedRef } = showMultiOrderModal;
 
                   let shopSubtotal = 0;
@@ -302,7 +320,6 @@ export default function HomePage() {
 
             <button
               onClick={() => {
-                // إغلاق النافذة وتصفير السلة نهائياً
                 setShowMultiOrderModal({ isOpen: false });
                 setCart({});
                 setItemNotes({});
@@ -317,7 +334,6 @@ export default function HomePage() {
           </div>
         </div>
       )}
-
 
       {deferredPrompt && activeTab === "home" && !selectedShop && (
         <div style={{
@@ -403,17 +419,64 @@ export default function HomePage() {
       </div>
     </div>
 
-    {/* 🔍 3. شريط البحث (العدسة على اليسار + منع الزوم) */}
-    <div style={{ padding: "5px 5px 3px" }}>
-      <div style={{ position: "relative", width: "85%" }}>
-        {/* ⬅️ العدسة الآن في أقصى اليسار */}
+    {/* 🔥 3. قسم العروض المتحرك (Slider) - الجديد بالكامل */}
+    {allOffers && allOffers.length > 0 && (
+      <div style={{ marginTop: "20px", padding: "0 15px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+          <h3 style={{ fontSize: "16px", fontWeight: "bold", color: "#FF6600" }}>🔥 أقوى العروض</h3>
+          <span style={{ fontSize: "11px", color: "#888" }}>اسحب لليسار ⬅️</span>
+        </div>
+        
+        <div style={{ 
+          display: "flex", overflowX: "auto", gap: "12px", 
+          paddingBottom: "10px", scrollbarWidth: "none", msOverflowStyle: "none" 
+        }}>
+          {allOffers.map((offer, idx) => (
+            <div 
+              key={idx}
+              onClick={() => {
+                const targetShop = shops.find(s => s.id === offer.shopId);
+                if (targetShop) setSelectedShop(targetShop);
+              }}
+              style={{
+                minWidth: "280px", height: "140px", position: "relative",
+                borderRadius: "15px", overflow: "hidden", cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.5)", border: "1px solid #333"
+              }}
+            >
+              <img 
+                src={offer.image} 
+                alt={offer.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover", opacity: "0.6" }}
+              />
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px",
+                background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)"
+              }}>
+                <h4 style={{ margin: 0, fontSize: "14px", color: "#FF6600" }}>{offer.title}</h4>
+                <p style={{ margin: "2px 0 0", fontSize: "11px", color: "#ddd", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {offer.description}
+                </p>
+                <div style={{ marginTop: "5px", fontSize: "10px", backgroundColor: "rgba(255,102,0,0.2)", display: "inline-block", padding: "2px 8px", borderRadius: "4px", color: "#FF6600" }}>
+                  {offer.shopName}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+   
+        {/* 🔍 3. شريط البحث (تصميم معالج لمنع الزوم وتسهيل الوصول) */}
+    <div style={{ padding: "10px 15px 5px" }}>
+      <div style={{ position: "relative", width: "100%" }}> {/* خليناه 100% لملء العرض المتاح بشكل أفضل */}
+        {/* ⬅️ العدسة في أقصى اليسار */}
         <span style={{ 
           position: "absolute", 
-          left: "12px", 
+          left: "15px", 
           top: "50%", 
           transform: "translateY(-50%)", 
-          color: "#888", 
-          fontSize: "14px",
+          color: "#FF6600", // خليناها بلون الهوية عشان تبرز
+          fontSize: "16px",
           zIndex: 2 
         }}>🔍</span>
         
@@ -424,36 +487,51 @@ export default function HomePage() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             width: "100%", 
-            // padding-left كبير للعدسة، و padding-right عادي للنص العربي
-            padding: "12px 15px 12px 40px", 
-            borderRadius: "15px",
+            padding: "14px 15px 14px 45px", // زيادة الـ padding لراحة العين
+            borderRadius: "20px",
             border: "1px solid #333", 
             backgroundColor: "#1e1e1e",
             color: "#fff", 
             outline: "none", 
-            fontSize: "16px", // 🛡️ يمنع الـ Zoom In التلقائي في الموبايل
-            textAlign: "right" 
+            fontSize: "16px", // 🛡️ يمنع الـ Zoom In التلقائي في Safari/Chrome موبايل
+            textAlign: "right",
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)" // عمق بسيط للداخل
           }}
         />
       </div>
     </div>
 
-    {/* 📑 4. شريط التصنيفات (Categories) */}
+    {/* 📑 4. شريط التصنيفات (Sticky Categories) */}
     <div style={{ 
-      display: "flex", overflowX: "auto", padding: "10px 15px", gap: "8px", 
-      scrollbarWidth: "none", position: "sticky", top: "0", zIndex: 10,
-      backgroundColor: "#121212", borderBottom: "1px solid #252525" 
+      display: "flex", 
+      overflowX: "auto", 
+      padding: "12px 15px", 
+      gap: "10px", 
+      scrollbarWidth: "none", 
+      position: "sticky", 
+      top: "0", 
+      zIndex: 100, // رفعنا الـ zIndex لضمان ظهوره فوق الكروت
+      backgroundColor: "#121212", 
+      borderBottom: "1px solid #252525",
+      msOverflowStyle: "none"
     }}>
       {categories.map((cat) => (
         <button
           key={cat}
           onClick={() => setSelectedCategory(cat)}
           style={{
-            flex: "0 0 auto", padding: "8px 16px", borderRadius: "18px",
-            border: "none", backgroundColor: selectedCategory === cat ? "#FF6600" : "#252525",
-            color: selectedCategory === cat ? "#000" : "#fff",
-            fontWeight: "bold", cursor: "pointer",
-            transition: "all 0.3s ease", fontSize: "12px"
+            flex: "0 0 auto", 
+            padding: "10px 20px", 
+            borderRadius: "25px",
+            border: "1px solid",
+            borderColor: selectedCategory === cat ? "#FF6600" : "#333",
+            backgroundColor: selectedCategory === cat ? "#FF6600" : "transparent",
+            color: selectedCategory === cat ? "#000" : "#ccc",
+            fontWeight: "bold", 
+            cursor: "pointer",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", 
+            fontSize: "13px",
+            boxShadow: selectedCategory === cat ? "0 4px 10px rgba(255,102,0,0.3)" : "none"
           }}
         >
           {cat}
@@ -461,114 +539,132 @@ export default function HomePage() {
       ))}
     </div>
 
-{/* عرض المتاجر المفلترة - نظام الزوجي المحسن (2 في كل صف) */}
-<div style={{ 
-  padding: "15px", 
-  display: "grid", 
-  gridTemplateColumns: "repeat(2, 1fr)", // عرض متجرين جنب بعض
-  gap: "12px" // مسافة متوازنة بين الكروت
-}}>
-  {filteredShops.length === 0 ? (
-    <div style={{ textAlign: "center", gridColumn: "span 2", padding: "40px 0" }}>
-      <span style={{ fontSize: "40px" }}>🔍</span>
-      <p style={{ color: "#888", marginTop: "10px" }}>لا توجد متاجر مطابقة لطلبك</p>
-    </div>
-  ) : (
+    {/* 📦 5. عرض المتاجر المفلترة (Grid System) */}
+    <div style={{ 
+      padding: "15px", 
+      display: "grid", 
+      gridTemplateColumns: "repeat(2, 1fr)", 
+      gap: "15px" // مسافة أوسع قليلاً للفخامة
+    }}>
+      {filteredShops.length === 0 ? (
+        <div style={{ textAlign: "center", gridColumn: "span 2", padding: "60px 0" }}>
+          <div style={{ fontSize: "50px", marginBottom: "15px" }}>🕵️‍♂️</div>
+          <p style={{ color: "#888", fontSize: "15px" }}>ملقناش حاجة بالاسم ده يا هندسة..</p>
+          <button 
+            onClick={() => {setSearchTerm(""); setSelectedCategory("الكل");}}
+            style={{ marginTop: "15px", color: "#FF6600", background: "none", border: "none", fontWeight: "bold" }}
+          >
+            عرض كل المتاجر
+          </button>
+        </div>
+      ) : (
+
     filteredShops.map((shop) => (
       <div
         key={shop.id}
         onClick={() => setSelectedShop(shop)}
         style={{
           position: "relative",
-          height: "180px", // ارتفاع مناسب للمربع ليبرز تفاصيل الغلاف
-          borderRadius: "20px",
+          height: "200px", // زودنا الارتفاع بسيط عشان يستوعب الداتا الجديدة
+          borderRadius: "22px",
           overflow: "hidden",
           cursor: "pointer",
           backgroundColor: "#1e1e1e",
-          border: "1px solid #252525",
-          boxShadow: "0 6px 15px rgba(0,0,0,0.3)",
-          transition: "transform 0.2s ease"
+          border: "1px solid #333",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
+          transition: "transform 0.2s ease",
+          touchAction: "manipulation"
         }}
         onPointerDown={(e) => e.currentTarget.style.transform = "scale(0.96)"}
         onPointerUp={(e) => e.currentTarget.style.transform = "scale(1)"}
       >
-        {/* 🖼️ صورة الغلاف كخلفية كارت المتجر */}
+        {/* 🔥 1. شارة "تريند" للمحلات المميزة */}
+        {shop.isTrending && (
+          <div style={{
+            position: "absolute", top: "12px", right: "12px", zIndex: 10,
+            backgroundColor: "#FF6600", color: "#000", padding: "4px 10px",
+            borderRadius: "10px", fontSize: "10px", fontWeight: "black",
+            boxShadow: "0 4px 10px rgba(255,102,0,0.4)", display: "flex", alignItems: "center", gap: "4px"
+          }}>
+            <span>🔥</span> تريند
+          </div>
+        )}
+
+        {/* 🕒 2. وقت التوصيل (على اليسار) */}
+        <div style={{
+          position: "absolute", top: "12px", left: "12px", zIndex: 10,
+          backgroundColor: "rgba(0,0,0,0.6)", color: "#fff", padding: "4px 8px",
+          borderRadius: "8px", fontSize: "10px", border: "1px solid rgba(255,255,255,0.1)",
+          backdropFilter: "blur(4px)"
+        }}>
+          ⏱️ {shop.deliveryTime || "30-45"} د
+        </div>
+
+        {/* 🖼️ صورة الغلاف */}
         <img
           src={shop.cover || shop.logo} 
           alt={shop.name}
           style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: "0.5",
-            filter: "brightness(0.7)"
+            width: "100%", height: "100%", objectFit: "cover",
+            opacity: "0.6", filter: "brightness(0.8) contrast(1.1)"
           }}
         />
 
-        {/* 🌑 طبقة تدريج أسود لضمان وضوح البيانات */}
+        {/* 🌑 طبقة التدريج (أعمق لتحسين قراءة النصوص) */}
         <div style={{
-          position: "absolute",
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: "linear-gradient(to top, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.4) 50%, transparent 100%)"
+          position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0.5) 50%, transparent 100%)"
         }}></div>
 
-        {/* 🏷️ محتوى الكارت (اللوجو والاسم في المنتصف) */}
+        {/* 🏷️ محتوى الكارت */}
         <div style={{
-          position: "absolute",
-          bottom: "12px",
-          right: "10px",
-          left: "10px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center"
+          position: "absolute", bottom: "12px", right: "0", left: "0",
+          display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "0 10px"
         }}>
-          {/* اللوجو بحجم متناسق */}
-          <div style={{ position: "relative", marginBottom: "8px" }}>
+          {/* اللوجو */}
+          <div style={{ position: "relative", marginBottom: "6px" }}>
             <img
               src={shop.logo}
               alt={shop.name}
               style={{
-                width: "48px", height: "48px", borderRadius: "12px",
+                width: "52px", height: "52px", borderRadius: "14px",
                 border: "2px solid #FF6600", backgroundColor: "#fff",
-                objectFit: "contain", padding: "2px"
+                objectFit: "contain", padding: "2px", boxShadow: "0 4px 10px rgba(0,0,0,0.5)"
               }}
             />
             {shop.isOpen && (
               <span style={{
-                position: "absolute", top: "-3px", left: "-3px",
-                width: "10px", height: "10px", backgroundColor: "#4caf50",
-                borderRadius: "50%", border: "2px solid #000"
+                position: "absolute", bottom: "2px", right: "-2px",
+                width: "12px", height: "12px", backgroundColor: "#4caf50",
+                borderRadius: "50%", border: "2px solid #1e1e1e"
               }}></span>
             )}
           </div>
           
-          {/* اسم المحل - تصغير الخط وحمايته من التداخل */}
+          {/* اسم المحل */}
           <h4 style={{ 
-            color: "#fff", 
-            margin: "0", 
-            fontSize: "13px", 
-            fontWeight: "bold",
-            lineHeight: "1.2",
-            display: "-webkit-box",
-            WebkitLineClamp: "1", // يظهر الاسم في سطر واحد فقط
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden"
+            color: "#fff", margin: "0", fontSize: "14px", fontWeight: "bold",
+            lineHeight: "1.2", display: "-webkit-box", WebkitLineClamp: "1",
+            WebkitBoxOrient: "vertical", overflow: "hidden", textShadow: "0 2px 4px rgba(0,0,0,0.5)"
           }}>
             {shop.name}
           </h4>
 
+          {/* ⭐ النجوم والتقييم */}
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "4px" }}>
+             <span style={{ color: "#FFD700", fontSize: "11px" }}>⭐</span>
+             <span style={{ color: "#fff", fontSize: "11px", fontWeight: "bold" }}>{shop.rating || "4.5"}</span>
+             <span style={{ color: "#888", fontSize: "10px" }}>({shop.reviewCount || "50"}+)</span>
+          </div>
+
           {/* حالة المحل */}
-          <div style={{ marginTop: "4px" }}>
+          <div style={{ marginTop: "6px" }}>
              <span style={{ 
-               fontSize: "9px", 
-               color: shop.isOpen ? "#4caf50" : "#f44336",
-               fontWeight: "bold",
-               backgroundColor: "rgba(0,0,0,0.3)",
-               padding: "2px 6px",
-               borderRadius: "4px"
+               fontSize: "9px", color: shop.isOpen ? "#4caf50" : "#f44336",
+               fontWeight: "bold", backgroundColor: "rgba(255,255,255,0.05)",
+               padding: "3px 8px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.1)"
              }}>
-               {shop.isOpen ? "● مفتوح الآن" : "○ مغلق حالياً"}
+               {shop.isOpen ? "مفتوح" : "مغلق حالياً"}
              </span>
           </div>
         </div>
@@ -579,6 +675,7 @@ export default function HomePage() {
       </>
     )}
 
+            {/* 🟢 1. عرض تفاصيل المحل (عند اختيار محل من القائمة أو السلايدر) */}
       {activeTab === "home" && selectedShop && (
         <ShopDetails
           shop={selectedShop}
@@ -587,6 +684,7 @@ export default function HomePage() {
         />
       )}
 
+      {/* 🛒 2. عرض عربة التسوق */}
       {activeTab === "cart" && (
         <Cart
           cart={cart}
@@ -603,32 +701,42 @@ export default function HomePage() {
         />
       )}
 
+      {/* 🚀 3. صفحة إضافة متجر (لوحة التحكم والدعم) */}
       {activeTab === "addShop" && (
         <div style={{ paddingBottom: "20px" }}>
           <InstallGuide onClose={() => setActiveTab("home")} />
-          <div style={{ padding: "20px", marginTop: "10px", backgroundColor: "#1e1e1e", margin: "15px", borderRadius: "15px", border: "1px solid #333" }}>
-            <h3 style={{ color: "#FF6600", marginBottom: "15px", fontSize: "18px" }}>🚀 سجل متجرك معنا</h3>
-            <p style={{ color: "#aaa", fontSize: "13px", marginBottom: "20px" }}>انضم لمنصة ميني طلبات وابدأ في استقبال أوردراتك إلكترونياً</p>
+          <div style={{ 
+            padding: "20px", marginTop: "10px", backgroundColor: "#1e1e1e", 
+            margin: "15px", borderRadius: "20px", border: "1px solid #333",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)" 
+          }}>
+            <h3 style={{ color: "#FF6600", marginBottom: "15px", fontSize: "20px", fontWeight: "bold" }}>🚀 سجل متجرك معنا</h3>
+            <p style={{ color: "#aaa", fontSize: "14px", marginBottom: "25px", lineHeight: "1.6" }}>
+              انضم لمنصة **ميني طلبات** وابدأ في استقبال أوردراتك إلكترونياً وبكل سهولة.
+            </p>
             
-            <input
-              type="text"
-              placeholder="اسم المتجر"
-              style={{ width: "100%", padding: "14px", marginBottom: "12px", borderRadius: "10px", border: "1px solid #333", backgroundColor: "#121212", color: "#fff", outline: "none" }}
-            />
             <button 
               onClick={() => window.open(`https://wa.me/201122947479?text=${encodeURIComponent("أريد تسجيل متجر جديد في نظام ميني طلبات")}`)}
-              style={{ width: "100%", padding: "15px", borderRadius: "10px", border: "none", backgroundColor: "#FF6600", color: "#fff", fontWeight: "bold", cursor: "pointer", fontSize: "15px" }}
+              style={{ 
+                width: "100%", padding: "16px", borderRadius: "12px", border: "none", 
+                backgroundColor: "#FF6600", color: "#fff", fontWeight: "bold", 
+                cursor: "pointer", fontSize: "16px", boxShadow: "0 4px 15px rgba(255,102,0,0.3)"
+              }}
             >
-              إرسال طلب الانضمام
+              إرسال طلب الانضمام عبر واتساب
             </button>
           </div>
-          <div style={{ padding: "15px", textAlign: "center" }}>
-            <p style={{ color: "#888", fontSize: "13px" }}>للدعم الفني المباشر:</p>
-            <a href="tel:201122947479" style={{ color: "#FF6600", fontSize: "20px", fontWeight: "bold", textDecoration: "none" }}>01122947479</a>
+          <div style={{ padding: "20px", textAlign: "center" }}>
+            <p style={{ color: "#888", fontSize: "14px", marginBottom: "10px" }}>للدعم الفني المباشر:</p>
+            <a href="tel:201122947479" style={{ 
+              color: "#FF6600", fontSize: "24px", fontWeight: "black", 
+              textDecoration: "none", letterSpacing: "1px" 
+            }}>01122947479</a>
           </div>
         </div>
       )}
 
+      {/* 📱 4. شريط التنقل السفلي (NavBar) */}
       <NavBar 
         activeTab={activeTab} 
         setActiveTab={(tab) => {
