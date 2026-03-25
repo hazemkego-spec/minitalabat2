@@ -469,7 +469,7 @@ export default function HomePage() {
 
     {/* 🔍 4. شريط البحث (تصميم معالج لمنع الزوم وتسهيل الوصول) */}
     <div style={{ padding: "10px 15px 5px" }}>
-      <div style={{ position: "relative", width: "100%" }}>
+      <div style={{ position: "relative", width: "85%" }}>
         <span style={{ 
           position: "absolute", 
           left: "15px", 
