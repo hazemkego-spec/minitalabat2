@@ -19,24 +19,28 @@ export default function HomePage() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-  // --- 🚀 منطق الحركة التلقائية للسلايدر ---
+  // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
   const sliderRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false); // المفتاح الجديد للتحكم في الإيقاف
 
   useEffect(() => {
+    // إذا كان المستخدم يتحكم يدوياً، لا تقم بإنشاء تايمر جديد
+    if (isPaused) return; 
+
     const interval = setInterval(() => {
       if (sliderRef.current) {
         const { scrollLeft, offsetWidth, scrollWidth } = sliderRef.current;
-        // إذا وصلنا لآخر العروض، ارجع للبداية، وإلا اتحرك للمربع التالي
+        
         if (scrollLeft + offsetWidth >= scrollWidth - 10) {
           sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
         } else {
-          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" }); // 300 هي عرض الكارت تقريباً
+          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
         }
       }
-    }, 3000); // يتحرك كل 3 ثواني
+    }, 4000); 
 
-    return () => clearInterval(interval); // تنظيف التايمر عند قفل الصفحة
-  }, []);
+    return () => clearInterval(interval); 
+  }, [isPaused]); // التايمر الآن يراقب حالة isPaused
 
   // --- إعداد مصفوفة العروض أوتوماتيكياً من ملف المتاجر ---
   const allOffers = useMemo(() => {
@@ -57,7 +61,7 @@ export default function HomePage() {
     });
     return combined;
   }, [shops]);
-  // -----------------------------------------------------
+
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
@@ -439,9 +443,9 @@ export default function HomePage() {
       </div>
     </div>
 
-        {/* 🔥 3. قسم العروض المتحرك (Slider) - النسخة الاحترافية المتحركة */}
+        {/* 🔥 3. قسم العروض المتحرك (Slider) - النسخة الاحترافية المتحركة والذكية */}
 {allOffers && allOffers.length > 0 && (
-  <div style={{ marginTop: "10px", padding: "0 15px" }}>
+  <div style={{ marginTop: "2px", padding: "0 15px" }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
       <h3 style={{ fontSize: "18px", fontWeight: "900", color: "#FF6600", letterSpacing: "0.5px" }}>🔥 أقوى العروض</h3>
       <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
@@ -451,7 +455,14 @@ export default function HomePage() {
     </div>
     
     <div 
-      ref={sliderRef} // الربط مع محرك الحركة التلقائية
+      ref={sliderRef}
+      // 👇 مستشعرات التحكم الذكي في الإيقاف والتشغيل
+      onMouseEnter={() => setIsPaused(true)}      // إيقاف عند مرور الماوس
+      onMouseLeave={() => setIsPaused(false)}     // تشغيل عند خروج الماوس
+      onTouchStart={() => setIsPaused(true)}      // إيقاف فوري عند اللمس بالموبايل
+      onTouchEnd={() => {                         // تشغيل بعد ثوانٍ من ترك الشاشة
+        setTimeout(() => setIsPaused(false), 2000); 
+      }}
       style={{ 
         display: "flex", 
         overflowX: "auto", 
@@ -459,7 +470,8 @@ export default function HomePage() {
         paddingBottom: "15px", 
         scrollbarWidth: "none", 
         msOverflowStyle: "none",
-        scrollBehavior: "smooth" // لجعل الحركة ناعمة جداً
+        scrollBehavior: "smooth",
+        WebkitOverflowScrolling: "touch" 
       }}
     >
       {allOffers.map((offer, idx) => (
@@ -489,7 +501,7 @@ export default function HomePage() {
             borderRadius: "20px", 
             overflow: "hidden", 
             cursor: "pointer",
-            border: "1.5px solid #252525", // إطار خفيف بديل للظلال لتبريز الكارت
+            border: "1.5px solid #252525",
             backgroundColor: "#1e1e1e"
           }}
         >
@@ -512,7 +524,7 @@ export default function HomePage() {
             flexDirection: "column",
             justifyContent: "flex-end"
           }}>
-            {/* اسم المتجر في تاق علوي صغير */}
+            {/* اسم المتجر */}
             <div style={{ 
               alignSelf: "flex-start",
               fontSize: "10px", 
@@ -527,7 +539,7 @@ export default function HomePage() {
               {offer.shopName}
             </div>
 
-            {/* عنوان العرض بخط عريض جداً */}
+            {/* عنوان العرض */}
             <h4 style={{ 
               margin: 0, 
               fontSize: "18px", 
