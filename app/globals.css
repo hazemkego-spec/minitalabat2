@@ -2,26 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 🎨 إعدادات الألوان الديناميكية */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* النظام الفاتح (Light Mode) */
+  --bg-primary: #ffffff;      /* الخلفية الأساسية بيضاء */
+  --bg-secondary: #f8f9fa;    /* خلفية الكروت رمادي فاتح جداً */
+  --text-main: #121212;       /* النصوص الأساسية سوداء */
+  --text-muted: #666666;      /* النصوص الفرعية رمادي */
+  --border-color: #eeeeee;    /* إطارات الكروت */
+  --card-bg: #ffffff;         /* خلفية الكارت بيضاء */
+  --accent-color: #FF6600;    /* اللون البرتقالي (ثابت) */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    /* النظام الداكن (Dark Mode) */
+    --bg-primary: #121212;    /* الخلفية الأساسية سوداء */
+    --bg-secondary: #1e1e1e;  /* خلفية الكروت أسود فاتح */
+    --text-main: #ffffff;     /* النصوص الأساسية بيضاء */
+    --text-muted: #aaaaaa;    /* النصوص الفرعية رمادي فاتح */
+    --border-color: #252525;  /* إطارات الكروت داكنة */
+    --card-bg: #1e1e1e;       /* خلفية الكارت داكنة */
   }
 }
 
+/* 📱 إعدادات الجسم العام */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--text-main);
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* تحسين تجربة التمرير */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* إزالة اللون الأزرق عند اللمس في الموبايل */
 }
