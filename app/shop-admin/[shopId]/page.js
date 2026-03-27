@@ -2,11 +2,11 @@
 import { useState, useEffect, useRef } from "react";
 
 // ✅ استخدام @ يضمن الوصول للمجلد الرئيسي مباشرة مهما كان مكان الملف
-import { db } from "@/lib/firebase"; 
+import { db } from "../../../lib/firebase"; 
 import { ref, onValue, update, remove, query } from "firebase/database";
 
 // ✅ الوصول لمجلد المكونات مباشرة
-import { shops } from "@/components/ShopList"; 
+import { shops } from "../../components/ShopList"; 
 
 export default function ShopAdminPage({ params }) {
   // 1. استخراج معرف المحل من الرابط
