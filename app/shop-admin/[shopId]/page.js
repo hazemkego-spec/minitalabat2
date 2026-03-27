@@ -47,10 +47,10 @@ export default function ShopAdminPage({ params }) {
     }
 
     if (typeof window !== "undefined") {
-      // ✅ تسجيل الـ Service Worker (مع الحفاظ على مسارك الحالي)
+      // ✅ تعديل تسجيل الـ Service Worker ليكون عاماً لضمان التثبيت كـ PWA كامل
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/shop-admin/' })
-          .then(reg => console.log('Shop Admin SW Registered'))
+        navigator.serviceWorker.register('/sw.js') 
+          .then(reg => console.log('Shop Admin SW Registered Successfully'))
           .catch(err => console.log('SW registration failed:', err));
       }
 
