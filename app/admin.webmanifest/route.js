@@ -6,8 +6,8 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const shopId = searchParams.get("shop");
   
-  // 2. جلب بيانات المحل من ملف الإعدادات الخاص بك
-  const currentShop = shops[shopId];
+  // البحث عن المحل داخل المصفوفة باستخدام الـ id الرقمي
+  const currentShop = shops.find(s => s.id === parseInt(shopId));
 
   // 3. بناء هيكل المانيفست بناءً على هوية المحل
   const manifest = {
