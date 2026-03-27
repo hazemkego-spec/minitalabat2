@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-// ✅ المسارات معدلة للرجوع 3 مستويات حسب خريطة الملفات
-import { db } from "../../../lib/firebase"; 
+// ✅ استخدام @ يضمن الوصول للمجلد الرئيسي مباشرة مهما كان مكان الملف
+import { db } from "@/lib/firebase"; 
 import { ref, onValue, update, remove, query } from "firebase/database";
 
-// ✅ المسارات معدلة للرجوع 3 مستويات حسب خريطة الملفات
-import { shops } from "../../../components/ShopList"; 
+// ✅ الوصول لمجلد المكونات مباشرة
+import { shops } from "@/components/ShopList"; 
 
 export default function ShopAdminPage({ params }) {
   // 1. استخراج معرف المحل من الرابط
