@@ -11,10 +11,14 @@ export async function GET(request) {
 
   // 3. بناء هيكل المانيفست بناءً على هوية المحل
   const manifest = {
+    // ✅ إضافة ID فريد لكل نسخة لمنع تداخل التطبيقات على نفس الدومين
+    id: `/shop-admin/${shopId || 'general'}`,
     name: currentShop ? `إدارة ${currentShop.name}` : "نظام ميني طلبات",
     short_name: currentShop ? currentShop.name : "الطلبات",
     description: `لوحة تحكم ذكية لمتجر ${currentShop?.name || 'المتجر'}`,
     start_url: `/shop-admin/${shopId || ''}`,
+    // ✅ تحديد الـ scope لضمان استقلالية كل متجر في التثبيت
+    scope: `/shop-admin/${shopId || ''}`,
     display: "standalone",
     background_color: "#0b0c0d",
     theme_color: "#FF6600",
