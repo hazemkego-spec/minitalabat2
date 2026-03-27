@@ -28,44 +28,56 @@ export default function ShopAdminPage({ params }) {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
-  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW
+  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW + المانيفست الديناميكي
   useEffect(() => {
     setIsClient(true);
     
+    // استعادة حالة تسجيل الدخول
     const savedAuth = localStorage.getItem(`auth_${shopId}`);
     if (savedAuth === "true") {
       setIsAuthenticated(true);
     }
 
+    // استعادة حالة الصوت
     const savedAudio = localStorage.getItem("adminAudioEnabled");
     if (savedAudio === "true") {
       setAudioEnabled(true);
     }
 
     if (typeof window !== "undefined") {
+      // ✅ تسجيل الـ Service Worker (مع الحفاظ على مسارك الحالي)
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js', { scope: '/shop-admin/' })
           .then(reg => console.log('Shop Admin SW Registered'))
           .catch(err => console.log('SW registration failed:', err));
       }
 
+      // ✅ تفعيل المانيفست الديناميكي (يرسل shopId للمسار البرمجي الجديد)
       const oldManifests = document.querySelectorAll('link[rel="manifest"]');
       oldManifests.forEach(el => el.remove());
 
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = `/admin.webmanifest?shop=${shopId}&v=${Date.now()}`; 
-      document.head.appendChild(link);
+      if (shopId) {
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        // الربط بالمسار البرمجي الذي أنشأناه مع كاسر للكاش
+        link.href = `/admin.webmanifest?shop=${shopId}&v=${Date.now()}`; 
+        document.head.appendChild(link);
+      }
 
+      // تحديث هوية الصفحة (العنوان ولون الثيم)
       document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
       let themeMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
+      if (themeMeta) {
+        themeMeta.setAttribute("content", "#0b0c0d");
+      }
     }
 
+    // طلب إذن التنبيهات
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
 
+    // إعداد نظام التثبيت (PWA Prompt)
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -75,7 +87,7 @@ export default function ShopAdminPage({ params }) {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, [shopId, currentShop]);
 
-  // دالة التحقق من كود الدخول
+  // دالة التحقق من كود الدخول (باستخدام adminKey الخاص بالمحل)
   const handleLogin = () => {
     if (accessCode === currentShop?.adminKey || accessCode === "1234") {
       setIsAuthenticated(true);
@@ -85,13 +97,14 @@ export default function ShopAdminPage({ params }) {
     }
   };
 
-  // مراقبة عودة المستخدم للتطبيق
+  // مراقبة عودة المستخدم للتطبيق لإعادة تفعيل محرك الصوت
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        if (audioRef.current && (audioEnabled || localStorage.getItem("adminAudioEnabled") === "true")) {
+        const isAudioActive = audioEnabled || localStorage.getItem("adminAudioEnabled") === "true";
+        if (audioRef.current && isAudioActive) {
           audioRef.current.play().then(() => {
-            audioRef.current.pause();
+            audioRef.current.pause(); // حركة تقنية لتنشيط الصوت في الخلفية
           }).catch(e => console.log("Re-activation blocked"));
         }
       }
