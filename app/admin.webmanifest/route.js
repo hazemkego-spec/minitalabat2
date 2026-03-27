@@ -23,18 +23,18 @@ export async function GET(request) {
     background_color: "#0b0c0d",
     theme_color: "#FF6600",
     icons: [
-      {
-        src: currentShop?.logo || "/icon.png",
-        sizes: "192x192",
-        type: "image/png",
-        purpose: "any"
-      },
-      {
-        src: currentShop?.logo || "/icon.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable"
-      }
+  {
+    src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : "https://minitalabat2.vercel.app/icon.png",
+    sizes: "192x192",
+    type: "image/png",
+    purpose: "any"
+  },
+  {
+    src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : "https://minitalabat2.vercel.app/icon.png",
+    sizes: "512x512",
+    type: "image/png",
+    purpose: "maskable"
+  }
     ]
   };
 
