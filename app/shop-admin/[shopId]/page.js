@@ -21,9 +21,11 @@ export default function ShopAdminPage({ params }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   
-  // تحديد المتجر الحالي
-  const currentShop = shops.find(s => s.id === shopId) || shops.find(s => s.name === shopId);
-  const activeTab = currentShop ? currentShop.name : "الكل";
+  // ✅ التعديل الاحترافي: البحث بالـ ID الرقمي أولاً ثم بالاسم كاحتياط
+  const currentShop = shops.find(s => s.id === parseInt(shopId)) || shops.find(s => s.name === shopId);
+  
+  // ✅ تحديد الاسم الفعلي للمحل لفلترة الأوردرات من Firebase
+  const activeTab = currentShop ? currentShop.name : "";
 
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
