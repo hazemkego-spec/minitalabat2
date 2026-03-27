@@ -1,15 +1,15 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-// ✅ تعديل المسار للرجوع 3 مستويات للخلف للوصول لـ lib حسب الخريطة
+// ✅ المسارات معدلة للرجوع 3 مستويات حسب خريطة الملفات
 import { db } from "../../../lib/firebase"; 
 import { ref, onValue, update, remove, query } from "firebase/database";
 
-// ✅ تعديل المسار للرجوع 3 مستويات للخلف للوصول لـ components حسب الخريطة
+// ✅ المسارات معدلة للرجوع 3 مستويات حسب خريطة الملفات
 import { shops } from "../../../components/ShopList"; 
 
 export default function ShopAdminPage({ params }) {
-  // 1. استخراج معرف المحل من الرابط (مثلاً: /shop-admin/sawan)
+  // 1. استخراج معرف المحل من الرابط
   const { shopId } = params; 
 
   const [orders, setOrders] = useState([]);
@@ -17,11 +17,11 @@ export default function ShopAdminPage({ params }) {
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   
-  // 2. حالات التحقق والتحكم الجديدة
+  // 2. حالات التحقق والتحكم
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   
-  // تحديد المتجر الحالي بناءً على الرابط
+  // تحديد المتجر الحالي
   const currentShop = shops.find(s => s.id === shopId) || shops.find(s => s.name === shopId);
   const activeTab = currentShop ? currentShop.name : "الكل";
 
@@ -32,7 +32,6 @@ export default function ShopAdminPage({ params }) {
   useEffect(() => {
     setIsClient(true);
     
-    // التحقق إذا كان المستخدم سجل دخوله مسبقاً لهذا المحل على هذا الجهاز
     const savedAuth = localStorage.getItem(`auth_${shopId}`);
     if (savedAuth === "true") {
       setIsAuthenticated(true);
@@ -45,7 +44,6 @@ export default function ShopAdminPage({ params }) {
 
     if (typeof window !== "undefined") {
       if ('serviceWorker' in navigator) {
-        // تحديث الـ scope ليكون خاص بلوحة تحكم المحلات
         navigator.serviceWorker.register('/sw.js', { scope: '/shop-admin/' })
           .then(reg => console.log('Shop Admin SW Registered'))
           .catch(err => console.log('SW registration failed:', err));
@@ -56,7 +54,6 @@ export default function ShopAdminPage({ params }) {
 
       const link = document.createElement('link');
       link.rel = 'manifest';
-      // توليد مانيفست ديناميكي يحمل اسم المحل عند التثبيت
       link.href = `/admin.webmanifest?shop=${shopId}&v=${Date.now()}`; 
       document.head.appendChild(link);
 
@@ -80,7 +77,6 @@ export default function ShopAdminPage({ params }) {
 
   // دالة التحقق من كود الدخول
   const handleLogin = () => {
-    // التحقق من كود المتجر (يفترض وجود خاصية adminKey في ShopList) أو كود عام "1234"
     if (accessCode === currentShop?.adminKey || accessCode === "1234") {
       setIsAuthenticated(true);
       localStorage.setItem(`auth_${shopId}`, "true");
@@ -104,93 +100,7 @@ export default function ShopAdminPage({ params }) {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [audioEnabled]);
 
-  // 2. الربط اللحظي بـ Firebase (معدل لفلترة محل واحد فقط)
-  useEffect(() => {
-    if (!isClient || !isAuthenticated) return; 
-
-    const ordersRef = ref(db, 'orders');
-    const unsubscribe = onValue(ordersRef, (snapshot) => {
-      const data = snapshot.val();
-      
-      if (data) {
-        const orderList = Object.keys(data).map(id => {
-          const rawOrder = data[id];
-          let processedItems = [];
-          if (rawOrder.items && typeof rawOrder.items === 'object') {
-            Object.keys(rawOrder.items).forEach(shopName => {
-              // فلترة الأصناف: جلب أصناف هذا المحل فقط
-              if (shopName.trim() === activeTab) {
-                const itemsInShop = rawOrder.items[shopName];
-                const itemsArray = Array.isArray(itemsInShop) ? itemsInShop : Object.values(itemsInShop);
-                itemsArray.forEach(item => {
-                  if (item) processedItems.push({ ...item, shopName: shopName.trim() });
-                });
-              }
-            });
-          }
-          return { id, ...rawOrder, processedItems };
-        })
-        .filter(order => order.processedItems.length > 0) // عرض الأوردرات التي تحتوي على أصناف للمحل فقط
-        .reverse();
-
-        if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
-          handleNewOrderNotification(orderList[0]);
-        }
-        
-        setOrders(orderList);
-        ordersCountRef.current = orderList.length;
-      } else {
-        setOrders([]);
-        ordersCountRef.current = 0;
-      }
-    });
-
-    return () => unsubscribe();
-  }, [isClient, isAuthenticated, activeTab]);
-
-  // 3. دالة التثبيت (PWA)
-  const handleInstallApp = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") setDeferredPrompt(null);
-  };
-  // 4. دالة التنبيه (معدلة لتنبيه صاحب المحل فقط)
-  const handleNewOrderNotification = (order) => {
-    const isAudioSaved = localStorage.getItem("adminAudioEnabled") === "true";
-    
-    // تأكيد أن الأوردر يحتوي فعلاً على أصناف تخص هذا المحل قبل إصدار الصوت
-    const hasMyItems = order.processedItems.some(item => item.shopName === activeTab);
-    if (!hasMyItems) return;
-
-    if (audioRef.current && (audioEnabled || isAudioSaved)) {
-      audioRef.current.muted = false; 
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          console.log(`🔊 تنبيه أوردر جديد لـ ${activeTab}`);
-        }).catch(error => {
-          if (navigator.vibrate) navigator.vibrate([500, 200, 500]); 
-        });
-      }
-    }
-
-    if ("Notification" in window && Notification.permission === "granted") {
-      try {
-        new Notification(`🔔 أوردر جديد - ${activeTab}`, {
-          body: `العميل: ${order.customer?.name || 'مجهول'} | فاتورة #${order.invoiceRef}`,
-          icon: currentShop?.logo || "/icon.png", // استخدام لوجو المحل في الإشعار
-          tag: `shop-alert-${shopId}`, 
-          requireInteraction: true, 
-          vibrate: [200, 100, 200]
-        });
-      } catch (e) { console.error(e); }
-    }
-  };
-// 2. الربط اللحظي بـ Firebase (معدل لفلترة محل واحد فقط)
+    // 2. الربط اللحظي بـ Firebase (معدل لفلترة محل واحد فقط)
   useEffect(() => {
     if (!isClient || !isAuthenticated) return; 
 
@@ -278,7 +188,8 @@ export default function ShopAdminPage({ params }) {
     }
   };
 
- // 5. دالة تفعيل الصوت
+
+   // 5. دالة تفعيل الصوت
   const toggleAudioSystem = () => {
     if (audioRef.current) {
       audioRef.current.muted = false;
@@ -448,7 +359,7 @@ export default function ShopAdminPage({ params }) {
         )}
       </div>
 
-            {/* 3. الهيدر المطور (مخصص للمحل الحالي) */}
+      {/* 3. الهيدر المطور (مخصص للمحل الحالي) */}
       <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -463,7 +374,6 @@ export default function ShopAdminPage({ params }) {
             <div style={{ fontSize: "10px", color: "#888" }}>طلب نشط</div>
           </div>
         </div>
-        {/* تم حذف شريط التبويبات هنا لأنه غير منطقي في صفحة محل واحد */}
       </header>
 
       <div style={{ display: "grid", gap: "25px" }}>
@@ -480,7 +390,6 @@ export default function ShopAdminPage({ params }) {
                 .reduce((total, item) => total + ((item?.price || 0) * (item?.quantity || 1)), 0);
             };
 
-            // حساب إجمالي المحل الحالي فقط باستخدام الدالة المعرفة أعلاه
             const currentShopTotal = getShopTotal();
 
             return (
@@ -493,7 +402,7 @@ export default function ShopAdminPage({ params }) {
                 marginBottom: "20px" 
               }}>
 
-                              {/* رأس الكارت - بيانات الفاتورة */}
+                          {/* رأس الكارت - بيانات الفاتورة */}
                 <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
                   <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
                   <span style={{ color: "#aaa" }}>{order.orderTime || ''} | {order.orderDate || ''}</span>
@@ -521,7 +430,6 @@ export default function ShopAdminPage({ params }) {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
                       <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "15px" }}>📦 محتويات الطلب (متجرك)</span>
                       <div style={{ display: "flex", gap: "8px" }}>
-                          {/* نمرر الـ order فقط لأن دالة الطباعة الآن تعرف المتجر تلقائياً من الـ activeTab */}
                           <button onClick={() => printOrder(order)} style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #444", padding: "8px 12px", borderRadius: "10px", fontSize: "11px", fontWeight: "bold", cursor: "pointer" }}>🖨️ طباعة</button>
                           <button onClick={() => distributeOrder(order)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "8px 14px", borderRadius: "10px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}>واتساب ✅</button>
                       </div>
@@ -544,7 +452,7 @@ export default function ShopAdminPage({ params }) {
                     </div>
                   </div>
 
-                  {/* ملخص الحساب الصافي للمحل */}
+                                    {/* ملخص الحساب الصافي للمحل */}
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", alignItems: "center", padding: "0 10px" }}>
                     <span style={{ color: "#888", fontSize: "14px" }}>المطلوب تحصيله:</span>
                     <span style={{ fontSize: "26px", fontWeight: "900", color: "#FF6600" }}>
@@ -588,4 +496,3 @@ export default function ShopAdminPage({ params }) {
     </div>
   );
 }
- 
