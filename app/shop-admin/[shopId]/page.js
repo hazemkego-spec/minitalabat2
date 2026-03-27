@@ -358,7 +358,7 @@ export default function ShopAdminPage({ params }) {
         )}
       </div>
 
-      {/* 3. الهيدر المطور (مخصص للمحل الحالي) */}
+            {/* 3. الهيدر المطور (مخصص للمحل الحالي) */}
       <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -389,9 +389,8 @@ export default function ShopAdminPage({ params }) {
                 .filter(item => item?.shopName === activeTab)
                 .reduce((total, item) => total + ((item?.price || 0) * (item?.quantity || 1)), 0);
             };
-          getFilteredOrders().map((order) => {
-            
-            // حساب إجمالي المحل الحالي فقط
+
+            // حساب إجمالي المحل الحالي فقط باستخدام الدالة المعرفة أعلاه
             const currentShopTotal = getShopTotal();
 
             return (
@@ -403,6 +402,7 @@ export default function ShopAdminPage({ params }) {
                 overflow: "hidden", 
                 marginBottom: "20px" 
               }}>
+
                 {/* رأس الكارت - بيانات الفاتورة */}
                 <div style={{ backgroundColor: "#1e2124", padding: "12px 20px", display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
                   <span style={{ color: "#FF6600", fontWeight: "900" }}>فاتورة #{order.invoiceRef || '---'}</span>
