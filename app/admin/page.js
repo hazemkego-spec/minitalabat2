@@ -171,7 +171,7 @@ export default function AdminPage() {
       try {
         new Notification("🔔 أوردر جديد لـ ميني طلبات", {
           body: `العميل: ${order.customer?.name || 'مجهول'} | فاتورة #${order.invoiceRef}`,
-          icon: "/icon.png",
+          icon: "/icon.webp",
           tag: "admin-alert", 
           requireInteraction: true, 
           vibrate: [200, 100, 200]
