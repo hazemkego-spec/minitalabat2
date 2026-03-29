@@ -410,7 +410,7 @@ export default function HomePage() {
     {/* 🖼️ 1. الـ Cover Section */}
     <div style={{ position: "relative", width: "100%", height: "175px", overflow: "hidden" }}>
       <img
-        src="/cover.png"
+        src="/cover.webp"
         alt="App Cover"
         style={{ 
           width: "100%", 
@@ -433,7 +433,7 @@ export default function HomePage() {
         boxShadow: "0 0 25px 8px rgba(255,102,0,0.35)" 
       }}>
         <img
-          src="/mall-logo.png"
+          src="/mall-logo.webp"
           alt="Mall Logo"
           style={{
             width: "85px", height: "85px", borderRadius: "50%",
@@ -527,7 +527,7 @@ export default function HomePage() {
             {/* اسم المتجر */}
             <div style={{ 
               alignSelf: "flex-start",
-              fontSize: "10px", 
+              fontSize: "12px", 
               backgroundColor: "#FF6600", 
               padding: "2px 10px", 
               borderRadius: "50px", 
@@ -553,7 +553,7 @@ export default function HomePage() {
             {/* الوصف */}
             <p style={{ 
               margin: "4px 0 0", 
-              fontSize: "12px", 
+              fontSize: "14px", 
               color: "#ccc", 
               fontWeight: "500",
               lineHeight: "1.2"
