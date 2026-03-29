@@ -9,8 +9,8 @@ export const shops = [
     whatsapp: "201092878201",
     name: "جزارة ومشويات محمد صوان",
     isOpen: true,
-    logo: "/sawan-logo.png",
-    cover: "/sawan-logo.png", 
+    logo: "/sawan-logo.webp",
+    cover: "/sawan-logo.webp", 
     
     // --- الإضافات الفنية الجديدة ---
     rating: 4.8,            
@@ -26,7 +26,7 @@ export const shops = [
         description: "كيلو كفتة + سلطات + عيش + لتر بيبسي بـ 380 ج.م بدل 450", 
         price: 380,
         oldPrice: 450,
-        image: "/sawan-offer.png" 
+        image: "/sawan-offer.webp" 
       }
     ],
 
@@ -260,8 +260,8 @@ export const shops = [
     whatsapp: "201092293348",
     name: "صيدلية د_ هاني فاروق",
     isOpen: true,
-    logo: "/HanyFarPharmlogo.png",
-    cover: "/HanyFarPharmlogo.png",
+    logo: "/HanyFarPharmlogo.webp",
+    cover: "/HanyFarPharmlogo.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.9,              
@@ -277,7 +277,7 @@ export const shops = [
         description: "غسول وجه + كريم مرطب + واقي شمس بخصم 15% لفترة محدودة", 
         price: 450,
         oldPrice: 530,
-        image: "/hanyfar-offer.png" 
+        image: "/hanyfar-offer.webp" 
       }
     ],
 
@@ -422,8 +422,8 @@ export const shops = [
     whatsapp: "201110884088",
     name: "سوبر ماركت أحمد الإسكندراني",
     isOpen: true,
-    logo: "/A-eleskandrany.png",
-    cover: "/A-eleskandrany.png",
+    logo: "/A-eleskandrany.webp",
+    cover: "/A-eleskandrany.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.7,              
@@ -439,7 +439,7 @@ export const shops = [
         description: "زيت + سكر + أرز + مكرونة بخصم خاص جداً بدل 210 ج.م", 
         price: 185,
         oldPrice: 210,
-        image: "/A-eleskandrany-offer.png" 
+        image: "/A-eleskandrany-offer.webp" 
       }
     ],
 
@@ -554,8 +554,8 @@ export const shops = [
     whatsapp: "201011111111", 
     name: "سوبر ماركت الحسيني",
     isOpen: true,
-    logo: "/Elhuseny.png",
-    cover: "/Elhuseny.png",
+    logo: "/Elhuseny.webp",
+    cover: "/Elhuseny.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.6,              
@@ -571,7 +571,7 @@ export const shops = [
         description: "باقة مكرونة متنوعة + أرز مصري فاخر بخصم خاص جداً بدل 180 ج.م", 
         price: 155,
         oldPrice: 180,
-        image: "/Elhuseny.png" 
+        image: "/Elhuseny.webp" 
       }
     ],
 
@@ -752,8 +752,8 @@ export const shops = [
     whatsapp: "201117903253",
     name: "كشري حنين",
     isOpen: true,
-    logo: "/Haneen.png",
-    cover: "/Haneen.png",
+    logo: "/Haneen.webp",
+    cover: "/Haneen.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.8,              
@@ -769,7 +769,7 @@ export const shops = [
         description: "علبة كشري جامبو + طاجن لحمة + أرز بلبن بـ 95 ج.م بدل 120", 
         price: 95,
         oldPrice: 120,
-        image: "/Haneen.png" 
+        image: "/Haneen.webp" 
       }
     ],
 
@@ -921,8 +921,8 @@ export const shops = [
     whatsapp: "201022947479", 
     name: "مصنعات اليُمن",
     isOpen: false, // المحل مغلق حالياً، هيظهر في الـ Slider لكن بعلامة مغلق
-    logo: "/Msn3atElyomn.png",
-    cover: "/Msn3atElyomn.png",
+    logo: "/Msn3atElyomn.webp",
+    cover: "/Msn3atElyomn.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.5,              
@@ -938,7 +938,7 @@ export const shops = [
         description: "كيلو برجر + كيلو سجق + كيلو كفتة بخصم 100 ج بدل 900", 
         price: 800,
         oldPrice: 900,
-        image: "/Msn3atElyomn.png" 
+        image: "/Msn3atElyomn.webp" 
       }
     ],
 
@@ -977,8 +977,8 @@ export const shops = [
     name: "كبدة جملي (حسن صوان)",
     whatsapp: "01122947479",
     isOpen: true,
-    logo: "/GamalyHSwan.png",
-    cover: "/GamalyHSwan.png",
+    logo: "/GamalyHSwan.webp",
+    cover: "/GamalyHSwan.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.9,              
@@ -994,7 +994,7 @@ export const shops = [
         description: "6 سندوتشات كبدة جملي مشوحة بسعر 5 فقط (توفير 45 ج.م)", 
         price: 225,
         oldPrice: 270,
-        image: "/GamalyHSwan.png" 
+        image: "/GamalyHSwan.webp" 
       }
     ],
 
@@ -1066,8 +1066,8 @@ export const shops = [
     whatsapp: "201122947479",
     name: "كشري الزعيم",
     isOpen: true,
-    logo: "/Elza3im.png",
-    cover: "/Elza3im.png",
+    logo: "/Elza3im.webp",
+    cover: "/Elza3im.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.7,              
@@ -1083,7 +1083,7 @@ export const shops = [
         description: "علبة عائلية ضخمة + 2 طاجن لحمة + 2 أرز بلبن بـ 185 ج بدل 230", 
         price: 185,
         oldPrice: 230,
-        image: "/Elza3im.png" 
+        image: "/Elza3im.webp" 
       }
     ],
 
@@ -1235,8 +1235,8 @@ export const shops = [
     whatsapp: "201092293348",
     name: "صيدلية شاهندا",
     isOpen: true,
-    logo: "/Shahinda.png",
-    cover: "/Shahinda.png",
+    logo: "/Shahinda.webp",
+    cover: "/Shahinda.webp",
     
     // --- البيانات التجارية الجديدة ---
     rating: 4.8,              
@@ -1252,7 +1252,7 @@ export const shops = [
         description: "حفاضات + مناديل مبللة + بودرة أطفال بخصم 60 ج بدل 410", 
         price: 350,
         oldPrice: 410,
-        image: "/Shahinda.png" 
+        image: "/Shahinda.webp" 
       }
     ],
 
@@ -1264,7 +1264,7 @@ export const shops = [
           { 
             name: "شنطة العناية بالبيبي 👶", 
             price: 350, 
-            image: "/Shahinda.png",
+            image: "/Shahinda.webp",
             description: "كل احتياجات طفلك في باقة واحدة موفرة (أفضل الماركات)",
             isOffer: true 
           },
