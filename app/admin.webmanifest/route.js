@@ -24,15 +24,15 @@ export async function GET(request) {
     theme_color: "#FF6600",
     icons: [
   {
-    src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : "https://minitalabat2.vercel.app/icon.png",
+    src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : "https://minitalabat2.vercel.app/icon.webp",
     sizes: "192x192",
-    type: "image/png",
+    type: "image/webp",
     purpose: "any"
   },
   {
-    src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : "https://minitalabat2.vercel.app/icon.png",
+    src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : "https://minitalabat2.vercel.app/icon.webp",
     sizes: "512x512",
-    type: "image/png",
+    type: "image/webp",
     purpose: "maskable"
   }
     ]
