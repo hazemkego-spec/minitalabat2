@@ -12,14 +12,18 @@ export async function GET(request) {
 
   // 3. بناء هيكل المانيفست بناءً على هوية المحل
   const manifest = {
-    // ✅ معرف فريد لكل متجر لضمان استقلالية التطبيق عند التثبيت
-    id: `/shop-admin/${shopId || 'general'}`,
+    // ✅ معرف فريد تماماً لكل نسخة إدارة لمنع التداخل مع تطبيق العميل
+    id: `admin-pwa-id-${shopId || 'general'}`,
     name: currentShop ? `إدارة ${currentShop.name}` : "نظام ميني طلبات",
     short_name: currentShop ? currentShop.name : "الطلبات",
     description: `لوحة تحكم ذكية لإدارة طلبات ${currentShop?.name || 'المتجر'}`,
-    start_url: `/shop-admin/${shopId || ''}`,
-    // ✅ النطاق الخاص بالمتجر لضمان عمل الـ PWA في مساره الصحيح
-    scope: `/shop-admin/${shopId || ''}`,
+    
+    // ✅ الرابط اللي الأبلكيشن هيفتح عليه لما تضغط على الأيقونة
+    start_url: shopId ? `/shop-admin/${shopId}` : "/shop-admin",
+    
+    // ✅ النطاق الخاص بالإدارة (Scope) - ده اللي بيفصلها عن تطبيق العميل
+    scope: "/shop-admin/",
+    
     display: "standalone",
     background_color: "#0b0c0d",
     theme_color: "#FF6600",
@@ -39,6 +43,5 @@ export async function GET(request) {
     ]
   };
 
-  // 4. إرجاع النتيجة كـ JSON مع الترويسة الصحيحة للمانيفست
   return NextResponse.json(manifest);
 }
