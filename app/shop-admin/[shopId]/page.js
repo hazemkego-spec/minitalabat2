@@ -46,24 +46,26 @@ export default function ShopAdminPage({ params }) {
       setAudioEnabled(true);
     }
 
-    if (typeof window !== "undefined") {
-      // ✅ تعديل تسجيل الـ Service Worker ليكون عاماً لضمان التثبيت كـ PWA كامل
+        if (typeof window !== "undefined") {
+      // 1. مسح أي مانيفست قديم (العملاء أو غيره) تماماً من الـ Head
+      const oldManifests = document.querySelectorAll('link[rel="manifest"]');
+      oldManifests.forEach(el => el.remove());
+
+      // 2. إنشاء وتركيب المانيفست الديناميكي فوراً لضمان قراءته قبل قرار المتصفح
+      if (shopId) {
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        // استخدام Timestamp دقيق (Date.now) لإجبار المتصفح على التحديث اللحظي
+        link.href = `/admin.webmanifest?shop=${shopId}&t=${Date.now()}`; 
+        document.head.appendChild(link);
+        console.log("Admin Manifest Applied for Shop ID:", shopId);
+      }
+
+      // 3. تسجيل الـ Service Worker ليكون عاماً لضمان التثبيت كـ PWA كامل
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js') 
           .then(reg => console.log('Shop Admin SW Registered Successfully'))
           .catch(err => console.log('SW registration failed:', err));
-      }
-
-      // ✅ تفعيل المانيفست الديناميكي (يرسل shopId للمسار البرمجي الجديد)
-      const oldManifests = document.querySelectorAll('link[rel="manifest"]');
-      oldManifests.forEach(el => el.remove());
-
-      if (shopId) {
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        // الربط بالمسار البرمجي الذي أنشأناه مع كاسر للكاش
-        link.href = `/admin.webmanifest?shop=${shopId}&v=${Date.now()}`; 
-        document.head.appendChild(link);
       }
 
       // تحديث هوية الصفحة (العنوان ولون الثيم)
