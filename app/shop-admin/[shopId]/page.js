@@ -40,7 +40,7 @@ export default function ShopAdminPage({ params }) {
       setIsAuthenticated(true);
     }
 
-    // استعادة حالة الصوت
+        // استعادة حالة الصوت
     const savedAudio = localStorage.getItem("adminAudioEnabled");
     if (savedAudio === "true") {
       setAudioEnabled(true);
