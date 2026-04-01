@@ -9,8 +9,8 @@ export const metadata = {
   metadataBase: new URL('https://minitalabat2.vercel.app'),
   // ❌ حذفنا سطر المانيفست من هنا لنضعه بشكل يدوي شرطي بالأسفل
   icons: {
-    icon: '/mall-logo.png',
-    apple: '/mall-logo.png',
+    icon: '/mall-logo.webp',
+    apple: '/mall-logo.webp',
   },
   openGraph: {
     title: 'Mini Talabat | ميني طلبات',
@@ -19,7 +19,7 @@ export const metadata = {
     siteName: 'Mini Talabat',
     images: [
       {
-        url: '/mall-logo.png',
+        url: '/mall-logo.webp',
         width: 512,
         height: 512,
       },
@@ -50,7 +50,7 @@ export default function RootLayout({ children }) {
           <link rel="manifest" href="/manifest.json" />
         )}
         
-        <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.png" />
+        <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.webp" />
       </head>
       <body style={{ backgroundColor: '#121212', margin: 0 }}>
         {children}
