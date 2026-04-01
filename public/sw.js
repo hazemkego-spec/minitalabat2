@@ -1,20 +1,56 @@
-// 1. استلام إشعار الـ Push وتخصيصه حسب المحل
+// ✅ اسم الكاش لتمييز الملفات ومنع التداخل
+const CACHE_NAME = 'mt-shared-cache-v21';
+
+// 1. تثبيت الـ Service Worker (ضروري لظهور زر Install في المتصفح)
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      // كاش بسيط جداً لضمان توافق معايير PWA
+      return cache.addAll(['/']);
+    })
+  );
+});
+
+// 2. تنظيف الكاشات القديمة عند التحديث
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
+      );
+    })
+  );
+  return self.clients.claim();
+});
+
+// 3. مستمع الـ Fetch (الشرط الجوهري لتحويل الاختصار Shortcut إلى تطبيق مثبت)
+self.addEventListener('fetch', (event) => {
+  // تمرير الطلبات بشكل طبيعي مع دعم بسيط للكاش عند انقطاع الشبكة
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
+});
+
+// --- 🔔 كود الإشعارات الخاص بك (تم الحفاظ عليه كما هو) ---
+
 self.addEventListener('push', function(event) {
   if (event.data) {
     const data = event.data.json();
     
-    // تحديد الأيقونة: نستخدم لوجو المحل لو مبعوث في البيانات، أو اللوجو الافتراضي
+    // الأيقونة الافتراضية
     const shopLogo = data.icon || '/adminMT.png';
 
     const options = {
       body: data.body || "لديك طلب جديد يحتاج للمراجعة",
       icon: shopLogo,
       badge: shopLogo, 
-      vibrate: [500, 110, 500, 110, 450, 110, 200, 110], // نمط هزاز منبه
-      tag: data.shopId || 'admin-notification', // التاج يمنع تكرار الإشعارات لنفس المحل
+      vibrate: [500, 110, 500, 110, 450, 110, 200, 110],
+      tag: data.shopId || 'admin-notification',
       renotify: true, 
       requireInteraction: true, 
-      // ✅ تخزين الرابط الديناميكي للمحل عشان لما يضغط يفتح الصفحة الصح
       data: { url: data.url || `/shop-admin/${data.shopId || ''}` }
     };
 
@@ -24,22 +60,18 @@ self.addEventListener('push', function(event) {
   }
 });
 
-// 2. التعامل الذكي مع الضغط على الإشعار (فتح صفحة المحل الصحيحة)
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-
   const targetUrl = event.notification.data.url;
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-      // البحث لو صفحة الإدارة الخاصة بهذا المحل مفتوحة فعلياً
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
         if (client.url.includes(targetUrl) && 'focus' in client) {
           return client.focus();
         }
       }
-      // لو مش مفتوحة، يفتح رابط المحل المحدد في الإشعار
       if (clients.openWindow) {
         return clients.openWindow(targetUrl);
       }
@@ -47,7 +79,6 @@ self.addEventListener('notificationclick', function(event) {
   );
 });
 
-// 3. تحديث فوري للـ Service Worker
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
