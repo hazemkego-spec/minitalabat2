@@ -61,9 +61,7 @@ export default function ShopAdminPage({ params }) {
         console.log("Admin Manifest Applied for Shop ID:", shopId);
       }
 
-      // 3. تسجيل Service Worker منفصل للإدارة بـ Scope محدد للفصل التام عن العميل
-      if ('serviceWorker' in navigator) {
-              // ✅ تسجيل Service Worker احترافي بنطاق (Scope) محدد للمحل الحالي فقط
+            // ✅ 3. تسجيل Service Worker منفصل للإدارة بـ Scope محدد للفصل التام
       if ('serviceWorker' in navigator) {
         // نستخدم shopId في الـ scope لضمان أن كل إدارة محل هي تطبيق مستقل تماماً
         const adminScope = `/shop-admin/${shopId}/`;
@@ -71,10 +69,12 @@ export default function ShopAdminPage({ params }) {
         navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
           .then(reg => {
             console.log('✅ Admin SW Registered for Scope:', adminScope);
-            // إجبار التحديث إذا كان هناك نسخة قديمة معلقة
+            // إجبار التحديث لضمان تفعيل التعديلات الجديدة فوراً
             reg.update(); 
           })
-          .catch(err => console.log('❌ Admin SW Registration failed:', err));
+          .catch(err => {
+            console.log('❌ Admin SW Registration failed:', err);
+          });
       }
 
       // تحديث هوية الصفحة (العنوان ولون الثيم)
