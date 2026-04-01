@@ -61,14 +61,18 @@ export default function ShopAdminPage({ params }) {
         console.log("Admin Manifest Applied for Shop ID:", shopId);
       }
 
-            // ✅ 3. تسجيل Service Worker منفصل للإدارة بـ Scope محدد للفصل التام
+                  // ✅ 3. تسجيل Service Worker المطور للفصل التام بين النسخ
       if ('serviceWorker' in navigator) {
-        // نستخدم shopId في الـ scope لضمان أن كل إدارة محل هي تطبيق مستقل تماماً
-        const adminScope = `/shop-admin/${shopId}/`;
+        // جلب نوع التطبيق من إعدادات Vercel التي قمنا بضبطها
+        const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+        
+        // إذا كنا في مشروع الإدارة الجديد، نستخدم النطاق الكامل (/) لضمان التثبيت كـ PWA
+        // وإذا كنا في المشروع القديم، نلتزم بنطاق المحل المحدود
+        const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
         
         navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
           .then(reg => {
-            console.log('✅ Admin SW Registered for Scope:', adminScope);
+            console.log('✅ Admin SW Active on Scope:', adminScope);
             // إجبار التحديث لضمان تفعيل التعديلات الجديدة فوراً
             reg.update(); 
           })
@@ -77,13 +81,12 @@ export default function ShopAdminPage({ params }) {
           });
       }
 
-      // تحديث هوية الصفحة (العنوان ولون الثيم)
+      // تحديث هوية الصفحة (العنوان ولون الثيم) - كما هي
       document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
       let themeMeta = document.querySelector('meta[name="theme-color"]');
       if (themeMeta) {
         themeMeta.setAttribute("content", "#0b0c0d");
       }
-    }
 
     // طلب إذن التنبيهات
     if ("Notification" in window && Notification.permission === "default") {
