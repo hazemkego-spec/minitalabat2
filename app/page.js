@@ -25,18 +25,47 @@ export default function HomePage() {
   // ---------------------------------------------------------
   // 🚨 الخطوة المصيرية: التحقق من نوع التطبيق قبل أي شيء
   // ---------------------------------------------------------
-  useEffect(() => {
+    useEffect(() => {
     const appType = process.env.NEXT_PUBLIC_APP_TYPE;
     if (appType === 'ADMIN') {
-      // إذا كنا في مشروع الإدارة، لا نريد عرض واجهة العميل أبداً
-      // سنقوم بتوجيه المستخدم لصفحة تسجيل الدخول أو لوحة التحكم
-      router.push('/login'); 
+      setIsAdminMode(true);
+      // ✅ التعديل: التحقق من وجود الصفحة قبل التحويل أو البقاء في نفس الصفحة
+      // إذا كان عندك فولدر admin، غيرها لـ /admin
+      // إذا كنت تريد فتح الإدارة في الصفحة الرئيسية مباشرة، امسح سطر router.push
+      router.push('/admin'); 
     }
   }, [router]);
 
-  // إذا كان التطبيق إدارة، نمنع رندر (Render) محتوى العميل تماماً لمنع الوميض البرتقالي
-  if (process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN') {
-    return <div style={{ backgroundColor: '#0b0c0d', height: '100vh' }}></div>;
+  // ✅ منع ظهور واجهة العميل (الوميض البرتقالي) في مشروع الإدارة
+  if (process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN' && !isAdminMode) {
+    return (
+      <div style={{ 
+        backgroundColor: '#0b0c0d', 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        color: '#fff',
+        fontFamily: 'sans-serif'
+      }}>
+        {/* شاشة تحميل سوداء احترافية تظهر لثانية واحدة فقط */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            border: '3px solid #333', 
+            borderTop: '3px solid #FF6600', 
+            borderRadius: '50%', 
+            width: '30px', 
+            height: '30px', 
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 10px'
+          }}></div>
+          <p style={{ fontSize: '12px', color: '#666' }}>جاري فتح لوحة الإدارة...</p>
+        </div>
+        <style>{`
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        `}</style>
+      </div>
+    );
   }
 
   // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
