@@ -360,6 +360,18 @@ export default function ShopAdminPage({ params }) {
   }
 
   return (
+  <>
+    {/* الخطوة الأولى: حقن المانيفست الديناميكي في رأس الصفحة مباشرة */}
+    <head>
+      {shopId && (
+        <link 
+          rel="manifest" 
+          href={`/admin.webmanifest?shop=${shopId}&v=${Date.now()}`} 
+          crossOrigin="use-credentials"
+        />
+      )}
+    </head>
+
     <div dir="rtl" style={{ backgroundColor: "#0b0c0d", minHeight: "100vh", color: "#ffffff", padding: "15px", fontFamily: "sans-serif", paddingBottom: "80px" }}>
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
 
@@ -397,6 +409,7 @@ export default function ShopAdminPage({ params }) {
       </header>
 
       <div style={{ display: "grid", gap: "25px" }}>
+
         {getFilteredOrders().length === 0 ? (
           <div style={{ textAlign: "center", padding: "100px 20px", color: "#888" }}>لا توجد طلبات جديدة حالياً..</div>
         ) : (
