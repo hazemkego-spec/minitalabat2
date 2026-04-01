@@ -1,22 +1,47 @@
-// 1. إضافة مستمع الـ Install لضمان التحديث الفوري
+// ✅ اسم الكاش لتمييز نسخة الإدارة
+const ADMIN_CACHE = 'admin-pwa-v20';
+
+// 1. التثبيت وفتح الكاش (إلزامي لظهور زر Install)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(ADMIN_CACHE).then((cache) => {
+      // كاش لصفحة البداية فقط لإرضاء معايير PWA
+      return cache.addAll(['/']);
+    })
+  );
 });
 
-// 2. 🚨 الخطوة السحرية: مستمع الـ Fetch (ضروري جداً لتحويل الاختصار إلى تطبيق مثبت)
+// 2. تفعيل وتنظيف الكاشات القديمة
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== ADMIN_CACHE) return caches.delete(key);
+        })
+      );
+    })
+  );
+  return self.clients.claim();
+});
+
+// 3. مستمع الـ Fetch (الشرط الأساسي لتحويل الاختصار إلى تطبيق)
 self.addEventListener('fetch', (event) => {
-  // بنخلي الـ SW يمرر الطلبات بشكل طبيعي، وجوده فقط كافٍ لإقناع الكروم بالتثبيت
-  event.respondWith(fetch(event.request).catch(() => {
-    return caches.match(event.request);
-  }));
+  // تمرير الطلبات بشكل طبيعي مع دعم بسيط للأوفلاين
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
 });
 
-// 3. استلام إشعار الـ Push وتخصيصه حسب المحل (كودك الأصلي)
+// --- 🔔 كود الإشعارات (معدل لضمان الأداء) ---
+
 self.addEventListener('push', function(event) {
   if (event.data) {
     try {
       const data = event.data.json();
-      const shopLogo = data.icon || '/adminMT.png';
+      // تأكيد رابط الأيقونة من السيرفر الرئيسي لضمان الظهور
+      const shopLogo = data.icon || 'https://minitalabat2.vercel.app/adminMT.webp';
 
       const options = {
         body: data.body || "لديك طلب جديد يحتاج للمراجعة",
@@ -38,7 +63,6 @@ self.addEventListener('push', function(event) {
   }
 });
 
-// 4. التعامل الذكي مع الضغط على الإشعار (كودك الأصلي)
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   const targetUrl = event.notification.data.url;
@@ -58,7 +82,6 @@ self.addEventListener('notificationclick', function(event) {
   );
 });
 
-// 5. تحديث فوري للـ Service Worker
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
