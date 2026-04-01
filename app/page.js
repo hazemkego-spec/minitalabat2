@@ -18,6 +18,9 @@ export default function HomePage() {
   const [selectedShop, setSelectedShop] = useState(null);
   const [isSending, setIsSending] = useState(false); 
   
+  // ✅ إضافة تعريف الحالة (State) المفقودة لحل مشكلة الـ Build Error
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
   const [showMultiOrderModal, setShowMultiOrderModal] = useState({ isOpen: false });
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
@@ -25,13 +28,11 @@ export default function HomePage() {
   // ---------------------------------------------------------
   // 🚨 الخطوة المصيرية: التحقق من نوع التطبيق قبل أي شيء
   // ---------------------------------------------------------
-    useEffect(() => {
+  useEffect(() => {
     const appType = process.env.NEXT_PUBLIC_APP_TYPE;
     if (appType === 'ADMIN') {
       setIsAdminMode(true);
-      // ✅ التعديل: التحقق من وجود الصفحة قبل التحويل أو البقاء في نفس الصفحة
-      // إذا كان عندك فولدر admin، غيرها لـ /admin
-      // إذا كنت تريد فتح الإدارة في الصفحة الرئيسية مباشرة، امسح سطر router.push
+      // التحويل لصفحة الأدمن طالما الفولدر موجود عندك
       router.push('/admin'); 
     }
   }, [router]);
