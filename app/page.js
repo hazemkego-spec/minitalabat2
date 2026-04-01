@@ -29,18 +29,20 @@ export default function HomePage() {
   // 🚨 الخطوة المصيرية: التحقق من نوع التطبيق قبل أي شيء
   // ---------------------------------------------------------
   useEffect(() => {
-    // التأكد من أن الكود يعمل فقط في بيئة المتصفح
-    const appType = process.env.NEXT_PUBLIC_APP_TYPE;
-    
-    if (appType === 'ADMIN') {
-      setIsAdminMode(true);
-      // التوجيه لصفحة الإدارة لأن الفولدر موجود عندك بالفعل باسم admin
-      router.push('/admin'); 
+    // التأكد من أن الكود يعمل فقط في بيئة المتصفح (Client-side)
+    if (typeof window !== "undefined") {
+      const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+      
+      if (appType === 'ADMIN') {
+        setIsAdminMode(true);
+        // ✅ استخدام window.location.replace أضمن من router.push 
+        // لمنع حدوث Client-side exception أثناء التحميل الأولي
+        window.location.replace('/admin');
+      }
     }
-  }, [router]);
+  }, []); // ترك المصفوفة فارغة لضمان التنفيذ مرة واحدة فقط عند التحميل
 
   // ✅ منع ظهور واجهة العميل (الوميض البرتقالي) في مشروع الإدارة
-  // نستخدم شرطاً إضافياً للتأكد من أننا في بيئة الـ Client لتجنب أخطاء الـ Hydration
   if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN' && !isAdminMode) {
     return (
       <div style={{ 
@@ -74,6 +76,7 @@ export default function HomePage() {
     );
   }
 
+  
   // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
   const sliderRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false); 
