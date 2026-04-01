@@ -1,13 +1,10 @@
-import "./globals.css"; // تأكد من وجود هذا السطر لو كان موجوداً أصلاً
-
-// جلب نوع التطبيق من متغيرات البيئة التي ضبطناها في Vercel
-const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+import "./globals.css";
 
 export const metadata = {
   title: 'Mini Talabat | ميني طلبات',
   description: 'أكبر مول تجاري رقمي في جيبك',
   metadataBase: new URL('https://minitalabat2.vercel.app'),
-  // ❌ حذفنا سطر المانيفست من هنا لنضعه بشكل يدوي شرطي بالأسفل
+  // تم إزالة سطر المانيفست الثابت من هنا لضمان الفصل
   icons: {
     icon: '/mall-logo.webp',
     apple: '/mall-logo.webp',
@@ -30,6 +27,9 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
+  // جلب نوع التطبيق داخل الـ Component لضمان القراءة الصحيحة وقت التنفيذ
+  const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+
   return (
     <html lang="ar">
       <head>
@@ -43,9 +43,7 @@ export default function RootLayout({ children }) {
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" 
         />
 
-        {/* ✅ الخطوة الثانية: الربط الشرطي للمانيفست */}
-        {/* إذا كان التطبيق CLIENT (مشروع العميل)، نضع المانيفست البرتقالي */}
-        {/* إذا كان ADMIN (مشروع الإدارة)، لا نضع شيئاً هنا لأننا سنضعه ديناميكياً داخل صفحة الإدارة */}
+        {/* ✅ الربط الشرطي للمانيفست بناءً على إعدادات Vercel */}
         {appType === 'CLIENT' && (
           <link rel="manifest" href="/manifest.json" />
         )}
