@@ -2,7 +2,7 @@
   "name": "Mini Talabat | ميني طلبات",
   "short_name": "MiniTalabat",
   "description": "أكبر مول تجاري رقمي في جيبك",
-  "id": "minitalabat-customer-app-v2",
+  "id": "minitalabat-client-v2",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
