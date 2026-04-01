@@ -46,7 +46,7 @@ export default function ShopAdminPage({ params }) {
       setAudioEnabled(true);
     }
 
-        if (typeof window !== "undefined") {
+            if (typeof window !== "undefined") {
       // 1. مسح أي مانيفست قديم (العملاء أو غيره) تماماً من الـ Head
       const oldManifests = document.querySelectorAll('link[rel="manifest"]');
       oldManifests.forEach(el => el.remove());
@@ -61,11 +61,14 @@ export default function ShopAdminPage({ params }) {
         console.log("Admin Manifest Applied for Shop ID:", shopId);
       }
 
-      // 3. تسجيل الـ Service Worker ليكون عاماً لضمان التثبيت كـ PWA كامل
+      // 3. تسجيل Service Worker منفصل للإدارة بـ Scope محدد للفصل التام عن العميل
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js') 
-          .then(reg => console.log('Shop Admin SW Registered Successfully'))
-          .catch(err => console.log('SW registration failed:', err));
+        // ✅ استخدام ملف sw-admin.js وتحديد الـ scope بمسار الإدارة فقط
+        navigator.serviceWorker.register('/sw-admin.js', { scope: '/shop-admin/' }) 
+          .then(reg => {
+            console.log('Admin Dedicated SW Registered Successfully');
+          })
+          .catch(err => console.log('Admin SW Registration failed:', err));
       }
 
       // تحديث هوية الصفحة (العنوان ولون الثيم)
