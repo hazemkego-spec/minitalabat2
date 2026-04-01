@@ -61,47 +61,44 @@ export default function ShopAdminPage({ params }) {
         console.log("Admin Manifest Applied for Shop ID:", shopId);
       }
 
-                        // ✅ 3. تسجيل Service Worker المطور للفصل التام بين النسخ
-      if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-        const appType = process.env.NEXT_PUBLIC_APP_TYPE;
-        const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
-        
-        navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
-          .then(reg => {
-            console.log('✅ Admin SW Active on Scope:', adminScope);
-            reg.update(); 
-          })
-          .catch(err => {
-            console.log('❌ Admin SW Registration failed:', err);
-          });
-      }
+                      // ✅ 1. تسجيل Service Worker المطور للفصل التام
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+      const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
+      
+      navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
+        .then(reg => {
+          console.log('✅ Admin SW Active on Scope:', adminScope);
+          reg.update(); 
+        })
+        .catch(err => console.log('❌ Admin SW Registration failed:', err));
+    }
 
-      // تحديث هوية الصفحة (العنوان ولون الثيم)
-      if (typeof document !== 'undefined') {
-        document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
-        let themeMeta = document.querySelector('meta[name="theme-color"]');
-        if (themeMeta) {
-          themeMeta.setAttribute("content", "#0b0c0d");
-        }
-      }
+    // ✅ 2. تحديث هوية الصفحة
+    if (typeof document !== 'undefined') {
+      document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
+      let themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
+    }
 
-      // طلب إذن التنبيهات
-      if (typeof window !== 'undefined' && "Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
+    // ✅ 3. التنبيهات ونظام التثبيت
+    if (typeof window !== 'undefined' && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
 
-      // إعداد نظام التثبيت (PWA Prompt)
-      const handleBeforeInstallPrompt = (e) => {
-        e.preventDefault();
-        setDeferredPrompt(e);
-      };
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
 
-      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, [shopId, currentShop]); // 👈 تأكد أن هذا السطر يقفل الـ useEffect الأول فقط
 
-    }, [shopId, currentShop]);
-
-  // دالة التحقق من كود الدخول (باستخدام adminKey الخاص بالمحل)
+  // دالة التحقق من كود الدخول
   const handleLogin = () => {
     if (accessCode === currentShop?.adminKey || accessCode === "1234") {
       setIsAuthenticated(true);
@@ -111,7 +108,7 @@ export default function ShopAdminPage({ params }) {
     }
   };
 
-  // مراقبة عودة المستخدم للتطبيق لإعادة تفعيل محرك الصوت
+  // مراقبة عودة المستخدم لتفعيل الصوت
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -119,7 +116,7 @@ export default function ShopAdminPage({ params }) {
         if (audioRef.current && isAudioActive) {
           audioRef.current.play().then(() => {
             audioRef.current.pause(); 
-          }).catch(e => console.log("Re-activation blocked"));
+          }).catch(e => console.log("Audio activation failed"));
         }
       }
     };
