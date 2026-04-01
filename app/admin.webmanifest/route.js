@@ -12,33 +12,35 @@ export async function GET(request) {
 
   // 3. بناء هيكل المانيفست بناءً على هوية المحل
   const manifest = {
-    // ✅ جعل الـ ID فريد جداً لضمان عدم الخلط مع أي نسخة أخرى
-    id: `admin-app-v3-${shopId || 'general'}`,
+    // ✅ تحديث الـ ID لنسخة جديدة تماماً لإجبار المتصفح على إعادة الفحص
+    id: `admin-pwa-v5-final-${shopId || 'general'}`,
     name: currentShop ? `إدارة ${currentShop.name}` : "نظام ميني طلبات",
     short_name: currentShop ? currentShop.name : "الطلبات",
     description: `لوحة تحكم ذكية لإدارة طلبات ${currentShop?.name || 'المتجر'}`,
     
-    // ✅ إضافة باراميتر pwa للتمييز ومنع التداخل
+    // ✅ الرابط الأساسي مع إضافة pwa=true للتمييز
     start_url: shopId ? `/shop-admin/${shopId}?pwa=true` : "/shop-admin?pwa=true",
     
-    // ✅ تضييق النطاق (Scope) ليكون خاصاً بمنطقة الإدارة فقط
-    scope: "/shop-admin/",
+    // ✅ جعل الـ Scope مطابق تماماً لما تم تسجيله في الـ Service Worker (مهم جداً)
+    scope: shopId ? `/shop-admin/${shopId}/` : "/shop-admin/",
     
     display: "standalone",
+    orientation: "portrait",
     background_color: "#0b0c0d",
     theme_color: "#FF6600",
     icons: [
       {
+        // ✅ استخدام رابط كامل شامل الـ baseUrl لضمان ظهور الأيقونة وعدم فشل الـ PWA
         src: currentShop?.logo ? `${baseUrl}${currentShop.logo}` : `${baseUrl}/adminMT.webp`,
         sizes: "192x192",
-        type: "image/png",
+        type: "image/webp",
         purpose: "any"
       },
       {
         src: currentShop?.logo ? `${baseUrl}${currentShop.logo}` : `${baseUrl}/adminMT.webp`,
         sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable"
+        type: "image/webp",
+        purpose: "any"
       }
     ]
   };
