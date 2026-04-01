@@ -43,14 +43,13 @@ export default function RootLayout({ children }) {
         />
 
         {/* ✅ الربط الشرطي للمانيفست بناءً على نوع المشروع */}
-        {/* إذا كان مشروع العميل، نستخدم المانيفست القديم */}
         {appType === 'CLIENT' && (
           <link rel="manifest" href="/manifest.json" />
         )}
 
-        {/* ✅ إذا كان مشروع الإدارة، نربط المانيفست الديناميكي مباشرة هنا */}
+        {/* ✅ التعديل الجذري: استخدام المانيفست الثابت للإدارة لفرض التثبيت (Install) */}
         {appType === 'ADMIN' && (
-          <link rel="manifest" href="/admin.webmanifest" />
+          <link rel="manifest" href="/admin.json" />
         )}
         
         <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.webp" />
