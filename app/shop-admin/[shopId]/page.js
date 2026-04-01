@@ -21,7 +21,7 @@ export default function ShopAdminPage({ params }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   
-  // ✅ التعديل الاحترافي: البحث بالـ ID الرقمي أولاً ثم بالاسم كاحتياط
+  // ✅ البحث بالـ ID الرقمي أولاً ثم بالاسم كاحتياط
   const currentShop = shops.find(s => s.id === parseInt(shopId)) || shops.find(s => s.name === shopId);
   
   // ✅ تحديد الاسم الفعلي للمحل لفلترة الأوردرات من Firebase
@@ -40,63 +40,63 @@ export default function ShopAdminPage({ params }) {
       setIsAuthenticated(true);
     }
 
-        // استعادة حالة الصوت
+    // استعادة حالة الصوت
     const savedAudio = localStorage.getItem("adminAudioEnabled");
     if (savedAudio === "true") {
       setAudioEnabled(true);
     }
 
-            if (typeof window !== "undefined") {
-      // 1. مسح أي مانيفست قديم (العملاء أو غيره) تماماً من الـ Head
+    if (typeof window !== "undefined") {
+      // 1. مسح أي مانيفست قديم تماماً من الـ Head
       const oldManifests = document.querySelectorAll('link[rel="manifest"]');
       oldManifests.forEach(el => el.remove());
 
-      // 2. إنشاء وتركيب المانيفست الديناميكي فوراً لضمان قراءته قبل قرار المتصفح
+      // 2. إنشاء وتركيب المانيفست الديناميكي
       if (shopId) {
         const link = document.createElement('link');
         link.rel = 'manifest';
-        // استخدام Timestamp دقيق (Date.now) لإجبار المتصفح على التحديث اللحظي
         link.href = `/admin.webmanifest?shop=${shopId}&t=${Date.now()}`; 
         document.head.appendChild(link);
         console.log("Admin Manifest Applied for Shop ID:", shopId);
       }
 
-                      // ✅ 1. تسجيل Service Worker المطور للفصل التام
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      const appType = process.env.NEXT_PUBLIC_APP_TYPE;
-      const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
+      // ✅ تسجيل Service Worker المطور للفصل التام
+      if ('serviceWorker' in navigator) {
+        const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+        const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
+        
+        navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
+          .then(reg => {
+            console.log('✅ Admin SW Active on Scope:', adminScope);
+            reg.update(); 
+          })
+          .catch(err => console.log('❌ Admin SW Registration failed:', err));
+      }
+
+      // ✅ تحديث هوية الصفحة
+      if (typeof document !== 'undefined') {
+        document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
+        let themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
+      }
+
+      // ✅ التنبيهات ونظام التثبيت
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+
+      const handleBeforeInstallPrompt = (e) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+
+      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       
-      navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
-        .then(reg => {
-          console.log('✅ Admin SW Active on Scope:', adminScope);
-          reg.update(); 
-        })
-        .catch(err => console.log('❌ Admin SW Registration failed:', err));
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      };
     }
-
-    // ✅ 2. تحديث هوية الصفحة
-    if (typeof document !== 'undefined') {
-      document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
-      let themeMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
-    }
-
-    // ✅ 3. التنبيهات ونظام التثبيت
-    if (typeof window !== 'undefined' && "Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    };
-  }, [shopId, currentShop]); // 👈 تأكد أن هذا السطر يقفل الـ useEffect الأول فقط
+  }, [shopId, currentShop]); 
 
   // دالة التحقق من كود الدخول
   const handleLogin = () => {
@@ -211,7 +211,6 @@ export default function ShopAdminPage({ params }) {
       } catch (e) { console.error(e); }
     }
   };
-
 
    // 5. دالة تفعيل الصوت
   const toggleAudioSystem = () => {
