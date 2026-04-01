@@ -62,7 +62,7 @@ export default function ShopAdminPage({ params }) {
       }
 
                   // ✅ 3. تسجيل Service Worker المطور للفصل التام بين النسخ
-      if ('serviceWorker' in navigator) {
+      if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
         // جلب نوع التطبيق من إعدادات Vercel التي قمنا بضبطها
         const appType = process.env.NEXT_PUBLIC_APP_TYPE;
         
@@ -82,10 +82,12 @@ export default function ShopAdminPage({ params }) {
       }
 
       // تحديث هوية الصفحة (العنوان ولون الثيم) - كما هي
-      document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
-      let themeMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeMeta) {
-        themeMeta.setAttribute("content", "#0b0c0d");
+      if (typeof document !== 'undefined') {
+        document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
+        let themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeMeta) {
+          themeMeta.setAttribute("content", "#0b0c0d");
+        }
       }
 
     // طلب إذن التنبيهات
