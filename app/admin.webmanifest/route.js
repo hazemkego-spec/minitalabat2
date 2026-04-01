@@ -1,4 +1,4 @@
-import { shops } from "../../components/ShopList";
+import { shops } from "../components/ShopList";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
