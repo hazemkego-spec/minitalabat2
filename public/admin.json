@@ -1,0 +1,17 @@
+{
+  "id": "admin-final-pwa-v10",
+  "name": "لوحة إدارة ميني طلبات",
+  "short_name": "الإدارة",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0c0d",
+  "theme_color": "#FF6600",
+  "icons": [
+    {
+      "src": "https://minitalabat2.vercel.app/adminMT.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ]
+}
