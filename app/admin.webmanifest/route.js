@@ -6,17 +6,17 @@ export async function GET(request) {
   const shopId = searchParams.get("shop");
   
   const currentShop = shops.find(s => s.id === parseInt(shopId));
-  const baseUrl = "https://minitalabat-admin.vercel.app"; // تأكدنا من الدومين الجديد
+  const baseUrl = "https://minitalabat-admin.vercel.app"; 
 
   const manifest = {
-    // ✅ ID فريد لكل نسخة إدارية لمنع التداخل
-    id: `admin-v6-${shopId || 'global'}`,
+    // ✅ تغيير الـ ID لـ v7 ضروري جداً لإجبار المتصفح على عرض "Install" بدلاً من Shortcut
+    id: `admin-pwa-v7-final-${shopId || 'global'}`,
     name: currentShop ? `إدارة ${currentShop.name}` : "لوحة التحكم",
     short_name: currentShop ? currentShop.name : "الإدارة",
     description: `نظام إدارة طلبات ${currentShop?.name || 'المتجر'}`,
     
-    // ✅ بما أننا في دومين منفصل، الـ Start URL والـ Scope يجب أن يكونوا "/" لضمان التثبيت
-    start_url: shopId ? `/shop-admin/${shopId}` : "/",
+    // ✅ إضافة باراميتر mode=pwa يساعد المتصفح في التعرف على حالة التثبيت
+    start_url: shopId ? `/shop-admin/${shopId}?mode=pwa` : "/?mode=pwa",
     scope: "/", 
     
     display: "standalone",
@@ -25,7 +25,6 @@ export async function GET(request) {
     theme_color: "#FF6600",
     icons: [
       {
-        // الأيقونة نأتي بها من المشروع الرئيسي (minitalabat2) لضمان وجودها
         src: currentShop?.logo ? `https://minitalabat2.vercel.app${currentShop.logo}` : `https://minitalabat2.vercel.app/adminMT.webp`,
         sizes: "192x192",
         type: "image/webp",
@@ -43,7 +42,7 @@ export async function GET(request) {
   return new NextResponse(JSON.stringify(manifest), {
     headers: {
       "Content-Type": "application/manifest+json",
-      "Cache-Control": "no-cache, no-store, must-revalidate", // إجبار المتصفح على قراءة البيانات الجديدة
+      "Cache-Control": "no-cache, no-store, must-revalidate", 
     },
   });
 }
