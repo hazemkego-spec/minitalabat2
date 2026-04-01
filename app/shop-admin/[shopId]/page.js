@@ -61,19 +61,14 @@ export default function ShopAdminPage({ params }) {
         console.log("Admin Manifest Applied for Shop ID:", shopId);
       }
 
-                  // ✅ 3. تسجيل Service Worker المطور للفصل التام بين النسخ
+                        // ✅ 3. تسجيل Service Worker المطور للفصل التام بين النسخ
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-        // جلب نوع التطبيق من إعدادات Vercel التي قمنا بضبطها
         const appType = process.env.NEXT_PUBLIC_APP_TYPE;
-        
-        // إذا كنا في مشروع الإدارة الجديد، نستخدم النطاق الكامل (/) لضمان التثبيت كـ PWA
-        // وإذا كنا في المشروع القديم، نلتزم بنطاق المحل المحدود
         const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
         
         navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
           .then(reg => {
             console.log('✅ Admin SW Active on Scope:', adminScope);
-            // إجبار التحديث لضمان تفعيل التعديلات الجديدة فوراً
             reg.update(); 
           })
           .catch(err => {
@@ -81,7 +76,7 @@ export default function ShopAdminPage({ params }) {
           });
       }
 
-      // تحديث هوية الصفحة (العنوان ولون الثيم) - كما هي
+      // تحديث هوية الصفحة (العنوان ولون الثيم)
       if (typeof document !== 'undefined') {
         document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
         let themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -90,20 +85,21 @@ export default function ShopAdminPage({ params }) {
         }
       }
 
-    // طلب إذن التنبيهات
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
+      // طلب إذن التنبيهات
+      if (typeof window !== 'undefined' && "Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
 
-    // إعداد نظام التثبيت (PWA Prompt)
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      // إعداد نظام التثبيت (PWA Prompt)
+      const handleBeforeInstallPrompt = (e) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
 
-    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-  }, [shopId, currentShop]);
+      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    }, [shopId, currentShop]);
 
   // دالة التحقق من كود الدخول (باستخدام adminKey الخاص بالمحل)
   const handleLogin = () => {
@@ -122,7 +118,7 @@ export default function ShopAdminPage({ params }) {
         const isAudioActive = audioEnabled || localStorage.getItem("adminAudioEnabled") === "true";
         if (audioRef.current && isAudioActive) {
           audioRef.current.play().then(() => {
-            audioRef.current.pause(); // حركة تقنية لتنشيط الصوت في الخلفية
+            audioRef.current.pause(); 
           }).catch(e => console.log("Re-activation blocked"));
         }
       }
