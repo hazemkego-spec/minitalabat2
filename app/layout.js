@@ -1,58 +1,36 @@
 import "./globals.css";
 
 export const metadata = {
-  title: 'إدارة ميني طلبات | Admin',
-  description: 'لوحة التحكم الذكية لإدارة الطلبات',
+  // تحديث العنوان ليظهر "لوحة الإدارة" بشكل واضح في التثبيت
+  title: 'لوحة إدارة ميني طلبات',
+  description: 'النظام الإداري للمتاجر والطلبات',
   metadataBase: new URL('https://minitalabat-admin.vercel.app'),
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover',
   icons: {
-    icon: '/mall-logo.webp',
-    apple: '/mall-logo.webp',
-  },
-  openGraph: {
-    title: 'إدارة ميني طلبات',
-    description: 'لوحة التحكم الذكية لإدارة الطلبات',
-    url: 'https://minitalabat-admin.vercel.app/',
-    siteName: 'Mini Talabat Admin',
-    images: [
-      {
-        url: '/mall-logo.webp',
-        width: 512,
-        height: 512,
-      },
-    ],
-    locale: 'ar_EG',
-    type: 'website',
+    icon: 'https://minitalabat2.vercel.app/adminMT.webp',
+    apple: 'https://minitalabat2.vercel.app/adminMT.webp',
   },
 }
 
 export default function RootLayout({ children }) {
-  // جلب نوع التطبيق لضمان عرض المانيفست الصحيح
-  const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+  // التأكد من أن التطبيق يقرأ "ADMIN" كقيمة افتراضية في هذا المشروع
+  const appType = process.env.NEXT_PUBLIC_APP_TYPE || 'ADMIN';
 
   return (
     <html lang="ar">
       <head>
-        <link rel="icon" href="/mall-logo.png" />
-        <link rel="apple-touch-icon" href="/mall-logo.png" />
+        {/* أيقونة اللوحة الإدارية المميزة */}
+        <link rel="icon" href="https://minitalabat2.vercel.app/adminMT.webp" />
+        <link rel="apple-touch-icon" href="https://minitalabat2.vercel.app/adminMT.webp" />
+        
         <meta name="theme-color" content="#0b0c0d" /> 
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         
-        <meta 
-          name="viewport" 
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" 
-        />
-
-        {/* ✅ الربط الشرطي للمانيفست بناءً على نوع المشروع */}
-        {appType === 'CLIENT' && (
-          <link rel="manifest" href="/manifest.json" />
-        )}
-
-        {/* ✅ التعديل الجذري: استخدام المانيفست الثابت للإدارة لفرض التثبيت (Install) */}
-        {appType === 'ADMIN' && (
-          <link rel="manifest" href="/admin.json" />
-        )}
+        {/* ✅ الربط المباشر والنهائي للمانيفست الثابت */}
+        {/* تم إلغاء الشروط المعقدة هنا لضمان أن يرى المتصفح ملف الـ JSON فوراً */}
+        <link rel="manifest" href="/admin.json" />
         
-        <meta property="og:image" content="https://minitalabat2.vercel.app/mall-logo.webp" />
+        <meta property="og:image" content="https://minitalabat2.vercel.app/adminMT.webp" />
       </head>
       <body style={{ backgroundColor: '#121212', margin: 0 }}>
         {children}
