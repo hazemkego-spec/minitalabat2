@@ -29,13 +29,13 @@ export async function GET(request) {
     theme_color: "#FF6600",
     icons: [
       {
-        src: currentShop?.logo ? `${baseUrl}${currentShop.logo}` : `${baseUrl}/icon.webp`,
+        src: currentShop?.logo ? `${baseUrl}${currentShop.logo}` : `${baseUrl}/adminMT.webp`,
         sizes: "192x192",
         type: currentShop?.logo?.endsWith('.webp') ? "image/webp" : "image/png",
         purpose: "any"
       },
       {
-        src: currentShop?.logo ? `${baseUrl}${currentShop.logo}` : `${baseUrl}/icon.webp`,
+        src: currentShop?.logo ? `${baseUrl}${currentShop.logo}` : `${baseUrl}/adminMT.webp`,
         sizes: "512x512",
         type: currentShop?.logo?.endsWith('.webp') ? "image/webp" : "image/png",
         purpose: "maskable"
