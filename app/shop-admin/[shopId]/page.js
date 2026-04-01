@@ -507,8 +507,8 @@ export default function ShopAdminPage({ params }) {
                     حذف 🗑️
                   </button>
 
-                  {/* زر تغيير الحالة (قيد التنفيذ / مكتمل) */}
-                  <button 
+          {/* زر تغيير الحالة (قيد التنفيذ / مكتمل) */}
+    <button 
                     onClick={() => toggleStatus(order.id, order.status)} 
                     style={{ 
                       flex: 2, padding: "20px", 
@@ -527,5 +527,6 @@ export default function ShopAdminPage({ params }) {
         )}
       </div>
     </div>
+    </> // ✅ إغلاق الـ Fragment اللي فتحناه فوق الـ head
   );
 }
