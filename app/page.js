@@ -29,16 +29,19 @@ export default function HomePage() {
   // 🚨 الخطوة المصيرية: التحقق من نوع التطبيق قبل أي شيء
   // ---------------------------------------------------------
   useEffect(() => {
+    // التأكد من أن الكود يعمل فقط في بيئة المتصفح
     const appType = process.env.NEXT_PUBLIC_APP_TYPE;
+    
     if (appType === 'ADMIN') {
       setIsAdminMode(true);
-      // التحويل لصفحة الأدمن طالما الفولدر موجود عندك
+      // التوجيه لصفحة الإدارة لأن الفولدر موجود عندك بالفعل باسم admin
       router.push('/admin'); 
     }
   }, [router]);
 
   // ✅ منع ظهور واجهة العميل (الوميض البرتقالي) في مشروع الإدارة
-  if (process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN' && !isAdminMode) {
+  // نستخدم شرطاً إضافياً للتأكد من أننا في بيئة الـ Client لتجنب أخطاء الـ Hydration
+  if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN' && !isAdminMode) {
     return (
       <div style={{ 
         backgroundColor: '#0b0c0d', 
@@ -47,9 +50,11 @@ export default function HomePage() {
         alignItems: 'center', 
         justifyContent: 'center',
         color: '#fff',
-        fontFamily: 'sans-serif'
+        fontFamily: 'sans-serif',
+        zIndex: 99999,
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0
       }}>
-        {/* شاشة تحميل سوداء احترافية تظهر لثانية واحدة فقط */}
         <div style={{ textAlign: 'center' }}>
           <div style={{ 
             border: '3px solid #333', 
