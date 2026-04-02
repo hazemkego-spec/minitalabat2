@@ -1,31 +1,29 @@
 import { NextResponse } from 'next/server';
-// تم تعديل المسار لاستخدام المسار النسبي بناءً على خريطة ملفاتك
 import { shops } from '../../components/ShopList'; 
+
+// ✅ إجبار المسار على العمل كديناميكي لمنع خطأ الـ Build
+export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const shopId = searchParams.get('shopId');
 
-    // البحث عن بيانات المتجر المحدد من القائمة
-    const currentShop = shops ? shops.find(s => s.id === shopId) : null;
+    // ✅ تصحيح طريقة البحث لضمان عدم حدوث TypeError
+    const currentShop = (shops && Array.isArray(shops)) 
+      ? shops.find(s => String(s.id) === String(shopId)) 
+      : null;
 
-    // تحديد البيانات (الاسم واللوجو)
     const shopName = currentShop ? currentShop.name : "إدارة المتاجر";
-    
-    // التأكد من أن مسار اللوجو يبدأ بـ / ليكون مساراً مطلقاً من مجلد public
-    let shopLogo = "/adminMT.webp";
-    if (currentShop && currentShop.logo) {
-      shopLogo = currentShop.logo.startsWith('http') ? currentShop.logo : currentShop.logo;
-    }
+    const shopLogo = currentShop ? currentShop.logo : "/adminMT.webp";
 
     const manifest = {
       "id": `mt-shop-${shopId || 'general'}`,
       "name": `إدارة ${shopName}`,
       "short_name": shopName,
       "description": `لوحة تحكم ${shopName} - ميني طلبات`,
-      "start_url": shopId ? `/shop-admin/${shopId}` : `/shop-admin`,
-      "scope": `/`, 
+      "start_url": `/shop-admin/${shopId || ''}`,
+      "scope": "/", 
       "display": "standalone",
       "orientation": "portrait",
       "background_color": "#0b0c0d",
@@ -40,14 +38,9 @@ export async function GET(request) {
       ]
     };
 
-    return NextResponse.json(manifest, {
-      headers: {
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Content-Type': 'application/json',
-      },
-    });
+    return NextResponse.json(manifest);
+
   } catch (error) {
-    console.error("Manifest Error:", error);
-    return NextResponse.json({ error: "Failed to generate manifest" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
