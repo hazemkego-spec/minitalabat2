@@ -97,15 +97,12 @@ export default function ShopAdminPage({ params }) {
 
       window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       
-      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    }
-  }, [shopId, currentShop]); // إضافة التبعيات لضمان التحديث عند تغير المحل
-    
+      // ✅ تنظيف المستمعات عند مغادرة الصفحة
       return () => {
         window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       };
     }
-  }, [shopId, currentShop]); 
+  }, [shopId, currentShop]); // تقفيلة الـ useEffect الصحيحة والوحيدة
 
   // دالة التحقق من كود الدخول
   const handleLogin = () => {
