@@ -2,43 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 🎨 إعدادات الألوان الديناميكية */
+/* 🎨 إعدادات الألوان بناءً على نوع المشروع */
 :root {
-  /* النظام الفاتح (Light Mode) */
-  --bg-primary: #ffffff;      /* الخلفية الأساسية بيضاء */
-  --bg-secondary: #f8f9fa;    /* خلفية الكروت رمادي فاتح جداً */
-  --text-main: #121212;       /* النصوص الأساسية سوداء */
-  --text-muted: #666666;      /* النصوص الفرعية رمادي */
-  --border-color: #eeeeee;    /* إطارات الكروت */
-  --card-bg: #ffffff;         /* خلفية الكارت بيضاء */
-  --accent-color: #FF6600;    /* اللون البرتقالي (ثابت) */
+  /* الافتراضي للعميل (Light/Orange) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-main: #121212;
+  --text-muted: #666666;
+  --border-color: #eeeeee;
+  --card-bg: #ffffff;
+  --accent-color: #FF6600;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* النظام الداكن (Dark Mode) */
-    --bg-primary: #121212;    /* الخلفية الأساسية سوداء */
-    --bg-secondary: #1e1e1e;  /* خلفية الكروت أسود فاتح */
-    --text-main: #ffffff;     /* النصوص الأساسية بيضاء */
-    --text-muted: #aaaaaa;    /* النصوص الفرعية رمادي فاتح */
-    --border-color: #252525;  /* إطارات الكروت داكنة */
-    --card-bg: #1e1e1e;       /* خلفية الكارت داكنة */
-  }
+/* ✅ إجبار وضع الإدارة الداكن إذا كان المستخدم في مشروع الإدارة */
+/* ملحوظة: لو بتستخدم كلاس 'dark' في الـ HTML لنسخة الإدارة */
+.admin-mode {
+  --bg-primary: #0b0c0d;    /* الخلفية السوداء اللي اخترناها للإدارة */
+  --bg-secondary: #1e1e1e;
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --border-color: #252525;
+  --card-bg: #1e1e1e;
 }
 
-/* 📱 إعدادات الجسم العام */
+/* 📱 إعدادات الجسم العام للأبليكيشن */
 body {
   color: var(--text-main);
   background-color: var(--bg-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  /* تحسين الانسيابية في الموبايل لمنع الوميض عند التحميل */
   min-height: 100vh;
+  min-height: -webkit-fill-available; /* حل مشكلة الطول في متصفح Safari */
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden; /* منع الهز الجانبي في الموبايل */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* تحسين تجربة التمرير */
+/* تحسين تجربة اللمس (Native Feel) */
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* إزالة اللون الأزرق عند اللمس في الموبايل */
+  -webkit-tap-highlight-color: transparent;
+  /* منع اختيار النصوص في الأزرار ليعطي إحساس الأبليكيشن */
+  -webkit-touch-callout: none; 
+}
+
+/* إعدادات الصور لمنع الشد أو التشويه */
+img {
+  max-width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
+}
+
+/* حل مشكلة المساحات الآمنة في الآيفون (Safe Area) */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }
