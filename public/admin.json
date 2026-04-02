@@ -1,13 +1,14 @@
 {
-  "id": "mt-admin-v2026",
+  "id": "minitalabat-admin-exclusive-v1",
   "name": "لوحة إدارة ميني طلبات",
   "short_name": "الإدارة",
-  "start_url": "/admin", 
-  "scope": "/",
+  "description": "النظام الإداري للتحكم في المتاجر والطلبات",
+  "start_url": "/admin",
+  "scope": "/admin",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0b0c0d",
   "theme_color": "#0b0c0d",
-  "description": "النظام الإداري للتحكم في المتاجر والطلبات",
   "icons": [
     {
       "src": "/adminMT.webp",
