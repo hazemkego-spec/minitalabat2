@@ -1,13 +1,21 @@
 // ✅ اسم الكاش الموحد
 const CACHE_NAME = 'minitalabat-v2026-core';
 
-// 1. التثبيت الأولي (ضروري لتحويل الموقع إلى App حقيقي)
+// 1. التثبيت الأولي (إضافة ملفات الهوية لضمان نجاح الـ Install بنسبة 100%)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // كاش لصفحة البداية والأيقونات الأساسية لضمان عمل الـ Install
-      return cache.addAll(['/', '/admin', '/shop-admin']);
+      return cache.addAll([
+        '/', 
+        '/admin', 
+        '/shop-admin',
+        '/manifest.json',
+        '/admin.json',
+        '/shop.json',
+        '/adminMT.webp',
+        '/mall-logo.webp'
+      ]);
     })
   );
 });
