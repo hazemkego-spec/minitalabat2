@@ -1,18 +1,19 @@
 {
-  "id": "mt-admin-v15-fixed",
-  "name": "إدارة ميني طلبات",
+  "id": "mt-admin-v2026",
+  "name": "لوحة إدارة ميني طلبات",
   "short_name": "الإدارة",
-  "start_url": "/",
+  "start_url": "/admin", 
   "scope": "/",
   "display": "standalone",
   "background_color": "#0b0c0d",
   "theme_color": "#0b0c0d",
+  "description": "النظام الإداري للتحكم في المتاجر والطلبات",
   "icons": [
     {
-      "src": "https://minitalabat2.vercel.app/adminMT.webp",
+      "src": "/adminMT.webp",
       "sizes": "512x512",
       "type": "image/webp",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
