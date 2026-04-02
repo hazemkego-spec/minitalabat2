@@ -19,7 +19,7 @@ export default function AdminPage() {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
-  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW (كما أرسلت)
+  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW الموحد
   useEffect(() => {
     setIsClient(true);
     
@@ -29,46 +29,65 @@ export default function AdminPage() {
     }
 
     if (typeof window !== "undefined") {
+      // ✅ تسجيل الـ SW الموحد بدون تقييد الـ scope لضمان قوة التثبيت كـ App
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/admin/' })
-          .then(reg => console.log('Admin SW Registered scope:', reg.scope))
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => {
+            console.log('Admin SW Registered successfully');
+            // طلب إذن الإشعارات فور التسجيل
+            if (Notification.permission === "default") {
+              Notification.requestPermission();
+            }
+          })
           .catch(err => console.log('SW registration failed:', err));
       }
 
+      // ✅ تنظيف أي مانيفست قديم وفرض ملف admin.json الجديد
       const oldManifests = document.querySelectorAll('link[rel="manifest"]');
       oldManifests.forEach(el => el.remove());
 
       const link = document.createElement('link');
       link.rel = 'manifest';
-      link.href = `/admin.webmanifest?v=${Date.now()}`; 
+      link.href = `/admin.json?v=${Date.now()}`; // استخدام الامتداد الصحيح المتفق عليه
       document.head.appendChild(link);
 
-      document.title = "لوحة الإدارة 🛡️";
+      document.title = "لوحة إدارة ميني طلبات 🛡️";
+      
+      // ✅ ضبط لون الثيم الأسود للإدارة
       let themeMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
-    }
-
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
+      if (themeMeta) {
+        themeMeta.setAttribute("content", "#0b0c0d");
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = "theme-color";
+        meta.content = "#0b0c0d";
+        document.head.appendChild(meta);
+      }
     }
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      // إظهار زر التثبيت تلقائياً لو متاح
+      console.log("Ready to install Admin App");
     };
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // مراقبة عودة المستخدم للتطبيق (كما أرسلت)
+  // مراقبة عودة المستخدم للتطبيق وتفعيل الصوت (Audio Context Resume)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
+        // محاولة تنشيط الصوت بمجرد عودة المستخدم للتطبيق (حل مشكلة حظر الصوت في المتصفح)
         if (audioRef.current && (audioEnabled || localStorage.getItem("adminAudioEnabled") === "true")) {
-          audioRef.current.play().then(() => {
-            audioRef.current.pause();
-          }).catch(e => console.log("Re-activation blocked"));
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              audioRef.current.pause(); // تنشيط فقط ليتمكن من العمل لاحقاً عند الأوردر
+            }).catch(e => console.log("Audio activation requires user interaction"));
+          }
         }
       }
     };
@@ -76,7 +95,7 @@ export default function AdminPage() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [audioEnabled]);
 
-    // 2. الربط اللحظي بـ Firebase (معالجة الهيكل الجديد + التنبيهات)
+    // 2. الربط اللحظي بـ Firebase (معالجة الهيكل الجديد + التنبيهات الصوتية)
   useEffect(() => {
     if (!isClient) return; 
 
@@ -88,7 +107,6 @@ export default function AdminPage() {
         const orderList = Object.keys(data).map(id => {
           const rawOrder = data[id];
           
-          // تحويل هيكل الأصناف من Object لـ Array مع ربط اسم المحل
           let processedItems = [];
           if (rawOrder.items && typeof rawOrder.items === 'object') {
             Object.keys(rawOrder.items).forEach(shopName => {
@@ -113,17 +131,18 @@ export default function AdminPage() {
           };
         }).reverse();
 
-        // 🔔 منطق التنبيه الذكي
+        // 🔔 منطق التنبيه الذكي مع تشغيل الصوت
         if (ordersCountRef.current !== 0 && orderList.length > ordersCountRef.current) {
           const newOrder = orderList[0];
           
-          // التنبيه يشتغل في حالتين: 
-          // 1. المدير فاتح تابة "الكل"
-          // 2. أو الأوردر الجديد فيه أصناف تخص "المحل" اللي المدير فاتحه حالياً
           const isRelevantToTab = activeTab === "الكل" || 
             newOrder.processedItems.some(item => item.shopName === activeTab);
 
           if (isRelevantToTab) {
+            // تشغيل الصوت فوراً لو كان مفعل
+            if (audioEnabled && audioRef.current) {
+               audioRef.current.play().catch(e => console.log("Sound play blocked"));
+            }
             handleNewOrderNotification(newOrder);
           }
         }
@@ -137,60 +156,75 @@ export default function AdminPage() {
     });
 
     return () => unsubscribe();
-  }, [isClient, activeTab]); // إضافة activeTab هنا لضمان دقة التنبيه
+  }, [isClient, activeTab, audioEnabled]); // أضفت audioEnabled هنا لضمان عمل الصوت
 
-  // 3. دالة التثبيت (PWA)
+  // 3. دالة التثبيت (PWA) - تم تحسينها لتتوافق مع المانيفست الجديد
   const handleInstallApp = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      alert("⚠️ التطبيق مثبت بالفعل أو المتصفح لا يدعم التثبيت حالياً");
+      return;
+    }
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") setDeferredPrompt(null);
+    if (outcome === "accepted") {
+      console.log("✅ تم قبول تثبيت لوحة الإدارة");
+      setDeferredPrompt(null);
+    }
   };
 
-  // 4. دالة التنبيه (صوت + إشعارات نظام)
+  // 4. دالة التنبيه (صوت + إشعارات نظام) - تم تحديث الأيقونات والمسارات
   const handleNewOrderNotification = (order) => {
     const isAudioSaved = localStorage.getItem("adminAudioEnabled") === "true";
     
     if (audioRef.current && (audioEnabled || isAudioSaved)) {
       audioRef.current.muted = false; 
-      audioRef.current.pause();
+      // إعادة ضبط التوقيت لضمان البدء من الصفر في كل مرة
       audioRef.current.currentTime = 0;
       
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          console.log("🔊 صوت التنبيه يعمل");
+          console.log("🔊 صوت التنبيه يعمل بنجاح");
         }).catch(error => {
-          console.warn("⚠️ محاولة الهزاز كبديل:", error);
-          if (navigator.vibrate) navigator.vibrate([500, 200, 500]); 
+          console.warn("⚠️ تم حظر الصوت تلقائياً، محاولة الهزاز:", error);
+          if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]); 
         });
       }
     }
 
+    // إرسال إشعار للنظام (System Notification)
     if ("Notification" in window && Notification.permission === "granted") {
       try {
-        new Notification("🔔 أوردر جديد لـ ميني طلبات", {
+        // استخدام لوجو الإدارة المتفق عليه في التنبيه
+        new Notification("🔔 أوردر جديد | ميني طلبات", {
           body: `العميل: ${order.customer?.name || 'مجهول'} | فاتورة #${order.invoiceRef}`,
-          icon: "/icon.webp",
+          icon: "/adminMT.webp", 
+          badge: "/adminMT.webp",
           tag: "admin-alert", 
           requireInteraction: true, 
-          vibrate: [200, 100, 200]
+          vibrate: [500, 110, 500]
         });
-      } catch (e) { console.error(e); }
+      } catch (e) { 
+        console.error("خطأ في إرسال الإشعار:", e); 
+      }
     }
   };
 
-  // 5. دالة تفعيل الصوت (كسر حماية المتصفح)
+  // 5. دالة تفعيل الصوت (كسر حماية المتصفح) - تم تحسين الاستجابة
   const toggleAudioSystem = () => {
     if (audioRef.current) {
       audioRef.current.muted = false;
+      // محاولة "تنشيط" ملف الصوت لمرة واحدة لفك حظر المتصفح
       audioRef.current.play().then(() => {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
         setAudioEnabled(true);
         localStorage.setItem("adminAudioEnabled", "true"); 
-        alert("✅ تم تفعيل التنبيهات الصوتية بنجاح! 🛡️");
-      }).catch(() => alert("يرجى المحاولة مرة أخرى"));
+        alert("✅ تم تفعيل جرس التنبيهات بنجاح! 🛡️");
+      }).catch((err) => {
+        console.error(err);
+        alert("يرجى الضغط مرة أخرى لتفعيل الصوت");
+      });
     }
   };
 
