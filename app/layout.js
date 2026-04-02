@@ -1,54 +1,61 @@
-"use client"; // ضروري لإضافة التفاعلية وتسجيل الـ Service Worker
+"use client"; 
 
 import "./globals.css";
-import { useEffect } from "react";
-
-// ملاحظة: الـ Metadata في Next.js (App Router) لازم تكون في ملف منفصل لو استخدمت "use client"
-// أو نضعها داخل ملف layout.js إذا لم يكن "use client" موجوداً. 
-// بما أننا نحتاج تسجيل الـ SW، سنقسم العمل كالتالي:
+import { useEffect, useState } from "react";
 
 export default function RootLayout({ children }) {
-  
-  // 1. تحديد نوع التطبيق بناءً على الرابط أو البيئة
-  const is_admin = process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN';
+  const is_admin_env = process.env.NEXT_PUBLIC_APP_TYPE === 'ADMIN';
+  const [manifestFile, setManifestFile] = useState(is_admin_env ? "/admin.json" : "/manifest.json");
+  const [appTitle, setAppTitle] = useState(is_admin_env ? "لوحة الإدارة" : "ميني طلبات");
 
   useEffect(() => {
-    // 2. تسجيل الـ Service Worker المسؤول عن التنبيهات والتثبيت كـ App
+    // 1. تسجيل الـ Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('Service Worker Registered!', reg.scope))
-          .catch(err => console.error('SW Registration Failed!', err));
+          .then(reg => console.log('SW Registered!', reg.scope))
+          .catch(err => console.error('SW Failed!', err));
       });
     }
-  }, []);
 
-  // تحديد ملف المانيفست بناءً على نوع المشروع
-  const manifestFile = is_admin ? "/admin.json" : "/manifest.json";
+    // 2. تحديد الهوية ديناميكياً بناءً على المسار (Pathname)
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      
+      if (path.startsWith('/shop-admin')) {
+        setManifestFile("/shop.json");
+        setAppTitle("إدارة المتاجر");
+      } else if (path.startsWith('/admin')) {
+        setManifestFile("/admin.json");
+        setAppTitle("لوحة الإدارة");
+      } else {
+        setManifestFile("/manifest.json");
+        setAppTitle("ميني طلبات");
+      }
+    }
+  }, []);
 
   return (
     <html lang="ar" dir="rtl">
       <head>
-        <title>{is_admin ? 'لوحة إدارة ميني طلبات' : 'ميني طلبات | Mini Talabat'}</title>
-        <meta name="description" content={is_admin ? 'النظام الإداري للمتاجر والطلبات' : 'أكبر مول تجاري رقمي في جيبك'} />
+        <title>{appTitle}</title>
         
-        {/* الربط الديناميكي للمانيفست */}
+        {/* الربط الديناميكي للمانيفست بناءً على حالة الـ State */}
         <link rel="manifest" href={manifestFile} />
         
-        {/* الأيقونات المحلية */}
-        <link rel="icon" href={is_admin ? "/adminMT.webp" : "/mall-logo.webp"} />
-        <link rel="apple-touch-icon" href={is_admin ? "/adminMT.webp" : "/mall-logo.webp"} />
+        {/* الأيقونات: نستخدم اللوجو الأسود للإدارة والمتاجر، والبرتقالي للعميل */}
+        <link rel="icon" href={manifestFile.includes('manifest') ? "/mall-logo.webp" : "/adminMT.webp"} />
+        <link rel="apple-touch-icon" href={manifestFile.includes('manifest') ? "/mall-logo.webp" : "/adminMT.webp"} />
         
-        {/* ألوان الهوية البصرية */}
-        <meta name="theme-color" content={is_admin ? "#0b0c0d" : "#FF6600"} /> 
+        {/* ألوان الهوية: أسود للإدارة والمتاجر، برتقالي للعميل */}
+        <meta name="theme-color" content={manifestFile.includes('manifest') ? "#FF6600" : "#0b0c0d"} /> 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content={is_admin ? "الإدارة" : "ميني طلبات"} />
+        <meta name="apple-mobile-web-app-title" content={appTitle} />
 
-        {/* إعدادات الشاشة للموبايل */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
       </head>
-      <body style={{ backgroundColor: is_admin ? '#121212' : '#f8f9fa', margin: 0 }}>
+      <body style={{ backgroundColor: manifestFile.includes('manifest') ? '#f8f9fa' : '#121212', margin: 0 }}>
         {children}
       </body>
     </html>
