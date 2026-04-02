@@ -446,15 +446,27 @@ export default function AdminPage() {
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                   <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "14px" }}>🏪 {shopName}</span>
-                                  {/* ✅ زر جراحي لفتح لوحة المتجر المستقلة في الدومين الجديد */}
+
+      {/* ✅ زر جراحي مطور لفتح لوحة المتجر المستقلة - حل مشكلة الـ 404 */}
                                   {currentShopObj && (
                                     <a 
                                       href={`https://minitalabat-shops.vercel.app/shop-admin/${currentShopObj.id}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      style={{ fontSize: "10px", backgroundColor: "#1a1c1e", color: "#888", padding: "3px 8px", borderRadius: "6px", textDecoration: "none", border: "1px solid #2d3035" }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      style={{ 
+                                        fontSize: "11px", 
+                                        backgroundColor: "#1a1c1e", 
+                                        color: "#4caf50", 
+                                        padding: "4px 10px", 
+                                        borderRadius: "8px", 
+                                        textDecoration: "none", 
+                                        border: "1px solid #2d3035",
+                                        fontWeight: "bold",
+                                        width: "fit-content"
+                                      }}
                                     >
-                                      لوحة المحل ↗
+                    فتح لوحة المحل ↗
                                     </a>
                                   )}
                                 </div>
@@ -503,5 +515,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-                
