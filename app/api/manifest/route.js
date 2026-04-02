@@ -9,7 +9,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const shopId = searchParams.get('shopId');
 
-    // ✅ تصحيح طريقة البحث لضمان عدم حدوث TypeError
+    // ✅ البحث عن المحل مع معالجة الـ IDs
     const currentShop = (shops && Array.isArray(shops)) 
       ? shops.find(s => String(s.id) === String(shopId)) 
       : null;
@@ -18,11 +18,12 @@ export async function GET(request) {
     const shopLogo = currentShop ? currentShop.logo : "/adminMT.webp";
 
     const manifest = {
-      "id": `mt-shop-${shopId || 'general'}`,
+      // ⚠️ الـ ID هنا هو السر: لما يتغير لكل محل، المتصفح بيسمح بتثبيت أبلكيشن جديد
+      "id": `minitalabat-shop-${shopId || 'admin'}`,
       "name": `إدارة ${shopName}`,
       "short_name": shopName,
       "description": `لوحة تحكم ${shopName} - ميني طلبات`,
-      "start_url": `/shop-admin/${shopId || ''}`,
+      "start_url": `/shop-admin/${shopId || ''}?source=pwa`,
       "scope": "/", 
       "display": "standalone",
       "orientation": "portrait",
@@ -38,7 +39,13 @@ export async function GET(request) {
       ]
     };
 
-    return NextResponse.json(manifest);
+    // ✅ إضافة الـ Headers الصحيحة لتعريف المتصفح بـ نوع الملف
+    return new NextResponse(JSON.stringify(manifest), {
+      headers: {
+        'Content-Type': 'application/manifest+json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      },
+    });
 
   } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
