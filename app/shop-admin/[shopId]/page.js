@@ -30,7 +30,7 @@ export default function ShopAdminPage({ params }) {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
-  // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW + المانيفست الديناميكي
+    // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW الموحد + المانيفست الديناميكي
   useEffect(() => {
     setIsClient(true);
     
@@ -47,40 +47,44 @@ export default function ShopAdminPage({ params }) {
     }
 
     if (typeof window !== "undefined") {
-      // 1. مسح أي مانيفست قديم تماماً من الـ Head
+      // 1. مسح أي مانيفست قديم تماماً لضمان عدم التداخل
       const oldManifests = document.querySelectorAll('link[rel="manifest"]');
       oldManifests.forEach(el => el.remove());
 
-      // 2. إنشاء وتركيب المانيفست الديناميكي
-      if (shopId) {
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = `/admin.webmanifest?shop=${shopId}&t=${Date.now()}`; 
-        document.head.appendChild(link);
-        console.log("Admin Manifest Applied for Shop ID:", shopId);
-      }
+      // 2. تركيب مانيفست المتاجر الجديد (shop.json)
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      // نمرر الـ shopId كـ Query Parameter لكسر الكاش وتمييز التثبيت
+      link.href = `/shop.json?shop=${shopId}&v=${Date.now()}`; 
+      document.head.appendChild(link);
 
-      // ✅ تسجيل Service Worker المطور للفصل التام
+      // ✅ تسجيل الـ Service Worker الموحد (sw.js) لضمان استقبال الإشعارات والتثبيت
       if ('serviceWorker' in navigator) {
-        const appType = process.env.NEXT_PUBLIC_APP_TYPE;
-        const adminScope = appType === 'ADMIN' ? '/' : `/shop-admin/${shopId}/`;
-        
-        navigator.serviceWorker.register('/sw-admin.js', { scope: adminScope }) 
+        // نستخدم الـ sw.js الموحد اللي رفعناه سابقاً ليعمل في الخلفية
+        navigator.serviceWorker.register('/sw.js')
           .then(reg => {
-            console.log('✅ Admin SW Active on Scope:', adminScope);
+            console.log('✅ Shop Admin SW Active');
             reg.update(); 
           })
-          .catch(err => console.log('❌ Admin SW Registration failed:', err));
+          .catch(err => console.log('❌ SW Registration failed:', err));
       }
 
-      // ✅ تحديث هوية الصفحة
+      // ✅ تحديث هوية الصفحة (اللوجو الأسود والعنوان)
       if (typeof document !== 'undefined') {
-        document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "لوحة الإدارة";
+        document.title = currentShop ? `إدارة ${currentShop.name} 🛡️` : "إدارة المتجر";
+        
         let themeMeta = document.querySelector('meta[name="theme-color"]');
-        if (themeMeta) themeMeta.setAttribute("content", "#0b0c0d");
+        if (themeMeta) {
+          themeMeta.setAttribute("content", "#0b0c0d"); // اللون الأسود الموحد للإدارة
+        } else {
+          const meta = document.createElement('meta');
+          meta.name = "theme-color";
+          meta.content = "#0b0c0d";
+          document.head.appendChild(meta);
+        }
       }
 
-      // ✅ التنبيهات ونظام التثبيت
+      // ✅ طلب إذن الإشعارات إذا لم يكن مفعلاً
       if ("Notification" in window && Notification.permission === "default") {
         Notification.requestPermission();
       }
@@ -88,10 +92,15 @@ export default function ShopAdminPage({ params }) {
       const handleBeforeInstallPrompt = (e) => {
         e.preventDefault();
         setDeferredPrompt(e);
+        console.log("Ready to install Shop App for:", shopId);
       };
 
       window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       
+      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    }
+  }, [shopId, currentShop]); // إضافة التبعيات لضمان التحديث عند تغير المحل
+    
       return () => {
         window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       };
