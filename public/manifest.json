@@ -2,7 +2,7 @@
   "name": "ميني طلبات | Mini Talabat",
   "short_name": "ميني طلبات",
   "description": "أكبر مول تجاري رقمي في جيبك",
-  "id": "minitalabat-client-2026",
+  "id": "minitalabat-client-final-v1",
   "start_url": "/?source=pwa",
   "scope": "/", 
   "display": "standalone",
