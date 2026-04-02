@@ -1,0 +1,20 @@
+{
+  "id": "minitalabat-shop-owner-v1",
+  "name": "إدارة متاجر ميني طلبات",
+  "short_name": "المتاجر",
+  "description": "لوحة تحكم أصحاب المحلات والمتاجر",
+  "start_url": "/shop-admin",
+  "scope": "/shop-admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0d",
+  "theme_color": "#FF6600",
+  "icons": [
+    {
+      "src": "/adminMT.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}
