@@ -297,8 +297,8 @@ export default function AdminPage() {
     printWindow.focus();
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
   };
-
-  // 9. توزيع الطلب للواتساب
+  
+     // 9. توزيع الطلب للواتساب
   const distributeOrder = (order, shopName) => {
     const shopItems = order.processedItems?.filter(item => item.shopName === shopName) || [];
     if (shopItems.length === 0) return;
@@ -352,7 +352,7 @@ export default function AdminPage() {
         )}
       </div>
 
-            {/* 3. الهيدر المطور (دعم الـ Tabs) */}
+       {/* 3. الهيدر المطور (دعم الـ Tabs) */}
       <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px", marginBottom: "15px" }}>
           <div>
@@ -431,17 +431,33 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* 🛒 عرض الأصناف مقسمة حسب المحل */}
+        {/* 🛒 عرض الأصناف مقسمة حسب المحل */}
                   <div style={{ backgroundColor: "#0b0c0d", borderRadius: "20px", padding: "15px" }}>
                     {order.items && typeof order.items === 'object' ? (
                       Object.keys(order.items)
                         .filter(shopName => activeTab === "الكل" || shopName === activeTab)
                         .map((shopName) => {
                           const shopItems = Array.isArray(order.items[shopName]) ? order.items[shopName] : Object.values(order.items[shopName]);
+                          // إيجاد الـ ID الخاص بالمحل من قائمة shops المستوردة
+                          const currentShopObj = shops.find(s => s.name === shopName);
+                          
                           return (
                             <div key={shopName} style={{ marginBottom: "15px", borderBottom: "1px solid #1e2022", paddingBottom: "10px" }}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                                <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "14px" }}>🏪 {shopName}</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "14px" }}>🏪 {shopName}</span>
+                                  {/* ✅ زر جراحي لفتح لوحة المتجر المستقلة في الدومين الجديد */}
+                                  {currentShopObj && (
+                                    <a 
+                                      href={`https://minitalabat-shops.vercel.app/shop-admin/${currentShopObj.id}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ fontSize: "10px", backgroundColor: "#1a1c1e", color: "#888", padding: "3px 8px", borderRadius: "6px", textDecoration: "none", border: "1px solid #2d3035" }}
+                                    >
+                                      لوحة المحل ↗
+                                    </a>
+                                  )}
+                                </div>
                                 <div style={{ display: "flex", gap: "8px" }}>
                                     <button onClick={() => printOrder(order, shopName)} style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #444", padding: "6px 10px", borderRadius: "8px", fontSize: "10px", cursor: "pointer" }}>🖨️ طباعة</button>
                                     <button onClick={() => distributeOrder(order, shopName)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "6px 12px", borderRadius: "8px", fontSize: "10px", fontWeight: "900", cursor: "pointer" }}>ارسال ✅</button>
@@ -472,8 +488,7 @@ export default function AdminPage() {
                     </span>
                   </div>
                 </div>
-
-                {/* أزرار التحكم السفلية */}
+{/* أزرار التحكم السفلية */}
                 <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b" }}>
                   <button onClick={() => deleteOrder(order.id)} style={{ flex: 1, padding: "18px", backgroundColor: "#16181a", color: "#ff4444", border: "none", fontWeight: "bold", cursor: "pointer" }}>حذف 🗑️</button>
                   <button onClick={() => toggleStatus(order.id, order.status)} style={{ flex: 2, padding: "18px", backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", color: order.status === 'completed' ? "#4caf50" : "#000", border: "none", fontWeight: "900", cursor: "pointer" }}>
@@ -488,3 +503,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+                
