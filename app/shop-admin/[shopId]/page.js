@@ -400,30 +400,41 @@ export default function ShopAdminPage({ params }) {
         )}
       </div>
 
-      {/* 3. الهيدر المطور (مخصص للمحل الحالي) */}
-      <header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "15px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <img src={currentShop?.logo} style={{ width: "45px", height: "45px", borderRadius: "10px", backgroundColor: "#fff", padding: "2px" }} />
-            <div>
-              <h1 style={{ color: "#FF6600", margin: 0, fontSize: "22px", fontWeight: "900" }}>إدارة {activeTab}</h1>
-              <p style={{ color: "#888", fontSize: "12px", margin: 0 }}>متابعة الطلبات لحظياً</p>
-            </div>
-          </div>
-          <div style={{ textAlign: "center", backgroundColor: "#1a1c1e", padding: "10px 20px", borderRadius: "15px", border: "1px solid #2d3035" }}>
-            <div style={{ fontSize: "22px", fontWeight: "900", color: "#4caf50" }}>{getFilteredOrders().length}</div>
-            <div style={{ fontSize: "10px", color: "#888" }}>طلب نشط</div>
-          </div>
-        </div>
-      </header>
+{/* 3. الهيدر المطور (مخصص للمحل الحالي مع الهوية المزدوجة) */}
+<header style={{ position: "sticky", top: 0, backgroundColor: "rgba(11, 12, 13, 0.95)", zIndex: 100, padding: "12px 0", borderBottom: "1px solid #1e2022", marginBottom: "25px", backdropFilter: "blur(10px)" }}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 10px" }}>
+    
+    {/* جهة اليمين: لوجو المتجر واسمه */}
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <img src={currentShop?.logo || "/adminMT.webp"} style={{ width: "40px", height: "40px", borderRadius: "10px", objectCover: "cover", border: "1px solid #FF6600" }} />
+      <div>
+        <h1 style={{ color: "#fff", margin: 0, fontSize: "16px", fontWeight: "900" }}>{currentShop?.name}</h1>
+        <p style={{ color: "#FF6600", fontSize: "10px", margin: 0 }}>لوحة التحكم</p>
+      </div>
+    </div>
 
-      <div style={{ display: "grid", gap: "25px" }}>
+    {/* المنتصف: عداد الطلبات النشطة */}
+    <div style={{ textAlign: "center", backgroundColor: "#1a1c1e", padding: "8px 15px", borderRadius: "12px", border: "1px solid #2d3035" }}>
+      <div style={{ fontSize: "18px", fontWeight: "900", color: "#4caf50" }}>{getFilteredOrders().length}</div>
+      <div style={{ fontSize: "9px", color: "#888" }}>طلب نشط</div>
+    </div>
 
-        {getFilteredOrders().length === 0 ? (
-          <div style={{ textAlign: "center", padding: "100px 20px", color: "#888" }}>لا توجد طلبات جديدة حالياً..</div>
-        ) : (
-          getFilteredOrders().map((order) => {
-            
+    {/* جهة اليسار: لوجو ميني طلبات (البراند الأم) */}
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", opacity: "0.6" }}>
+      <img src="/adminMT.webp" style={{ width: "28px", height: "28px", objectFit: "contain" }} />
+      <span style={{ fontSize: "7px", color: "#888", marginTop: "2px", fontWeight: "bold" }}>MINI TALABAT</span>
+    </div>
+
+  </div>
+</header>
+
+<div style={{ display: "grid", gap: "25px" }}>
+
+  {getFilteredOrders().length === 0 ? (
+    <div style={{ textAlign: "center", padding: "100px 20px", color: "#888" }}>لا توجد طلبات جديدة حالياً..</div>
+  ) : (
+    getFilteredOrders().map((order) => {
+           
             // ✅ دالة حساب الإجمالي للمحل الحالي فقط
             const getShopTotal = () => {
               if (!order?.processedItems) return 0;
