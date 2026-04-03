@@ -76,34 +76,15 @@ export default function HomePage() {
     );
   }
 
-  // --- 🚀 منطق الحركة التلقائية الذكية (تعديل جذري للحركة المستمرة) ---
+  // --- 🚀 منطق الحركة التلقائية الذكية (نسخة ثابتة ومحمية) ---
+
+  // 1. التعريفات الأساسية أولاً
   const sliderRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false); 
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-  useEffect(() => {
-    if (isPaused || !sliderRef.current) return; 
-
-    const interval = setInterval(() => {
-      const slider = sliderRef.current;
-      const { scrollLeft, offsetWidth, scrollWidth } = slider;
-
-      // حساب المسافة المتبقية (مع مراعاة الـ RTL)
-      const isEnd = Math.abs(scrollLeft) + offsetWidth >= scrollWidth - 5;
-
-      if (isEnd) {
-        // العودة للبداية بنعومة
-        slider.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        // التحرك بمقدار عرض الكارت (تقريباً 300px)
-        // نستخدم -300 لأن الاتجاه RTL (يمين لليسار) في أغلب المتصفحات الحديثة
-        const moveAmount = document.dir === "rtl" ? -300 : 300;
-        slider.scrollBy({ left: moveAmount, behavior: "smooth" });
-      }
-    }, 4000); 
-
-    return () => clearInterval(interval); 
-  }, [isPaused, allOffers]); // أضفنا allOffers لضمان التحديث عند تحميل البيانات
-
+  // 2. معالجة البيانات (useMemo) - يجب أن تكون قبل الـ useEffect الذي يستخدمها
   const allOffers = useMemo(() => {
     const combined = [];
     if (shops && Array.isArray(shops)) {
@@ -125,15 +106,43 @@ export default function HomePage() {
     return combined;
   }, [shops]);
 
+  // 3. تأثير الحركة التلقائية
   useEffect(() => {
+    // حماية ضد التشغيل على السيرفر
+    if (typeof window === 'undefined' || isPaused || !sliderRef.current || allOffers.length === 0) return; 
+
+    const interval = setInterval(() => {
+      const slider = sliderRef.current;
+      if (!slider) return;
+
+      const { scrollLeft, offsetWidth, scrollWidth } = slider;
+      // دعم RTL للمتصفحات
+      const isEnd = Math.abs(scrollLeft) + offsetWidth >= scrollWidth - 10;
+
+      if (isEnd) {
+        slider.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        // تحديد اتجاه الإزاحة بناءً على اتجاه الصفحة
+        const isRTL = document.dir === "rtl";
+        slider.scrollBy({ left: isRTL ? -300 : 300, behavior: "smooth" });
+      }
+    }, 4000); 
+
+    return () => clearInterval(interval); 
+  }, [isPaused, allOffers]);
+
+  // 4. تأثير تثبيت التطبيق (PWA)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
       setDeferredPrompt(e); 
     };
 
-    const isIos = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches 
-                         || window.navigator.standalone === true);
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                         || (navigator.standalone === true);
 
     if (isIos && !isStandalone) {
       setShowIosPrompt(true);
