@@ -76,65 +76,49 @@ export default function HomePage() {
     );
   }
 
-  // --- 🚀 منطق الحركة التلقائية الذكية (نسخة ثابتة ومحمية) ---
-
-  // 1. التعريفات الأساسية أولاً
+  
+  // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
   const sliderRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false); 
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showIosPrompt, setShowIosPrompt] = useState(false);
 
-  // 2. معالجة البيانات (useMemo) - يجب أن تكون قبل الـ useEffect الذي يستخدمها
-  const allOffers = useMemo(() => {
-    const combined = [];
-    if (shops && Array.isArray(shops)) {
-      shops.forEach(shop => {
-        if (shop.offers && Array.isArray(shop.offers)) {
-          shop.offers.forEach(offer => {
-            combined.push({
-              ...offer,
-              shopId: shop.id,      
-              shopName: shop.name,
-              price: offer.price,
-              oldPrice: offer.oldPrice,
-              description: offer.description || offer.desc
-            });
-          });
-        }
-      });
-    }
-    return combined;
-  }, [shops]);
-
-  // 3. تأثير الحركة التلقائية
   useEffect(() => {
-    // حماية ضد التشغيل على السيرفر
-    if (typeof window === 'undefined' || isPaused || !sliderRef.current || allOffers.length === 0) return; 
+    if (isPaused) return; 
 
     const interval = setInterval(() => {
-      const slider = sliderRef.current;
-      if (!slider) return;
-
-      const { scrollLeft, offsetWidth, scrollWidth } = slider;
-      // دعم RTL للمتصفحات
-      const isEnd = Math.abs(scrollLeft) + offsetWidth >= scrollWidth - 10;
-
-      if (isEnd) {
-        slider.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        // تحديد اتجاه الإزاحة بناءً على اتجاه الصفحة
-        const isRTL = document.dir === "rtl";
-        slider.scrollBy({ left: isRTL ? -300 : 300, behavior: "smooth" });
+      if (sliderRef.current) {
+        const { scrollLeft, offsetWidth, scrollWidth } = sliderRef.current;
+        
+        if (scrollLeft + offsetWidth >= scrollWidth - 10) {
+          sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
+        }
       }
     }, 4000); 
 
     return () => clearInterval(interval); 
-  }, [isPaused, allOffers]);
+  }, [isPaused]);
 
-  // 4. تأثير تثبيت التطبيق (PWA)
+  const allOffers = useMemo(() => {
+    const combined = [];
+    shops.forEach(shop => {
+      if (shop.offers && Array.isArray(shop.offers)) {
+        shop.offers.forEach(offer => {
+          combined.push({
+            ...offer,
+            shopId: shop.id,      
+            shopName: shop.name,
+            price: offer.price,
+            oldPrice: offer.oldPrice,
+            description: offer.description || offer.desc
+          });
+        });
+      }
+    });
+    return combined;
+  }, [shops]);
+
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
       setDeferredPrompt(e); 
@@ -142,7 +126,7 @@ export default function HomePage() {
 
     const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                         || (navigator.standalone === true);
+                         || window.navigator.standalone === true;
 
     if (isIos && !isStandalone) {
       setShowIosPrompt(true);
