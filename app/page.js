@@ -76,45 +76,52 @@ export default function HomePage() {
     );
   }
 
-  
-  // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
+  // --- 🚀 منطق الحركة التلقائية الذكية (تعديل جذري للحركة المستمرة) ---
   const sliderRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false); 
 
   useEffect(() => {
-    if (isPaused) return; 
+    if (isPaused || !sliderRef.current) return; 
 
     const interval = setInterval(() => {
-      if (sliderRef.current) {
-        const { scrollLeft, offsetWidth, scrollWidth } = sliderRef.current;
-        
-        if (scrollLeft + offsetWidth >= scrollWidth - 10) {
-          sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
-        } else {
-          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
-        }
+      const slider = sliderRef.current;
+      const { scrollLeft, offsetWidth, scrollWidth } = slider;
+
+      // حساب المسافة المتبقية (مع مراعاة الـ RTL)
+      const isEnd = Math.abs(scrollLeft) + offsetWidth >= scrollWidth - 5;
+
+      if (isEnd) {
+        // العودة للبداية بنعومة
+        slider.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        // التحرك بمقدار عرض الكارت (تقريباً 300px)
+        // نستخدم -300 لأن الاتجاه RTL (يمين لليسار) في أغلب المتصفحات الحديثة
+        const moveAmount = document.dir === "rtl" ? -300 : 300;
+        slider.scrollBy({ left: moveAmount, behavior: "smooth" });
       }
     }, 4000); 
 
     return () => clearInterval(interval); 
-  }, [isPaused]);
+  }, [isPaused, allOffers]); // أضفنا allOffers لضمان التحديث عند تحميل البيانات
 
   const allOffers = useMemo(() => {
     const combined = [];
-    shops.forEach(shop => {
-      if (shop.offers && Array.isArray(shop.offers)) {
-        shop.offers.forEach(offer => {
-          combined.push({
-            ...offer,
-            shopId: shop.id,      
-            shopName: shop.name,
-            price: offer.price,
-            oldPrice: offer.oldPrice,
-            description: offer.description || offer.desc
+    if (shops && Array.isArray(shops)) {
+      shops.forEach(shop => {
+        if (shop.offers && Array.isArray(shop.offers)) {
+          shop.offers.forEach(offer => {
+            combined.push({
+              ...offer,
+              shopId: shop.id,      
+              shopName: shop.name,
+              price: offer.price,
+              oldPrice: offer.oldPrice,
+              description: offer.description || offer.desc
+            });
           });
-        });
-      }
-    });
+        }
+      });
+    }
     return combined;
   }, [shops]);
 
@@ -124,9 +131,9 @@ export default function HomePage() {
       setDeferredPrompt(e); 
     };
 
-    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                         || window.navigator.standalone === true;
+    const isIos = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches 
+                         || window.navigator.standalone === true);
 
     if (isIos && !isStandalone) {
       setShowIosPrompt(true);
