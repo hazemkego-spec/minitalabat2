@@ -76,48 +76,58 @@ export default function HomePage() {
     );
   }
 
-  
   // --- 🚀 منطق الحركة التلقائية الذكية (تعديل الخطوة 1) ---
   const sliderRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false); 
 
+  // ✅ تجهيز البيانات (useMemo) يجب أن يكون قبل استخدامه في الـ useEffect
+  const allOffers = useMemo(() => {
+    const combined = [];
+    if (shops && Array.isArray(shops)) {
+      shops.forEach(shop => {
+        if (shop.offers && Array.isArray(shop.offers)) {
+          shop.offers.forEach(offer => {
+            combined.push({
+              ...offer,
+              shopId: shop.id,      
+              shopName: shop.name,
+              price: offer.price,
+              oldPrice: offer.oldPrice,
+              description: offer.description || offer.desc
+            });
+          });
+        }
+      });
+    }
+    return combined;
+  }, [shops]);
+
   useEffect(() => {
-    if (isPaused) return; 
+    // ✅ حماية ضد السيرفر وضمان وجود بيانات وحماية من الـ Pause
+    if (typeof window === 'undefined' || isPaused || !sliderRef.current || allOffers.length === 0) return; 
 
     const interval = setInterval(() => {
-      if (sliderRef.current) {
-        const { scrollLeft, offsetWidth, scrollWidth } = sliderRef.current;
-        
-        if (scrollLeft + offsetWidth >= scrollWidth - 10) {
-          sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
-        } else {
-          sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
-        }
+      const slider = sliderRef.current;
+      if (!slider) return;
+
+      const { scrollLeft, offsetWidth, scrollWidth } = slider;
+      
+      // ✅ حساب النهاية بدقة مع دعم RTL (القيم السالبة في المتصفحات الحديثة)
+      const isEnd = Math.abs(scrollLeft) + offsetWidth >= scrollWidth - 20;
+
+      if (isEnd) {
+        slider.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        // ✅ التحرك بناءً على اتجاه الصفحة (يمين/يسار)
+        const moveAmount = document.dir === "rtl" ? -300 : 300;
+        slider.scrollBy({ left: moveAmount, behavior: "smooth" });
       }
     }, 4000); 
 
     return () => clearInterval(interval); 
-  }, [isPaused]);
-
-  const allOffers = useMemo(() => {
-    const combined = [];
-    shops.forEach(shop => {
-      if (shop.offers && Array.isArray(shop.offers)) {
-        shop.offers.forEach(offer => {
-          combined.push({
-            ...offer,
-            shopId: shop.id,      
-            shopName: shop.name,
-            price: offer.price,
-            oldPrice: offer.oldPrice,
-            description: offer.description || offer.desc
-          });
-        });
-      }
-    });
-    return combined;
-  }, [shops]);
-
+  }, [isPaused, allOffers]);
+// --- نهاية منطق الحركة التلقائية الذكية ---
+  
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault(); 
