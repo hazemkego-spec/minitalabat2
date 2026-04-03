@@ -8,19 +8,18 @@ export default function RootLayout({ children }) {
   const params = useParams();
   const pathname = usePathname();
   
-  // استخراج shopId بدقة مع التأكد أنه رقم
   const rawId = params?.shopId || pathname.split('/').pop();
   const shopIdFromUrl = (!isNaN(rawId) && rawId !== "") ? rawId : null;
-
-  // 1. قراءة نوع التطبيق
-  const appType = process.env.NEXT_PUBLIC_APP_TYPE || 'SHOP'; 
 
   const [manifestFile, setManifestFile] = useState("/manifest.json");
   const [appTitle, setAppTitle] = useState("ميني طلبات");
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
+  // تحديث: رابط الصورة الكامل ضروري جداً للواتساب
+  const baseUrl = "https://minitalabat-shops.vercel.app"; // تأكد من وضع رابط موقعك الفعلي هنا
+  const logoPath = isDarkTheme ? "/adminMT.webp" : "/mall-logo.webp";
+
   useEffect(() => {
-    // ✅ تسجيل الـ Service Worker مع إضافة Version لضمان التحديث
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js?v=2')
         .then(reg => console.log('SW Registered!', reg.scope))
@@ -28,20 +27,16 @@ export default function RootLayout({ children }) {
     }
 
     if (typeof window !== "undefined") {
-      // ✅ حالة إدارة المتجر (المشروع الجديد)
       if (pathname.includes('/shop-admin') && shopIdFromUrl) {
-        // نستخدم رابط الـ API المطور مع v=Date لكسر الكاش تماماً
         setManifestFile(`/api/manifest?shopId=${shopIdFromUrl}&v=${Date.now()}`);
         setAppTitle("لوحة إدارة المتجر");
         setIsDarkTheme(true);
       } 
-      // ✅ حالة الإدارة العامة
       else if (pathname.startsWith('/admin')) {
         setManifestFile("/admin.json");
         setAppTitle("لوحة الإدارة العامة");
         setIsDarkTheme(true);
       } 
-      // ✅ حالة العميل
       else {
         setManifestFile("/manifest.json");
         setAppTitle("ميني طلبات");
@@ -55,9 +50,20 @@ export default function RootLayout({ children }) {
       <head>
         <title>{appTitle}</title>
         
-        {/* الربط الديناميكي للمانيفست */}
-        <link rel="manifest" href={manifestFile} />
+        {/* --- 🚀 تحسين معاينة الروابط (Social Media Meta Tags) --- */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={appTitle} />
+        <meta property="og:description" content="أكبر مول تجاري رقمي في جيبك - اطلب الآن بكل سهولة" />
+        <meta property="og:image" content={`${baseUrl}${logoPath}`} />
+        <meta property="og:url" content={baseUrl} />
         
+        {/* تويتر */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={appTitle} />
+        <meta name="twitter:image" content={`${baseUrl}${logoPath}`} />
+        {/* ------------------------------------------------------ */}
+
+        <link rel="manifest" href={manifestFile} />
         <link rel="icon" href={isDarkTheme ? "/adminMT.webp" : "/mall-logo.webp"} />
         <link rel="apple-touch-icon" href={isDarkTheme ? "/adminMT.webp" : "/mall-logo.webp"} />
         
