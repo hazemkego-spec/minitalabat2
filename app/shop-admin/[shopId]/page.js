@@ -344,25 +344,28 @@ export default function ShopAdminPage({ params }) {
       </html>
     `);
 
-    printWindow.document.close();
+        printWindow.document.close();
 
-    // 4. تأمين الطباعة بعد اكتمال التحميل تماماً
+    // ✅ الحل الجذري: ننتظر تحميل المحتوى ثم نفتح الطباعة بدون إغلاق النافذة فوراً
     printWindow.onload = () => {
       printWindow.focus();
-      printWindow.print();
-      printWindow.close();
+      // تأخير بسيط إضافي لضمان استقرار المعاينة على الموبايل
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
     };
 
-    // حماية إضافية للموبايل في حال تعطل onload
+    // حماية إضافية في حال لم يعمل onload (متكرر في الموبايلات)
     setTimeout(() => {
       if (printWindow) {
         printWindow.focus();
         printWindow.print();
-        printWindow.close();
+        // ملاحظة: شيلنا printWindow.close() عشان الموبايل ميفصلش الطباعة
+        // المستخدم هيقفل الصفحة بنفسه بعد ما يخلص أو المتصفح هيرجع للرئيسية
       }
-    }, 1200);
+    }, 1500);
   };
-// --- نهاية دالة الطباعة ---
+// --- نهاية الدالة ---
 
 // 9. توزيع الطلب للواتساب (معدل ليرسل بيانات المتجر الحالي فقط)
   const distributeOrder = (order) => {
