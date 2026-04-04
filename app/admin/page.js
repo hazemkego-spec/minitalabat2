@@ -249,54 +249,117 @@ export default function AdminPage() {
     }
   };
 
-  // 8. دالة الطباعة الاحترافية (Print) 🖨️
-  const printOrder = (order, shopName) => {
-    const shopItems = order.processedItems?.filter(item => item.shopName === shopName) || [];
-    if (shopItems.length === 0) return;
+  // --- 🚀 دالة الطباعة الاحترافية المطورة (تدعم الإدارة والمحل) 🖨️ ---
+  const printOrder = (order) => {
+    // 1. تحديد نوع الطباعة (إدارة عامة أم إدارة محل)
+    const isGlobalAdmin = window.location.pathname.startsWith('/admin') && !window.location.pathname.includes('/shop-admin');
+    
+    // 2. فلترة الأصناف (لو أدمن عام يطبع الكل، لو محل يطبع أصنافه فقط)
+    const shopItems = isGlobalAdmin 
+      ? (order.processedItems || []) 
+      : (order.processedItems?.filter(item => item.shopName === activeTab) || []);
+
+    if (shopItems.length === 0) {
+      alert("لا توجد أصناف للطباعة لهذا القسم");
+      return;
+    }
 
     const printWindow = window.open('', '_blank');
-    let shopTotal = 0;
+    let totalSum = 0;
     
     const itemsHtml = shopItems.map(item => {
       const total = item.price * item.quantity;
-      shopTotal += total;
+      totalSum += total;
       return `
         <tr>
-          <td style="padding: 5px; border-bottom: 1px dashed #ccc;">${item.name}</td>
-          <td style="padding: 5px; border-bottom: 1px dashed #ccc; text-align: center;">${item.quantity}</td>
-          <td style="padding: 5px; border-bottom: 1px dashed #ccc; text-align: left;">${total}ج</td>
+          <td style="padding: 8px; border-bottom: 1px dashed #ccc;">${item.name} ${isGlobalAdmin ? `<br/><small>(${item.shopName})</small>` : ''}</td>
+          <td style="padding: 8px; border-bottom: 1px dashed #ccc; text-align: center;">${item.quantity}</td>
+          <td style="padding: 8px; border-bottom: 1px dashed #ccc; text-align: left;">${total}ج</td>
         </tr>`;
     }).join('');
 
+    // 3. بناء الهيكل الكامل لضمان عدم ظهور خطأ "Problem printing"
     printWindow.document.write(`
-      <div dir="rtl" style="font-family: Arial, sans-serif; width: 80mm; padding: 10px; color: #000;">
-        <center>
-          <h2 style="margin: 0;">ميني طلبات 🛵</h2>
-          <p style="font-size: 14px; margin: 5px 0;">متجر: ${shopName}</p>
-          <hr style="border: 1px solid #000;">
-        </center>
-        <p style="font-size: 12px;"><b>رقم الفاتورة:</b> #${order.invoiceRef}</p>
-        <p style="font-size: 12px;"><b>العميل:</b> ${order.customer?.name}</p>
-        <p style="font-size: 12px;"><b>العنوان:</b> ${order.customer?.address}</p>
-        <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 10px;">
-          <thead>
-            <tr style="border-bottom: 1px solid #000;">
-              <th style="text-align: right;">الصنف</th>
-              <th>العدد</th>
-              <th style="text-align: left;">السعر</th>
-            </tr>
-          </thead>
-          <tbody>${itemsHtml}</tbody>
-        </table>
-        <h3 style="text-align: left; margin-top: 15px;">الإجمالي: ${shopTotal} ج.م</h3>
-        <center><p style="font-size: 10px; margin-top: 20px;">شكراً لتعاملكم معنا ✨</p></center>
-      </div>
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>فاتورة ${isGlobalAdmin ? 'إدارة ميني طلبات' : activeTab}</title>
+        <style>
+          @media print { 
+            @page { margin: 0; size: 80mm auto; } 
+            body { margin: 0; padding: 5mm; } 
+          }
+          body { font-family: 'Arial', sans-serif; color: #000; background: #fff; line-height: 1.4; }
+          .invoice-box { width: 70mm; margin: auto; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th { border-bottom: 2px solid #000; text-align: right; font-size: 14px; }
+          .total-section { text-align: left; margin-top: 15px; border-top: 2px solid #000; padding-top: 5px; }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-box">
+          <center>
+            <img src="${isGlobalAdmin ? '/mall-logo.webp' : (currentShop?.logo || '/adminMT.webp')}" 
+                 style="width: 60px; height: 60px; border-radius: 12px; margin-bottom: 8px; object-fit: cover;">
+            <h2 style="margin: 0; font-size: 18px;">${isGlobalAdmin ? 'كشف طلبات ميني طلبات' : activeTab}</h2>
+            <p style="font-size: 12px; margin: 4px 0;">نظام ميني طلبات الذكي 🛵</p>
+            <hr style="border: 0; border-top: 1px dashed #000;">
+          </center>
+
+          <div style="font-size: 12px;">
+            <p><b>رقم الطلب:</b> #${order.invoiceRef}</p>
+            <p><b>التاريخ:</b> ${order.orderDate} | ${order.orderTime}</p>
+            <p><b>العميل:</b> ${order.customer?.name}</p>
+            <p><b>الهاتف:</b> ${order.customer?.phone || 'غير مسجل'}</p>
+            <p><b>العنوان:</b> ${order.customer?.address}</p>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: right;">الصنف</th>
+                <th style="text-align: center;">العدد</th>
+                <th style="text-align: left;">السعر</th>
+              </tr>
+            </thead>
+            <tbody>${itemsHtml}</tbody>
+          </table>
+
+          <div class="total-section">
+            <h3 style="margin: 0;">الإجمالي: ${totalSum} ج.م</h3>
+          </div>
+
+          <center>
+            <p style="font-size: 10px; margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px;">
+              ${isGlobalAdmin ? 'تقرير إدارة النظام المركزي' : 'شكراً لتعاملكم مع ميني طلبات ✨'}
+            </p>
+          </center>
+        </div>
+      </body>
+      </html>
     `);
 
     printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+
+    // 4. تأمين الطباعة بعد اكتمال التحميل تماماً
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
+
+    // حماية إضافية للموبايل في حال تعطل onload
+    setTimeout(() => {
+      if (printWindow) {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }
+    }, 1200);
   };
+// --- نهاية دالة الطباعة ---
+
   
      // 9. توزيع الطلب للواتساب
   const distributeOrder = (order, shopName) => {
