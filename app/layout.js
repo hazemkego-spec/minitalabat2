@@ -15,8 +15,7 @@ export default function RootLayout({ children }) {
   const [appTitle, setAppTitle] = useState("ميني طلبات");
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  // تحديث: رابط الصورة الكامل ضروري جداً للواتساب
-  const baseUrl = "https://minitalabat-shops.vercel.app"; // تأكد من وضع رابط موقعك الفعلي هنا
+  const baseUrl = "https://minitalabat-shops.vercel.app"; 
   const logoPath = isDarkTheme ? "/adminMT.webp" : "/mall-logo.webp";
 
   useEffect(() => {
@@ -50,18 +49,46 @@ export default function RootLayout({ children }) {
       <head>
         <title>{appTitle}</title>
         
-        {/* --- 🚀 تحسين معاينة الروابط (Social Media Meta Tags) --- */}
+        {/* --- 🚀 تحسين الأداء: حقن التنسيقات الحرجة لمنع الـ Render Blocking --- */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --bg-primary: ${isDarkTheme ? '#0b0c0d' : '#ffffff'};
+            --text-main: ${isDarkTheme ? '#ffffff' : '#121212'};
+            --accent-color: #FF6600;
+          }
+          body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+          }
+          * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+          }
+          img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+          }
+        ` }} />
+        {/* ------------------------------------------------------------------ */}
+
         <meta property="og:type" content="website" />
         <meta property="og:title" content={appTitle} />
         <meta property="og:description" content="أكبر مول تجاري رقمي في جيبك - اطلب الآن بكل سهولة" />
         <meta property="og:image" content={`${baseUrl}${logoPath}`} />
         <meta property="og:url" content={baseUrl} />
         
-        {/* تويتر */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={appTitle} />
         <meta name="twitter:image" content={`${baseUrl}${logoPath}`} />
-        {/* ------------------------------------------------------ */}
 
         <link rel="manifest" href={manifestFile} />
         <link rel="icon" href={isDarkTheme ? "/adminMT.webp" : "/mall-logo.webp"} />
@@ -74,7 +101,7 @@ export default function RootLayout({ children }) {
 
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
       </head>
-      <body style={{ backgroundColor: isDarkTheme ? '#0b0c0d' : '#f8f9fa', margin: 0 }}>
+      <body>
         {children}
       </body>
     </html>
