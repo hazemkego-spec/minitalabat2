@@ -1,5 +1,5 @@
 export default async function sitemap() {
-  const baseUrl = 'https://minitalabat-shops.vercel.app';
+  const baseUrl = 'https://minitalabat2.vercel.app';
 
   // هنا يمكنك جلب روابط المتاجر من قاعدة البيانات الخاصة بك (Firebase مثلاً)
   // لكن للبداية سنضع الروابط الثابتة
