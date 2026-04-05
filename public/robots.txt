@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# منع أرشفة صفحات الإدارة لحماية خصوصية البيانات
+Disallow: /admin/
+Disallow: /shop-admin/
+
+# رابط الخريطة (اختياري لو عندك سكريبت بيولدها)
+Sitemap: https://minitalabat-shops.vercel.app/sitemap.xml
