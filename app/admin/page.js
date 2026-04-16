@@ -19,6 +19,27 @@ export default function AdminPage() {
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
+  // 🚀 دالة فتح الواتساب للتواصل مع العميل (إدارة ميني طلبات)
+  const openWhatsApp = (order) => {
+    const phone = order.customer?.phone;
+    if (!phone) {
+      alert("عذراً، رقم هاتف العميل غير مسجل في هذا الطلب");
+      return;
+    }
+
+    // تنظيف الرقم وإضافة كود الدولة
+    let cleanNumber = phone.replace(/\D/g, ''); 
+    if (cleanNumber.startsWith('01')) {
+      cleanNumber = '2' + cleanNumber;
+    }
+
+    // رسالة احترافية من إدارة ميني طلبات
+    const message = `أهلاً أ/ ${order.customer?.name || 'فندم'}، معكم إدارة تطبيق ميني طلبات 🛵. بخصوص طلبكم رقم (${order.invoiceRef})، نود التأكيد معكم على...`;
+    
+    const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   // 1. منطق التشغيل الأول + استعادة الإعدادات + تسجيل الـ SW الموحد
   useEffect(() => {
     setIsClient(true);
@@ -156,7 +177,7 @@ export default function AdminPage() {
     });
 
     return () => unsubscribe();
-  }, [isClient, activeTab, audioEnabled]); // أضفت audioEnabled هنا لضمان عمل الصوت
+  }, [isClient, activeTab, audioEnabled]);
 
   // 3. دالة التثبيت (PWA) - تم تحسينها لتتوافق مع المانيفست الجديد
   const handleInstallApp = async () => {
@@ -383,6 +404,8 @@ export default function AdminPage() {
     });
     
     msg += `\n*💰 المطلوب تحصيله للمتجر: ${shopTotal} ج.م*`;
+    
+    // ملاحظة: هذه الدالة لتوزيع الطلب للمحل، أما دالة التواصل مع العميل openWhatsApp فقد أضفناها في الجزء الأول
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
@@ -490,7 +513,18 @@ export default function AdminPage() {
                       <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>📍 {order.customer?.address || 'بدون عنوان'}</p>
                     </div>
                     <div style={{ display: "flex", gap: "10px" }}>
+                      {/* زرار الاتصال الهاتفي */}
                       <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📞</a>
+                      
+                      {/* ✅ زرار الواتساب الجديد (للتواصل المباشر مع العميل) */}
+                      <button 
+                        onClick={() => openWhatsApp(order)} 
+                        style={{ border: "none", backgroundColor: "#4caf50", color: "#fff", width: "45px", height: "45px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRadius: "12px", cursor: "pointer" }}
+                      >
+                        <span style={{ fontSize: "10px", fontWeight: "bold" }}>ارسال</span>
+                        <span style={{ fontSize: "16px" }}>✅</span>
+                      </button>
+
                       {order.location && (
                         <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📍</a>
                       )}
