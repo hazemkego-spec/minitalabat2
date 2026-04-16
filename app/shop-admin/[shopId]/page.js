@@ -555,7 +555,7 @@ export default function ShopAdminPage({ params }) {
                 </div>
 
                 <div style={{ padding: "20px" }}>
-                  {/* بيانات العميل وأزرار الاتصال السريع */}
+           {/* بيانات العميل وأزرار الاتصال السريع */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                     <div style={{ flex: 1 }}>
                       <h3 style={{ margin: "0 0 5px 0", fontSize: "20px", color: "#fff" }}>{order.customer?.name || 'عميل مجهول'}</h3>
@@ -586,8 +586,8 @@ export default function ShopAdminPage({ params }) {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
                       <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "15px" }}>📦 محتويات الطلب (متجرك)</span>
                       <div style={{ display: "flex", gap: "8px" }}>
-                          <button onClick={() => printOrder(order)} style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #444", padding: "8px 12px", borderRadius: "10px", fontSize: "11px", fontWeight: "bold", cursor: "pointer" }}>🖨️ طباعة</button>
-                          <button onClick={() => distributeOrder(order)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "8px 14px", borderRadius: "10px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}>واتساب ↗️</button>
+                          {/* تم الإبقاء على زر الطباعة فقط وتوسيع مساحته قليلاً */}
+                          <button onClick={() => printOrder(order)} style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #444", padding: "8px 20px", borderRadius: "10px", fontSize: "12px", fontWeight: "bold", cursor: "pointer" }}>🖨️ طباعة الأوردر</button>
                       </div>
                     </div>
 
@@ -616,6 +616,7 @@ export default function ShopAdminPage({ params }) {
                     </span>
                   </div>
                 </div>
+
                 {/* أزرار التحكم السفلية */}
                 <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b", marginTop: "1px" }}>
                   <button 
