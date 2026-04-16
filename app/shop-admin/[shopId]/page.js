@@ -27,6 +27,41 @@ export default function ShopAdminPage({ params }) {
   // ✅ تحديد الاسم الفعلي للمحل لفلترة الأوردرات من Firebase
   const activeTab = currentShop ? currentShop.name : "";
 
+  // 🚀 دالة فتح الواتساب (رسالة تفصيلية من صاحب المحل للعميل)
+  const openWhatsApp = (order) => {
+    const phone = order.customer?.phone;
+    if (!phone) {
+      alert("رقم العميل غير موجود!");
+      return;
+    }
+
+    // تنظيف الرقم وإضافة كود الدولة
+    let cleanNumber = phone.replace(/\D/g, ''); 
+    if (cleanNumber.startsWith('01')) cleanNumber = '2' + cleanNumber;
+
+    // فلترة أصناف هذا المحل فقط
+    const shopItems = order.processedItems?.filter(item => item.shopName === activeTab) || [];
+    let itemsDetails = "";
+    let shopTotal = 0;
+
+    shopItems.forEach((item, index) => {
+      const total = item.price * item.quantity;
+      shopTotal += total;
+      itemsDetails += `${index + 1}- ${item.name} (${item.quantity} قطع) = ${total}ج\n`;
+    });
+
+    // بناء الرسالة التفصيلية
+    let message = `أهلاً أ/ ${order.customer?.name || 'فندم'} 👋\n`;
+    message += `معك *${activeTab}* بخصوص طلبك رقم (#${order.invoiceRef})\n\n`;
+    message += `*تفاصيل طلبك:*\n${itemsDetails}\n`;
+    message += `*الإجمالي:* ${shopTotal} ج.م\n\n`;
+    message += `📍 العنوان: ${order.customer?.address || 'تم تسجيله'}\n`;
+    message += `شكراً لاختيارك لنا 🛵✨`;
+
+    const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const audioRef = useRef(null);
   const ordersCountRef = useRef(0);
 
@@ -102,7 +137,7 @@ export default function ShopAdminPage({ params }) {
         window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       };
     }
-  }, [shopId, currentShop]); // تقفيلة الـ useEffect الصحيحة والوحيدة
+  }, [shopId, currentShop]); 
 
   // دالة التحقق من كود الدخول
   const handleLogin = () => {
@@ -344,12 +379,11 @@ export default function ShopAdminPage({ params }) {
       </html>
     `);
 
-        printWindow.document.close();
+    printWindow.document.close();
 
     // ✅ الحل الجذري: ننتظر تحميل المحتوى ثم نفتح الطباعة بدون إغلاق النافذة فوراً
     printWindow.onload = () => {
       printWindow.focus();
-      // تأخير بسيط إضافي لضمان استقرار المعاينة على الموبايل
       setTimeout(() => {
         printWindow.print();
       }, 500);
@@ -360,12 +394,9 @@ export default function ShopAdminPage({ params }) {
       if (printWindow) {
         printWindow.focus();
         printWindow.print();
-        // ملاحظة: شيلنا printWindow.close() عشان الموبايل ميفصلش الطباعة
-        // المستخدم هيقفل الصفحة بنفسه بعد ما يخلص أو المتصفح هيرجع للرئيسية
       }
     }, 1500);
   };
-// --- نهاية الدالة ---
 
 // 9. توزيع الطلب للواتساب (معدل ليرسل بيانات المتجر الحالي فقط)
   const distributeOrder = (order) => {
@@ -468,7 +499,7 @@ export default function ShopAdminPage({ params }) {
     
     {/* جهة اليمين: لوجو المتجر واسمه */}
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <img src={currentShop?.logo || "/adminMT.webp"} style={{ width: "40px", height: "40px", borderRadius: "10px", objectCover: "cover", border: "1px solid #FF6600" }} />
+      <img src={currentShop?.logo || "/adminMT.webp"} style={{ width: "40px", height: "40px", borderRadius: "10px", objectFit: "cover", border: "1px solid #FF6600" }} />
       <div>
         <h1 style={{ color: "#fff", margin: 0, fontSize: "16px", fontWeight: "900" }}>{currentShop?.name}</h1>
         <p style={{ color: "#FF6600", fontSize: "10px", margin: 0 }}>لوحة التحكم</p>
@@ -533,6 +564,16 @@ export default function ShopAdminPage({ params }) {
                     <div style={{ display: "flex", gap: "10px" }}>
                       {/* زر الاتصال الهاتفي */}
                       <a href={`tel:${order.customer?.phone}`} style={{ textDecoration: "none", backgroundColor: "#28a745", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📞</a>
+                      
+                      {/* ✅ زر الواتساب الجديد (لإرسال تفاصيل الفاتورة للعميل) ✅ */}
+                      <button 
+                        onClick={() => openWhatsApp(order)} 
+                        style={{ border: "none", backgroundColor: "#4caf50", color: "#fff", width: "45px", height: "45px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRadius: "12px", cursor: "pointer" }}
+                      >
+                        <span style={{ fontSize: "9px", fontWeight: "bold" }}>ارسال</span>
+                        <span style={{ fontSize: "16px" }}>✅</span>
+                      </button>
+
                       {/* زر اللوكيشن */}
                       {order.location && (
                         <a href={order.location} target="_blank" rel="noreferrer" style={{ textDecoration: "none", backgroundColor: "#007bff", color: "#fff", width: "45px", height: "45px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", fontSize: "18px" }}>📍</a>
@@ -546,7 +587,7 @@ export default function ShopAdminPage({ params }) {
                       <span style={{ fontWeight: "bold", color: "#FF6600", fontSize: "15px" }}>📦 محتويات الطلب (متجرك)</span>
                       <div style={{ display: "flex", gap: "8px" }}>
                           <button onClick={() => printOrder(order)} style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #444", padding: "8px 12px", borderRadius: "10px", fontSize: "11px", fontWeight: "bold", cursor: "pointer" }}>🖨️ طباعة</button>
-                          <button onClick={() => distributeOrder(order)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "8px 14px", borderRadius: "10px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}>واتساب ✅</button>
+                          <button onClick={() => distributeOrder(order)} style={{ backgroundColor: "#25d366", color: "#000", border: "none", padding: "8px 14px", borderRadius: "10px", fontSize: "11px", fontWeight: "900", cursor: "pointer" }}>واتساب ↗️</button>
                       </div>
                     </div>
 
@@ -575,29 +616,27 @@ export default function ShopAdminPage({ params }) {
                     </span>
                   </div>
                 </div>
-                {/* أزرار التحكم السفلية - مصممة للمس السريع من الموبايل */}
+                {/* أزرار التحكم السفلية */}
                 <div style={{ display: "flex", gap: "1px", backgroundColor: "#25282b", marginTop: "1px" }}>
-                  {/* زر الحذف */}
                   <button 
                     onClick={() => deleteOrder(order.id)} 
                     style={{ 
                       flex: 1, padding: "20px", backgroundColor: "#16181a", 
                       color: "#ff4444", border: "none", fontWeight: "bold", 
-                      cursor: "pointer", fontSize: "14px", transition: "0.2s" 
+                      cursor: "pointer", fontSize: "14px" 
                     }}
                   >
                     حذف 🗑️
                   </button>
 
-          {/* زر تغيير الحالة (قيد التنفيذ / مكتمل) */}
-    <button 
+                  <button 
                     onClick={() => toggleStatus(order.id, order.status)} 
                     style={{ 
                       flex: 2, padding: "20px", 
                       backgroundColor: order.status === 'completed' ? "#1e2124" : "#FF6600", 
                       color: order.status === 'completed' ? "#4caf50" : "#000", 
                       border: "none", fontWeight: "900", cursor: "pointer", 
-                      fontSize: "15px", transition: "0.3s" 
+                      fontSize: "15px"
                     }}
                   >
                     {order.status === 'completed' ? 'تم التسليم ✅' : 'تأكيد التجهيز ✓'}
@@ -609,6 +648,6 @@ export default function ShopAdminPage({ params }) {
         )}
       </div>
     </div>
-    </> // ✅ إغلاق الـ Fragment اللي فتحناه فوق الـ head
+    </> 
   );
 }
